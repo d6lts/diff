@@ -1,0 +1,149 @@
+<?php /* -*-php-*- */
+
+/*
+ * Diff module for drupal.
+ * Copyright (c) 2005 Mohammed Sameer.
+ * This module is distributed under the GPL.
+*/
+
+include_once 'Text/Diff.php';
+include_once 'Text/Diff/Renderer.php';
+include_once 'Text/Diff/Renderer/inline.php';
+
+function diff_help($section) {
+  switch ($section) {
+  case 'admin/help#diff':
+  case 'admin/modules#description':
+  case 'admin/diff':
+    return "Show difference between node revisions.";
+  }
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function diff_perm() {
+  return array('access diff');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function diff_menu($may_cache) {
+  $items = array();
+
+  if (!$may_cache) {
+    if (arg(0) == 'node' && is_numeric(arg(1))) {
+      $node = node_load(array('nid' => arg(1)));
+      if ($node->nid) {
+        if ($node->revisions) {
+	         $items[] = array('path' => 'node/'. arg(1) .'/diff', 'title' => t('diff'),
+			     'callback' => 'diff_page',
+			     'access' => user_access('access diff'),
+			     'weight' => 6,
+			     'type' => MENU_LOCAL_TASK);
+	      }
+	    }
+    }
+  }
+  return $items;
+}
+
+/**
+ * Show a difference between revisions.
+ */
+function diff_page($rid1=false, $rid2=false) {
+  if ($rid1 !== false && $rid2 !== false) {
+    _diff_show_revision(arg(1), $rid1, $rid2);
+  }
+  else {
+    _diff_show_page(arg(1));
+  }
+}
+
+function _diff_show_revision($nid, $rid1, $rid2 ) {
+  // $node = node_load(array('nid' => $nid));
+  $r1 = node_load(array('nid' => $nid), $rid1);
+  //$rid2 = $rid -1;
+  $r2 = node_load(array('nid' => $nid), $rid2);
+  // dprint_r($r2);
+  $source = explode("\n", $r2->body);
+  $target = explode("\n",$r1->body);
+  // dprint_r($source);
+  // dprint_r($target);
+  // die();
+  $diff = &new Text_Diff($source, $target);
+  $renderer = &new Text_Diff_Renderer_inline();
+  $node = $r1;
+  $r1->body = $renderer->render($diff);
+//$r1->body = preg_replace("\n","<br />", $r1->body);
+
+// This is stupid !
+//$r1->body = implode("<br />",explode("\n",  $r1->body));                     =
+  // TODO: document filter tags. get coloring working
+  $r1 = node_prepare($r1);
+  print theme ('page', theme('node', $r1));
+}
+
+
+
+/*
+function _diff_show_revision($nid, $rid)
+{
+  $node = node_load(array('nid' => $nid));
+  $r1 = node_revision_load($node, $rid);
+  $rid2 = $rid -1;
+  $r2 = node_revision_load($node, 0);
+
+  $diff = &new Text_Diff(explode("\n", $r2->body), explode("\n",$r1->body));
+  $renderer = &new Text_Diff_Renderer_unified();
+  $node = $r1;
+  $r1->body = $renderer->render($diff);
+  $r1 = node_prepare($r1);
+  print theme ('page', theme('node', $r1));
+}
+*/
+/*
+function _diff_show_revision($nid, $rid)
+{
+  $node = node_load(array('nid' => $nid));
+  $r1 = node_revision_load($node, $rid);
+  $rid2 = $rid -1;
+  $r2 = node_revision_load($node, 0);
+
+$r1 = node_prepare($r1);
+$r2 = node_prepare($r2);
+
+  $diff = &new Text_Diff(explode("\n", $r2->body), explode("\n",$r1->body));
+  $renderer = &new Text_Diff_Renderer_unified();
+  $node = $r1;
+  $r1->body = $renderer->render($diff);
+  print theme ('page', theme('node', $r1));
+}
+*/
+
+function _diff_show_page($nid)
+{
+  $node = node_load(array('nid' => $nid));
+  drupal_set_title($node->title);
+
+  $header = array(t('Older revisions'), array('data' => t('Operations'), 'colspan' => 3));
+  $last_key = count($node->revisions) - 1;
+  foreach ($node->revisions as $key => $revision) {
+	  if ($key != 0) {
+  	  $prev = l(t('previous'), "node/$node->nid/diff/$key/".($key-1));
+  	  $first = l(t('first'), "node/$node->nid/diff/$key/0");
+  	}
+  	if ($key != $last_key) {
+  	  $last = l(t('last'), "node/$node->nid/diff/$key/$last_key");
+  	} 
+  	else {
+  	  $last="";
+  	}
+
+    $rows[] = array(t('revision #%r revised by %u on %d', array('%r' => $key, '%u' => format_name(user_load(array('uid' => $revision['uid']))), '%d' => format_date($revision['timestamp'], 'small'))) . ($revision['history'] ? '<br /><small>'. $revision['history'] .'</small>' : ''), $prev, $first, $last);
+  }
+  $output .= theme('table', $header, $rows);
+  print theme('page', $output);
+}
+?>
