@@ -1,8 +1,10 @@
-<?php /* -*-php-*- */
+<?php
+// $Id$
 
 /*
  * Diff module for drupal.
  * Copyright (c) 2005 Mohammed Sameer.
+ * Updated by Moshe Weitzman <weitzman [at] tejasa DOT com>
  * This module is distributed under the GPL.
 */
 
@@ -62,16 +64,10 @@ function diff_page($rid1=false, $rid2=false) {
 }
 
 function _diff_show_revision($nid, $rid1, $rid2 ) {
-  // $node = node_load(array('nid' => $nid));
   $r1 = node_load(array('nid' => $nid), $rid1);
-  //$rid2 = $rid -1;
   $r2 = node_load(array('nid' => $nid), $rid2);
-  // dprint_r($r2);
   $source = explode("\n", $r2->body);
   $target = explode("\n",$r1->body);
-  // dprint_r($source);
-  // dprint_r($target);
-  // die();
   $diff = &new Text_Diff($source, $target);
   $renderer = &new Text_Diff_Renderer_inline();
   $node = $r1;
@@ -85,45 +81,7 @@ function _diff_show_revision($nid, $rid1, $rid2 ) {
   print theme ('page', theme('node', $r1));
 }
 
-
-
-/*
-function _diff_show_revision($nid, $rid)
-{
-  $node = node_load(array('nid' => $nid));
-  $r1 = node_revision_load($node, $rid);
-  $rid2 = $rid -1;
-  $r2 = node_revision_load($node, 0);
-
-  $diff = &new Text_Diff(explode("\n", $r2->body), explode("\n",$r1->body));
-  $renderer = &new Text_Diff_Renderer_unified();
-  $node = $r1;
-  $r1->body = $renderer->render($diff);
-  $r1 = node_prepare($r1);
-  print theme ('page', theme('node', $r1));
-}
-*/
-/*
-function _diff_show_revision($nid, $rid)
-{
-  $node = node_load(array('nid' => $nid));
-  $r1 = node_revision_load($node, $rid);
-  $rid2 = $rid -1;
-  $r2 = node_revision_load($node, 0);
-
-$r1 = node_prepare($r1);
-$r2 = node_prepare($r2);
-
-  $diff = &new Text_Diff(explode("\n", $r2->body), explode("\n",$r1->body));
-  $renderer = &new Text_Diff_Renderer_unified();
-  $node = $r1;
-  $r1->body = $renderer->render($diff);
-  print theme ('page', theme('node', $r1));
-}
-*/
-
-function _diff_show_page($nid)
-{
+function _diff_show_page($nid) {
   $node = node_load(array('nid' => $nid));
   drupal_set_title($node->title);
 
@@ -145,5 +103,6 @@ function _diff_show_page($nid)
   }
   $output .= theme('table', $header, $rows);
   print theme('page', $output);
-}
+}                              
+
 ?>
