@@ -39,13 +39,13 @@ function diff_menu($may_cache) {
       $node = node_load(array('nid' => arg(1)));
       if ($node->nid) {
         if ($node->revisions) {
-	         $items[] = array('path' => 'node/'. arg(1) .'/diff', 'title' => t('diff'),
-			     'callback' => 'diff_page',
-			     'access' => user_access('access diff'),
-			     'weight' => 6,
-			     'type' => MENU_LOCAL_TASK);
-	      }
-	    }
+           $items[] = array('path' => 'node/'. arg(1) .'/diff', 'title' => t('diff'),
+           'callback' => 'diff_page',
+           'access' => user_access('access diff'),
+           'weight' => 6,
+           'type' => MENU_LOCAL_TASK);
+        }
+      }
     }
   }
   return $items;
@@ -88,21 +88,21 @@ function _diff_show_page($nid) {
   $header = array(t('Older revisions'), array('data' => t('Operations'), 'colspan' => 3));
   $last_key = count($node->revisions) - 1;
   foreach ($node->revisions as $key => $revision) {
-	  if ($key != 0) {
-  	  $prev = l(t('previous'), "node/$node->nid/diff/$key/".($key-1));
-  	  $first = l(t('first'), "node/$node->nid/diff/$key/0");
-  	}
-  	if ($key != $last_key) {
-  	  $last = l(t('last'), "node/$node->nid/diff/$key/$last_key");
-  	} 
-  	else {
-  	  $last="";
-  	}
+    if ($key != 0) {
+      $prev = l(t('previous'), "node/$node->nid/diff/$key/".($key-1));
+      $first = l(t('first'), "node/$node->nid/diff/$key/0");
+    }
+    if ($key != $last_key) {
+      $last = l(t('last'), "node/$node->nid/diff/$key/$last_key");
+    }
+    else {
+      $last='';
+    }
 
     $rows[] = array(t('revision #%r revised by %u on %d', array('%r' => $key, '%u' => format_name(user_load(array('uid' => $revision['uid']))), '%d' => format_date($revision['timestamp'], 'small'))) . ($revision['history'] ? '<br /><small>'. $revision['history'] .'</small>' : ''), $prev, $first, $last);
   }
   $output .= theme('table', $header, $rows);
   print theme('page', $output);
-}                              
+}
 
 ?>
