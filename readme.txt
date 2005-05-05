@@ -9,9 +9,10 @@ Install as usual for Drupal modules
 
 TECHNICAL
 -------------------
-The PEAR Diff library comes with this module, and powers the comparing of revisions.
+- we are comparing the whole node body after it passes through the output filters. This is the analogous the chunk
+of HTML which gets indexed by search.module.
+- The PEAR Diff library comes with this module, and powers the comparing of revisions.
 
 TODO
 -----------------
-Fix an 'off by one' bug when viewing differences
-Handle custom node types better. currently only looks for changes in $node->body. Any ideas?
+gather feedback and then consider using in core.
