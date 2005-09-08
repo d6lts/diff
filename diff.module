@@ -41,7 +41,7 @@ function diff_menu($may_cache) {
         if ($node->revisions) {
            $items[] = array('path' => 'node/'. arg(1) .'/diff', 'title' => t('diff'),
            'callback' => 'diff_page',
-           'callback arguments' => arg(1),
+           'callback arguments' => array(arg(1)),
            'access' => user_access('access diff'),
            'weight' => 6,
            'type' => MENU_LOCAL_TASK);
