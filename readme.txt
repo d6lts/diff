@@ -1,7 +1,7 @@
 DESCRIPTION
 ----------------
-This module adds a tab for sufficiently permissioned users. The tab shows all revisions like standard Drupal
-but it also allows pretty viewing of all added/changed/deleted words between revisions.
+This module adds a 'diff' tab for sufficiently permissioned users. The tab shows all revisions similar standard Drupal
+but it also provides pretty viewing of all added/changed/deleted words between revisions.
 
 INSTALL
 ----------------
@@ -15,4 +15,4 @@ of HTML which gets indexed by search.module.
 
 TODO
 -----------------
-gather feedback and then consider using in core.
+consider using in core.
