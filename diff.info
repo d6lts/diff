@@ -1,0 +1,4 @@
+; $Id$
+name = Diff
+description = Show difference between node revisions.
+version = "$Name$"

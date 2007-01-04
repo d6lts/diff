@@ -10,7 +10,6 @@
 
 function diff_help($section) {
   switch ($section) {
-  case 'admin/modules#description':
   case 'admin/diff':
     return "Show difference between node revisions.";
   }
@@ -34,16 +33,13 @@ function diff_menu($may_cache) {
       $node = node_load(array('nid' => arg(1)));
       if ($node->nid) {
         if ($node->vid > 1) {
-           $items[] = array('path' => 'node/'. arg(1) .'/diff', 'title' => t('diff'),
+           $items[] = array('path' => 'node/'. arg(1) .'/diff',
+           'title' => t('Diff'),
            'callback' => 'diff_page',
            'callback arguments' => array(arg(1)),
            'access' => user_access('access diff'),
            'weight' => 6,
            'type' => MENU_LOCAL_TASK);
-           
-           $path = drupal_get_path('module', 'diff');
-           $style = "<link type=\"text/css\" rel=\"stylesheet\" href=\"$path/diff.css\" />";
-           drupal_set_html_head($style);
         }
       }
     }
@@ -65,24 +61,20 @@ function diff_page($nid, $rid1 = NULL, $rid2 = NULL) {
  * Show a difference between revisions.
  */
 function diff_revision_detail($nid, $rid1, $rid2 = NULL) {
+  drupal_add_css(drupal_get_path('module', 'diff') . '/diff.css', 'module', 'all', FALSE);
   drupal_set_title(t('Differences between versions %1 and %2', array('%1' => $rid1, '%2' => $rid2 ? $rid2 : t('current'))));
   $path = dirname(__FILE__);
   require_once "$path/Text/Diff.php";
   require_once "$path/Text/Diff/Renderer.php";
   require_once "$path/Text/Diff/Renderer/inline.php";
-  
+
   $r1 = node_load(array('nid' => $nid), $rid1);
   $r2 = node_load(array('nid' => $nid), $rid2);
-  $source = explode("\n", diff_node_render($r1));
-  $target = explode("\n", diff_node_render($r2));
+  $source = explode("\n", node_view($r1, FALSE, FALSE, FALSE));
+  $target = explode("\n", node_view($r2, FALSE, FALSE, FALSE));
   $diff = &new Text_Diff($target, $source);
   $renderer = &new Text_Diff_Renderer_inline();
-  $node = $r1;
-  if ($r1->title != $r2->title) {
-    $node->body = form_item(t('Title'), '<del class=diff>'. check_plain($r2->title). '</del>&nbsp;<ins class=diff>'. check_plain($r1->title)). '</ins>';
-  }
-  $node->body .= form_item(t('Body'), $renderer->render($diff));
-  return $node->body; //theme('node', $node);
+  return "<div class='diff'>". $renderer->render($diff) ."</div>";
 }
 
 /**
@@ -94,58 +86,44 @@ function diff_revision_overview($nid) {
   drupal_set_title(t('Revisions for %title', array('%title' => check_plain($node->title))));
 
   if ($node->vid) {
-    $header = array('', t('Author'), t('Title'), t('Date'), array('colspan' => '2', 'data' => t('Operations')));
+    $header = array(t('ID'), t('Author'), t('Title'), t('Date'), t('Log'), array('data' => ('Diff to'), 'colspan' => 3));
 
     $revisions = node_revision_list($node);
+    $first = $revisions[count($revisions)-1]->vid;
+    $current = $revisions[0]->vid;
 
     $i = 0;
     foreach ($revisions as $revision) {
       $row = ++$i;
-      
+
+      $links = array();
       if (!$revision->current_vid) {
-        $links[] = l(t('current'), "node/$node->nid/diff/$revision->vid");
-        $txt_vid = $revision->vid; 
+        $links['current'] = l(t('current'), "node/$node->nid/diff/$current/$revision->vid");
+        $txt_vid = $revision->vid;
       }
       else {
         $txt_vid = $revision->vid. ' '. t('(current)');
       }
-      if ($revision->vid > 1) {  
-        $links[] = l(t('previous '), "node/$node->nid/diff/$revision->vid/".($revision->vid-1));
-        $links[] = l(t('first '), "node/$node->nid/diff/$revision->vid/1");
-      }
-      $difflinks = t('diff to: '). theme('links', $links);
-      unset($links);
       
-      $rows[] = array(
-        array('data' => $txt_vid, 'rowspan' => ($revision->log != '') ? 2 : 1),
-          theme('username', $revision),
-          $revision->title,
-          format_date($revision->timestamp, 'small'),
-          $difflinks,
-          // l(t('view'), "node/$node->nid"),
-        );
-      if ($revision->log != '') {
-        $rows[] = array(array('data' => $revision->log, 'colspan' => 5));
+      if ($i != count($revisions)) {
+        $previous = $revisions[$i]->vid;
+        $links['previous'] = l(t('previous'), "node/$node->nid/diff/$revision->vid/$previous");
+        $links['first'] = l(t('first'), "node/$node->nid/diff/$revision->vid/$first");
       }
+
+      $rows[] = array(
+        l($txt_vid, "node/$nid/revisions/$revision->vid/view"),
+        theme('username', $revision),
+        check_plain($revision->title),
+        format_date($revision->timestamp, 'small'),
+        check_markup($revision->log),
+        $links['current'],
+        $links['previous'],
+        $links['first'],
+      );
     }
     $output .= theme('table', $header, $rows);
   }
 
   return $output;
 }
-
-// Get node *body* output (filtered and with module-specific fields). Modified from node_update_index()
-// return HTML
-function diff_node_render($node) {
-  if (node_hook($node, 'view')) {
-    node_invoke($node, 'view', false, false);
-  }
-  else {
-    $node = node_prepare($node, false);
-  }
-  // Allow modules to change $node->body before viewing.
-  node_invoke_nodeapi($node, 'view', false, false);
-  return $node->body;
-}
-
-?>
