@@ -1,9 +1,9 @@
-ins.diff, ins.diff a {
+ins, ins a {
   color: white;
   background: green;
 }
 
-del.diff, del.diff a {
+del, del a {
   color: white;
   background: red;
 }
