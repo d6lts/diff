@@ -62,7 +62,7 @@ function diff_revision_detail($nid, $rid1, $rid2 = NULL) {
   drupal_add_css(drupal_get_path('module', 'diff') . '/diff.css', 'module', 'all', FALSE);
   drupal_set_title(t('Differences between versions %1 and %2', array('%1' => $rid1, '%2' => $rid2 ? $rid2 : t('current'))));
   $path = dirname(__FILE__);
-  require_once "$path/Text/Diff.php";
+  require_once "$path/Text/diff.php";
   require_once "$path/Text/Diff/Renderer.php";
   require_once "$path/Text/Diff/Renderer/inline.php";
 
