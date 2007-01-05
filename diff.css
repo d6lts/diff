@@ -1,9 +1,11 @@
-ins, ins a {
+ins, ins li, ins a:link, ins li a:link {
   color: white;
   background: green;
+  display: inline;
 }
 
-del, del a {
+del, del li, del a:link, del li a:link {
   color: white;
+  display: inline;
   background: red;
 }

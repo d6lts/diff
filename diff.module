@@ -29,18 +29,16 @@ function diff_menu($may_cache) {
   $items = array();
 
   if (!$may_cache) {
-    if (arg(0) == 'node' && is_numeric(arg(1))) {
+    if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access diff')) {
       $node = node_load(array('nid' => arg(1)));
-      if ($node->nid) {
-        if ($node->vid > 1) {
-           $items[] = array('path' => 'node/'. arg(1) .'/diff',
-           'title' => t('Diff'),
-           'callback' => 'diff_page',
-           'callback arguments' => array(arg(1)),
-           'access' => user_access('access diff'),
-           'weight' => 6,
-           'type' => MENU_LOCAL_TASK);
-        }
+      if ($node->nid && db_result(db_query('SELECT COUNT(vid) FROM {node_revisions} WHERE nid = %d', arg(1))) > 1) {
+         $items[] = array('path' => 'node/'. arg(1) .'/diff',
+         'title' => t('Diff'),
+         'callback' => 'diff_page',
+         'callback arguments' => array(arg(1)),
+         'access' => user_access('access diff'),
+         'weight' => 6,
+         'type' => MENU_LOCAL_TASK);
       }
     }
   }
