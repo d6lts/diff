@@ -6,6 +6,8 @@
  */
 function diff_help($section) {
   switch ($section) {
+    case 'admin/modules#description':
+      return t('Show difference between node revisions.');
     case 'admin/help#diff':
       $output = '<p>'. t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the <em>view revisions</em> permission will also be able to view the changes between any two selected revisions.') .'</p>';
       return $output;
@@ -83,7 +85,7 @@ function diff_diffs() {
           $node = node_load(arg(1));
           if ($node->nid) {
             if ((user_access('view revisions') || user_access('administer nodes')) && node_access('view', $node)) {
-              drupal_set_title(t('Diff for %title', array('%title' => $node->title)));
+              drupal_set_title(t('Diff for %title', array('%title' => theme('placeholder', $node->title))));
               return diff_diffs_show($node, arg(4), arg(5));
             }
             drupal_access_denied();
@@ -109,7 +111,7 @@ function diff_diffs() {
 function diff_diffs_overview(&$node) {
   $output = '';
 
-  drupal_set_title(t('Revisions for %title', array('%title' => $node->title)));
+  drupal_set_title(t('Revisions for %title', array('%title' => theme('placeholder', $node->title))));
   $form = diff_node_revisions($node);
   $output .= drupal_get_form('diff_node_revisions', $form);
 
@@ -320,7 +322,7 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
     }
     $formatter_output = $formatter->format($diff);
     if ($formatter_output) {
-      $output .= '<tr><td colspan="4" class="diff-section-title">'. t('Changes to %name', array('%name' => $node_diff['name'])) .'</td></tr>';
+      $output .= '<tr><td colspan="4" class="diff-section-title">'. t('Changes to %name', array('%name' => theme('placeholder', $node_diff['name']))) .'</td></tr>';
       $output .= $formatter_output;
       $any_visible_change = true;
     }
