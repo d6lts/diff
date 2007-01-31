@@ -1,127 +1,373 @@
 <?php
 // $Id$
 
-/*
- * Diff module for drupal.
- * Copyright (c) 2005 Mohammed Sameer.
- * Significantly updated and maintained by Moshe Weitzman <weitzman [at] tejasa DOT com>
- * This module is distributed under the GPL.
-*/
-
+/**
+ * Implementation of hook_help().
+ */
 function diff_help($section) {
   switch ($section) {
-  case 'admin/diff':
-    return "Show difference between node revisions.";
+    case 'admin/help#diff':
+      $output = '<p>'. t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the <em>view revisions</em> permission will also be able to view the changes between any two selected revisions.') .'</p>';
+      return $output;
   }
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_requirements().
+ * Checks if the diff modules is loaded after the node module in the hook ordering.
  */
-function diff_perm() {
-  return array('access diff');
+function diff_requirements($phase) {
+  // Don't check when installing
+  if ($phase == 'install') {
+    return;
+  }
+  $modules = array_keys(module_list());
+  if (array_search('diff', $modules) <= array_search('node', $modules)) {
+    diff_autoadjust();
+  }
 }
 
 /**
- * Implementation of hook_menu().
+ * Implementation of hook_menu()
+ * The menu path 'node/$nid/revisions' is overriden with 'diff_diffs'.
  */
 function diff_menu($may_cache) {
   $items = array();
-
   if (!$may_cache) {
-    if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access diff')) {
-      $node = node_load(array('nid' => arg(1)));
-      if ($node->nid && db_result(db_query('SELECT COUNT(vid) FROM {node_revisions} WHERE nid = %d', arg(1))) > 1) {
-         $items[] = array('path' => 'node/'. arg(1) .'/diff',
-         'title' => t('Diff'),
-         'callback' => 'diff_page',
-         'callback arguments' => array(arg(1)),
-         'access' => user_access('access diff'),
-         'weight' => 6,
-         'type' => MENU_LOCAL_TASK);
+    if (arg(0) == 'node' && is_numeric(arg(1))) {
+      $node = node_load(arg(1));
+      if ($node->nid) {
+        $revisions_access = ((user_access('view revisions') || user_access('administer nodes')) && node_access('view', $node) && db_result(db_query('SELECT COUNT(vid) FROM {node_revisions} WHERE nid = %d', arg(1))) > 1);
+        $items[] = array(
+          'path' => 'node/'. arg(1) .'/revisions', 'title' => t('Revisions'),
+          'callback' => 'diff_diffs',
+          'access' => $revisions_access,
+          'weight' => 4,
+          'type' => MENU_LOCAL_TASK,
+        );
       }
     }
   }
   return $items;
 }
 
-function diff_page($nid, $rid1 = NULL, $rid2 = NULL) {
-  if (!is_null($rid1)) {
-    return diff_revision_detail($nid, $rid1, $rid2);
-  }
-  else {
-    return diff_revision_overview($nid);
+/**
+ * Adjust the module weights for diff to load after node module.
+ */
+function diff_autoadjust() {
+  $modules = array_keys(module_list());
+  if (array_search('diff', $modules) <= array_search('node', $modules)) {
+    module_load_install('diff');
+    diff_set_weight();
   }
 }
 
-
 /**
- * Show a difference between revisions.
+ * Menu callback for diff related activities.
  */
-function diff_revision_detail($nid, $rid1, $rid2 = NULL) {
-  drupal_add_css(drupal_get_path('module', 'diff') . '/diff.css', 'module', 'all', FALSE);
-  drupal_set_title(t('Differences between versions %1 and %2', array('%1' => $rid1, '%2' => $rid2 ? $rid2 : t('current'))));
-  $path = dirname(__FILE__);
-  require_once "$path/Text/diff.php";
-  require_once "$path/Text/Diff/Renderer.php";
-  require_once "$path/Text/Diff/Renderer/inline.php";
+function diff_diffs() {
+  drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css');
+  if (is_numeric(arg(1)) && arg(2) == 'revisions') {
+    $op = arg(3) ? arg(3) : 'overview';
+    switch ($op) {
+      case 'overview':
+        $node = node_load(arg(1));
+        if ((user_access('view revisions') || user_access('administer nodes')) && node_access('view', $node)) {
+          return diff_diffs_overview($node);
+        }
+        drupal_access_denied();
+        return;
 
-  $r1 = node_load(array('nid' => $nid), $rid1);
-  $r2 = node_load(array('nid' => $nid), $rid2);
-  $source = explode("\n", node_view($r1, FALSE, FALSE, FALSE));
-  $target = explode("\n", node_view($r2, FALSE, FALSE, FALSE));
-  $diff = &new Text_Diff($target, $source);
-  $renderer = &new Text_Diff_Renderer_inline();
-  return "<div class='diff'>". $renderer->render($diff) ."</div>";
-}
+      case 'view':
+        if (is_numeric(arg(4)) && is_numeric(arg(5))) {
+          $node = node_load(arg(1));
+          if ($node->nid) {
+            if ((user_access('view revisions') || user_access('administer nodes')) && node_access('view', $node)) {
+              drupal_set_title(t('Diff for %title', array('%title' => $node->title)));
+              return diff_diffs_show($node, arg(4), arg(5));
+            }
+            drupal_access_denied();
+            return;
+          }
+        }
+        break;
 
-/**
- * Generate an overview table of older revisions of a node.
- */
-function diff_revision_overview($nid) {
-  $node = node_load($nid);
-
-  drupal_set_title(t('Revisions for %title', array('%title' => check_plain($node->title))));
-
-  if ($node->vid) {
-    $header = array(t('ID'), t('Author'), t('Title'), t('Date'), t('Log'), array('data' => ('Diff to'), 'colspan' => 3));
-
-    $revisions = node_revision_list($node);
-    $first = $revisions[count($revisions)-1]->vid;
-    $current = $revisions[0]->vid;
-
-    $i = 0;
-    foreach ($revisions as $revision) {
-      $row = ++$i;
-
-      $links = array();
-      if (!$revision->current_vid) {
-        $links['current'] = l(t('current'), "node/$node->nid/diff/$current/$revision->vid");
-        $txt_vid = $revision->vid;
-      }
-      else {
-        $txt_vid = $revision->vid. ' '. t('(current)');
-      }
-      
-      if ($i != count($revisions)) {
-        $previous = $revisions[$i]->vid;
-        $links['previous'] = l(t('previous'), "node/$node->nid/diff/$revision->vid/$previous");
-        $links['first'] = l(t('first'), "node/$node->nid/diff/$revision->vid/$first");
-      }
-
-      $rows[] = array(
-        l($txt_vid, "node/$nid/revisions/$revision->vid/view"),
-        theme('username', $revision),
-        check_plain($revision->title),
-        format_date($revision->timestamp, 'small'),
-        check_markup($revision->log),
-        $links['current'],
-        $links['previous'],
-        $links['first'],
-      );
+      default:
+        // A view, revert or delete operation from the orignial node module,
+        // so call the original node module to handle this.
+        return node_revisions();
+        break;
     }
-    $output .= theme('table', $header, $rows);
   }
+  drupal_not_found();
+}
+
+/**
+ * Generate an overview table of older revisions of a node and provide 
+ * an input form to select two revisions for a comparison.
+ */
+function diff_diffs_overview(&$node) {
+  $output = '';
+
+  drupal_set_title(t('Revisions for %title', array('%title' => $node->title)));
+  $output .= drupal_get_form('diff_node_revisions', $node);
 
   return $output;
+}
+
+/**
+ * Input form to select two revisions.
+ */
+function diff_node_revisions(&$node) {
+  global $form_values;
+  $form = array();
+
+  $form['nid'] = array(
+    '#type' => 'hidden',
+    '#value' => $node->nid,
+  );
+
+  $revisions = node_revision_list($node);
+
+  $revert_permission = FALSE;
+  if ((user_access('revert revisions') || user_access('administer nodes')) && node_access('update', $node)) {
+    $revert_permission = TRUE;
+  }
+  $delete_permission = FALSE;
+  if (user_access('administer nodes')) {
+    $delete_permission = TRUE;
+  }
+
+  foreach ($revisions as $revision) {
+    $operations = array();
+    $revision_ids[$revision->vid] = '';
+
+    if ($revision->current_vid > 0) {
+      $form['info'][$revision->vid] = array(
+        '#value' => t('!date by !username', array(
+          '!date' => l(format_date($revision->timestamp, 'small'), "node/$node->nid"), 
+          '!username' => theme('username', $revision)))
+        . (($revision->log != '') ? '<p class="revision-log">'. filter_xss($revision->log) .'</p>' : ''),
+      );
+    }
+    else {
+      $form['info'][$revision->vid] = array(
+        '#value' => t('!date by !username', array(
+          '!date' => l(format_date($revision->timestamp, 'small'), "node/$node->nid/revisions/$revision->vid/view"), 
+          '!username' => theme('username', $revision)))
+        . (($revision->log != '') ? '<p class="revision-log">'. filter_xss($revision->log) .'</p>' : '')
+      );
+      if ($revert_permission) {
+        $operations[] = array('#value' => l(t('revert'), "node/$node->nid/revisions/$revision->vid/revert"));
+      }
+      if ($delete_permission) {
+        $operations[] = array('#value' => l(t('delete'), "node/$node->nid/revisions/$revision->vid/delete"));
+      }
+      // Set a dummy, even if the user has no permission for the other
+      // operations, so that we can check if the operations array is
+      // empty to know if the row denotes the current revision.
+      $operations[] = array();
+    }
+    $form['operations'][$revision->vid] = $operations;
+
+  }
+  $new_vid = key($revision_ids);
+  next($revision_ids);
+  $old_vid = key($revision_ids);
+  $form['diff']['old'] = array(
+    '#type' => 'radios', 
+    '#options' => $revision_ids,
+    '#default_value' => $old_vid
+  );
+  $form['diff']['new'] = array(
+    '#type' => 'radios', 
+    '#options' => $revision_ids,
+    '#default_value' => $new_vid
+  );
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Show diff'));  
+
+  return $form;
+}
+
+/**
+ * Theme function to display the revisions formular with means to select
+ * two revisions.
+ */
+function theme_diff_node_revisions($form) {
+  // Overview table:
+  $header = array(
+    t('Revision'),
+    array('data' => drupal_render($form['submit']), 'colspan' => 2),
+    array('data' => t('Operations'), 'colspan' => 2)
+  );
+  if (isset($form['info']) && is_array($form['info'])) {
+    foreach (element_children($form['info']) as $key) {
+      $row = array();
+      if (isset($form['operations'][$key][0])) {
+        // Note: even if the commands for revert and delete are not permitted,
+        // the array is not empty since we set a dummy in this case.
+        $row[] = drupal_render($form['info'][$key]);
+        $row[] = drupal_render($form['diff']['old'][$key]);
+        $row[] = drupal_render($form['diff']['new'][$key]);
+        $row[] = drupal_render($form['operations'][$key][0]);
+        $row[] = drupal_render($form['operations'][$key][1]);
+        $rows[] = $row;
+      }
+      else {
+        // its the current revision (no commands to revert or delete)
+        $row[] = array('data' => drupal_render($form['info'][$key]), 'class' => 'revision-current');
+        $row[] = array('data' => drupal_render($form['diff']['old'][$key]), 'class' => 'revision-current');
+        $row[] = array('data' => drupal_render($form['diff']['new'][$key]), 'class' => 'revision-current');
+        $row[] = array('data' => theme('placeholder', t('current revision')), 'class' => 'revision-current', 'colspan' => '2');
+        $rows[] = array(
+          'data' => $row,
+          'class' => 'error',
+        );
+      }
+    }
+  }
+  $output .= theme('table', $header, $rows);
+  $output .= drupal_render($form);
+  return $output;
+}
+
+/**
+ * Submit code for input form to select two revisions.
+ */
+function diff_node_revisions_submit($form_id, $form_values) {
+  // the ids are ordered so the old revision is always on the left
+  $old_vid = min($form_values['old'], $form_values['new']);
+  $new_vid = max($form_values['old'], $form_values['new']);
+  return 'node/'.$form_values['nid'].'/revisions/view/'.$old_vid.'/'.$new_vid;
+}
+
+/**
+ * Validation for input form to select two revisions.
+ */
+function diff_node_revisions_validate($form_id, $form_values) {
+  $old_vid = $form_values['old'];
+  $new_vid = $form_values['new'];
+  if ($old_vid==$new_vid || !$old_vid || !$new_vid) {
+    form_set_error('diff', t('Select different revisions to compare.'));
+  }
+}
+
+/**
+ * Create output string for a comparison of 'node' between
+ * versions 'old_vid' and 'new_vid'.
+ */
+function diff_diffs_show(&$node, $old_vid, $new_vid) {
+  include_once('DiffEngine.php');
+  include_once('node.inc');
+  if (module_exists('upload')) {
+    include_once('upload.inc');
+  }
+  if (module_exists('content')) {
+    include_once('cck.inc');
+  }
+
+  $node_revisions = node_revision_list($node);
+
+  $old_node = node_load($node->nid, $old_vid);
+  $new_node = node_load($node->nid, $new_vid);
+
+  // Generate table header (date, username, logmessage).
+  $old_header = t('!date by !username', array(
+    '!date' => l(format_date($old_node->revision_timestamp), "node/$node->nid/revisions/$old_node->vid/view"), 
+    '!username' => theme('username', $old_node),
+  ));
+  $new_header = t('!date by !username', array(
+    '!date' => l(format_date($new_node->revision_timestamp), "node/$node->nid/revisions/$new_node->vid/view"), 
+    '!username' => theme('username', $new_node),
+  ));
+
+  $old_log = $old_node->log != '' ? '<p class="revision-log">'. filter_xss($old_node->log) .'</p>' : '';
+  $new_log = $new_node->log != '' ? '<p class="revision-log">'. filter_xss($new_node->log) .'</p>' : '';
+
+  // Generate previous diff/next diff links.
+  $next_vid = _diff_get_next_vid($node_revisions, $new_vid);
+  if ($next_vid) {
+    $next_link = l(t('next diff >'), 'node/'. $node->nid .'/revisions/view/'. $new_vid .'/'. $next_vid);
+  }
+  else {
+    $next_link = '';
+  }
+  $prev_vid = _diff_get_previous_vid($node_revisions, $old_vid);
+  if ($prev_vid) {
+    $prev_link = l(t('< previous diff'), 'node/'. $node->nid .'/revisions/view/'. $prev_vid .'/'. $old_vid);
+  }
+  else {
+    $prev_link = '';
+  }
+
+  // display table
+  $output .= '<table class="diff">';
+  $output .= '<thead><tr><th></th><th>'. $old_header .'</th><th></th><th>'. $new_header .'</th></tr></thead>';
+  if ($new_log || $old_log) {
+    $output .= '<tr><td></td><td>'. $old_log .'</td><td></td><td>'. $new_log .'</td></tr>';
+  }
+  $output .= '<tr><td></td><td class="diff-prevlink">'. $prev_link .'</td><td></td><td class="diff-nextlink">'. $next_link .'</td></tr>';
+  $output .= '<tbody>';
+
+  $any_visible_change = false;
+  $node_diffs = module_invoke_all('diff', $old_node, $new_node);
+  foreach($node_diffs as $node_diff) {
+    $diff = new Diff($node_diff['old'], $node_diff['new']);
+    $formatter = new TableDiffFormatter();
+    if (isset($node_diff['format'])) {
+      $formatter->show_header = $node_diff['format']['show_header'];
+    }
+    $formatter_output = $formatter->format($diff);
+    if ($formatter_output) {
+      $output .= '<tr><td colspan="4" class="diff-section-title">'. t('Changes to %name', array('%name' => $node_diff['name'])) .'</td></tr>';
+      $output .= $formatter_output;
+      $any_visible_change = true;
+    }
+  }
+  if (!$any_visible_change) {
+    $output .= '<tr><td colspan="4" class="diff-section-title">' .t('No visible changes') .'</td></tr>';
+  }
+  $output .= '</tbody>';
+  $output .= '</table>';
+  $output .= '<hr/>';
+
+  if ($node->vid == $new_vid) {
+    $output .= '<div class="diff-section-title">'. t('Current revision:') .'</div>';
+  }
+  else {
+    $output .= '<div class="diff-section-title">'. t('Revision of !new_date:', array('!new_date' => format_date($new_node->revision_timestamp))) .'</div>';
+  }
+  // Don't include node links (final argument) when viewing the diff.
+  $output .= node_view($new_node, FALSE, FALSE, FALSE);
+  return $output;
+}
+
+/**
+ * Get the entry in the revisions list after 'vid'.
+ * Returns false if 'vid' is the last entry.
+ */
+function _diff_get_next_vid(&$node_revisions, $vid) {
+  $previous = NULL;
+  foreach($node_revisions as $revision) {
+    if ($revision->vid == $vid) {
+      return ($previous ? $previous->vid : false);
+    }
+    $previous = $revision;
+  }
+  return false;
+}
+
+/**
+ * Get the entry in the revision list before 'vid'.
+ * Returns false if 'vid' is the first entry.
+ */
+function _diff_get_previous_vid(&$node_revisions, $vid) {
+  $previous = NULL;
+  foreach($node_revisions as $revision) {
+    if ($previous && $previous->vid == $vid) {
+      return $revision->vid;
+    }
+    $previous = $revision;
+  }
+  return false;
 }
