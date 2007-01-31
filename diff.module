@@ -66,7 +66,7 @@ function diff_autoadjust() {
  * Menu callback for diff related activities.
  */
 function diff_diffs() {
-  drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css');
+  theme_add_style(drupal_get_path('module', 'diff') . '/diff.css');
   if (is_numeric(arg(1)) && arg(2) == 'revisions') {
     $op = arg(3) ? arg(3) : 'overview';
     switch ($op) {
@@ -110,7 +110,8 @@ function diff_diffs_overview(&$node) {
   $output = '';
 
   drupal_set_title(t('Revisions for %title', array('%title' => $node->title)));
-  $output .= drupal_get_form('diff_node_revisions', $node);
+  $form = diff_node_revisions($node);
+  $output .= drupal_get_form('diff_node_revisions', $form);
 
   return $output;
 }
@@ -197,7 +198,7 @@ function theme_diff_node_revisions($form) {
   // Overview table:
   $header = array(
     t('Revision'),
-    array('data' => drupal_render($form['submit']), 'colspan' => 2),
+    array('data' => form_render($form['submit']), 'colspan' => 2),
     array('data' => t('Operations'), 'colspan' => 2)
   );
   if (isset($form['info']) && is_array($form['info'])) {
@@ -206,18 +207,18 @@ function theme_diff_node_revisions($form) {
       if (isset($form['operations'][$key][0])) {
         // Note: even if the commands for revert and delete are not permitted,
         // the array is not empty since we set a dummy in this case.
-        $row[] = drupal_render($form['info'][$key]);
-        $row[] = drupal_render($form['diff']['old'][$key]);
-        $row[] = drupal_render($form['diff']['new'][$key]);
-        $row[] = drupal_render($form['operations'][$key][0]);
-        $row[] = drupal_render($form['operations'][$key][1]);
+        $row[] = form_render($form['info'][$key]);
+        $row[] = form_render($form['diff']['old'][$key]);
+        $row[] = form_render($form['diff']['new'][$key]);
+        $row[] = form_render($form['operations'][$key][0]);
+        $row[] = form_render($form['operations'][$key][1]);
         $rows[] = $row;
       }
       else {
         // its the current revision (no commands to revert or delete)
-        $row[] = array('data' => drupal_render($form['info'][$key]), 'class' => 'revision-current');
-        $row[] = array('data' => drupal_render($form['diff']['old'][$key]), 'class' => 'revision-current');
-        $row[] = array('data' => drupal_render($form['diff']['new'][$key]), 'class' => 'revision-current');
+        $row[] = array('data' => form_render($form['info'][$key]), 'class' => 'revision-current');
+        $row[] = array('data' => form_render($form['diff']['old'][$key]), 'class' => 'revision-current');
+        $row[] = array('data' => form_render($form['diff']['new'][$key]), 'class' => 'revision-current');
         $row[] = array('data' => theme('placeholder', t('current revision')), 'class' => 'revision-current', 'colspan' => '2');
         $rows[] = array(
           'data' => $row,
@@ -227,7 +228,7 @@ function theme_diff_node_revisions($form) {
     }
   }
   $output .= theme('table', $header, $rows);
-  $output .= drupal_render($form);
+  $output .= form_render($form);
   return $output;
 }
 
@@ -259,10 +260,10 @@ function diff_node_revisions_validate($form_id, $form_values) {
 function diff_diffs_show(&$node, $old_vid, $new_vid) {
   include_once('DiffEngine.php');
   include_once('node.inc');
-  if (module_exists('upload')) {
+  if (module_exist('upload')) {
     include_once('upload.inc');
   }
-  if (module_exists('content')) {
+  if (module_exist('content')) {
     include_once('cck.inc');
   }
 
