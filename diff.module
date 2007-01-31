@@ -269,7 +269,10 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
     include_once('cck.inc');
   }
 
-  $node_revisions = node_revision_list($node);
+  $lame_revisions = node_revision_list($node);
+  foreach ($lame_revisions as $revision) {
+    $node_revisions[$revision->vid] = $revision;
+  }
 
   $old_node = node_load($node->nid, $old_vid);
   $new_node = node_load($node->nid, $new_vid);
@@ -277,11 +280,11 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
   // Generate table header (date, username, logmessage).
   $old_header = t('!date by !username', array(
     '!date' => l(format_date($old_node->revision_timestamp), "node/$node->nid/revisions/$old_node->vid/view"), 
-    '!username' => theme('username', $old_node),
+    '!username' => theme('username', $node_revisions[$old_vid]),
   ));
   $new_header = t('!date by !username', array(
     '!date' => l(format_date($new_node->revision_timestamp), "node/$node->nid/revisions/$new_node->vid/view"), 
-    '!username' => theme('username', $new_node),
+    '!username' => theme('username', $node_revisions[$new_vid]),
   ));
 
   $old_log = $old_node->log != '' ? '<p class="revision-log">'. filter_xss($old_node->log) .'</p>' : '';
