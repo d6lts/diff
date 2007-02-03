@@ -14,52 +14,54 @@
 function content_diff(&$old_node, &$new_node) {
   $result = array();
   $cck_info = content_types($new_node->type);
-  foreach($cck_info['fields'] as $field) {
-    $old_values = array(); 
-    $new_values = array();
-    switch($field['type']) {
-      case 'nodereference':
-        if (isset($old_node->$field['field_name'])) {
-          $old_values = _cck_nodereference_diff_values($old_node, $field);
-        }
-        if (isset($new_node->$field['field_name'])) {
-          $new_values = _cck_nodereference_diff_values($new_node, $field);
-        }
-        break;
-      case 'userreference':
-        if (isset($old_node->$field['field_name'])) {
-          $old_values = _cck_userreference_diff_values($old_node, $field);
-        }
-        if (isset($new_node->$field['field_name'])) {
-          $new_values = _cck_userreference_diff_values($new_node, $field);
-        }
-        break;
-      case 'number_integer':
-      case 'text':
-        if (isset($old_node->$field['field_name'])) {
-          $old_values = _cck_text_diff_values($old_node, $field);
-        }
-        if (isset($new_node->$field['field_name'])) {
-          $new_values = _cck_text_diff_values($new_node, $field);
-        }
-        break;
-      case 'link':
-        if (isset($old_node->$field['field_name'])) {
-          $old_values = _cck_link_diff_values($old_node, $field);
-        }
-        if (isset($new_node->$field['field_name'])) {
-          $new_values = _cck_link_diff_values($new_node, $field);
-        }
-        break;
+  if ($cck_info) {
+    foreach($cck_info['fields'] as $field) {
+      $old_values = array(); 
+      $new_values = array();
+      switch($field['type']) {
+        case 'nodereference':
+          if (isset($old_node->$field['field_name'])) {
+            $old_values = _cck_nodereference_diff_values($old_node, $field);
+          }
+          if (isset($new_node->$field['field_name'])) {
+            $new_values = _cck_nodereference_diff_values($new_node, $field);
+          }
+          break;
+        case 'userreference':
+          if (isset($old_node->$field['field_name'])) {
+            $old_values = _cck_userreference_diff_values($old_node, $field);
+          }
+          if (isset($new_node->$field['field_name'])) {
+            $new_values = _cck_userreference_diff_values($new_node, $field);
+          }
+          break;
+        case 'number_integer':
+        case 'text':
+          if (isset($old_node->$field['field_name'])) {
+            $old_values = _cck_text_diff_values($old_node, $field);
+          }
+          if (isset($new_node->$field['field_name'])) {
+            $new_values = _cck_text_diff_values($new_node, $field);
+          }
+          break;
+        case 'link':
+          if (isset($old_node->$field['field_name'])) {
+            $old_values = _cck_link_diff_values($old_node, $field);
+          }
+          if (isset($new_node->$field['field_name'])) {
+            $new_values = _cck_link_diff_values($new_node, $field);
+          }
+          break;
+      }
+      $result[] = array(
+        'name' => $field['widget']['label'],
+        'old' => $old_values,
+        'new' => $new_values,
+        'format' => array(
+          'show_header' => false,
+        ),
+      );
     }
-    $result[] = array(
-      'name' => $field['widget']['label'],
-      'old' => $old_values,
-      'new' => $new_values,
-      'format' => array(
-        'show_header' => false,
-      ),
-    );
   }
   return $result;
 }
