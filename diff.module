@@ -42,8 +42,9 @@ function diff_menu($may_cache) {
     if (arg(0) == 'node' && is_numeric(arg(1))) {
       $node = node_load(arg(1));
       if ($node->nid) {
-        $viewer = (user_access('view revisions') && variable_get('diff_'. $node->type, TRUE));
-        $revisions_access = ($viewer || user_access('administer nodes')) && node_access('view', $node) && db_result(db_query('SELECT COUNT(vid) FROM {node_revisions} WHERE nid = %d', arg(1))) > 1;
+        $revisions_access = (user_access('view revisions') || user_access('administer nodes')) && 
+                            node_access('view', $node) && 
+                            db_result(db_query('SELECT COUNT(vid) FROM {node_revisions} WHERE nid = %d', arg(1))) > 1;
         $items[] = array(
           'path' => 'node/'. arg(1) .'/revisions', 'title' => t('Revisions'),
           'callback' => 'diff_diffs',
@@ -422,15 +423,6 @@ function diff_form_alter($form_id, &$form) {
       // Hijack the callback to handle showing of the diff if requested.
       $form['#after_build'] = array('diff_node_form_add_changes');
     }
-  }
-  elseif ($form_id == 'node_type_form' && isset($form['identity']['type'])) {
-    $form['workflow']['diff'] = array(
-      '#type' => 'radios',
-      '#options' => array(t('Disabled'), t('Enabled')),
-      '#title' => t('Show revisions tab'),
-      '#default_value' => variable_get('diff_'. $form['#node_type']->type, TRUE),
-      '#description' => t('Should users with the <em>view revisions</em> permission be able to see a revisions tab for this node type.'),
-    );
   }  
 }
 
