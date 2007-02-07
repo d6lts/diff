@@ -2,6 +2,11 @@
 // $Id$
 
 /**
+ * Number of items on one page of the revision list.
+ */
+define('REVISION_LIST_SIZE', 50);
+
+/**
  * Implementation of hook_help().
  */
 function diff_help($section) {
@@ -130,7 +135,22 @@ function diff_node_revisions(&$node) {
     '#value' => $node->nid,
   );
 
-  $revisions = node_revision_list($node);
+  $revision_list = node_revision_list($node);
+
+  if (count($revision_list) > REVISION_LIST_SIZE) {
+    // If the list of revisions is longer than the number shown on one page split the array.
+    $page = isset($_GET['page']) ? $_GET['page'] : '0';
+    $revision_chunks = array_chunk(node_revision_list($node), REVISION_LIST_SIZE);
+    $revisions = $revision_chunks[$page];
+    // Set up global pager variables as would 'pager_query' do.
+    // These variables are then used in the theme('pager') call later.
+    global $pager_page_array, $pager_total, $pager_total_items;
+    $pager_total_items[0] = count($revision_list);
+    $pager_total[0] = ceil(count($revision_list) / REVISION_LIST_SIZE);
+    $pager_page_array[0] = max(0, min($page, ((int)$pager_total[0]) - 1));
+  } else {
+    $revisions = $revision_list;
+  }
 
   $revert_permission = FALSE;
   if ((user_access('revert revisions') || user_access('administer nodes')) && node_access('update', $node)) {
@@ -188,6 +208,10 @@ function diff_node_revisions(&$node) {
     '#default_value' => $new_vid
   );
   $form['submit'] = array('#type' => 'submit', '#value' => t('Show diff'));  
+
+  if (count($revision_list) > REVISION_LIST_SIZE) {
+    $form['#suffix'] = theme('pager', NULL, REVISION_LIST_SIZE, 0);
+  }
 
   return $form;
 }
@@ -260,14 +284,6 @@ function diff_node_revisions_validate($form_id, $form_values) {
  * versions 'old_vid' and 'new_vid'.
  */
 function diff_diffs_show(&$node, $old_vid, $new_vid) {
-  include_once('DiffEngine.php');
-  include_once('node.inc');
-  if (module_exist('upload')) {
-    include_once('upload.inc');
-  }
-  if (module_exist('content')) {
-    include_once('cck.inc');
-  }
 
   $lame_revisions = node_revision_list($node);
   foreach ($lame_revisions as $revision) {
@@ -313,8 +329,37 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
     $output .= '<tr><td></td><td>'. $old_log .'</td><td></td><td>'. $new_log .'</td></tr>';
   }
   $output .= '<tr><td></td><td class="diff-prevlink">'. $prev_link .'</td><td></td><td class="diff-nextlink">'. $next_link .'</td></tr>';
-  $output .= '<tbody>';
+  $output .= _diff_table_body($old_node, $new_node);
+  $output .= '</table>';
+  $output .= '<hr/>';
 
+  if ($node->vid == $new_vid) {
+    $output .= '<div class="diff-section-title">'. t('Current revision:') .'</div>';
+  }
+  else {
+    $output .= '<div class="diff-section-title">'. t('Revision of !new_date:', array('!new_date' => format_date($new_node->revision_timestamp))) .'</div>';
+  }
+  // Don't include node links (final argument) when viewing the diff.
+  $output .= node_view($new_node, FALSE, FALSE, FALSE);
+  return $output;
+}
+
+/**
+ * Create the table body of the diff between $old_node and $new_node.
+ * The result is a html table part enclosed in <tbody> tags.
+ */
+function _diff_table_body(&$old_node, &$new_node) {
+  theme_add_style(drupal_get_path('module', 'diff') . '/diff.css');
+  include_once('DiffEngine.php');
+  include_once('node.inc');
+  if (module_exist('upload')) {
+    include_once('upload.inc');
+  }
+  if (module_exist('content')) {
+    include_once('cck.inc');
+  }
+
+  $output = '<tbody>';
   $any_visible_change = false;
   $node_diffs = module_invoke_all('diff', $old_node, $new_node);
   foreach($node_diffs as $node_diff) {
@@ -334,17 +379,6 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
     $output .= '<tr><td colspan="4" class="diff-section-title">' .t('No visible changes') .'</td></tr>';
   }
   $output .= '</tbody>';
-  $output .= '</table>';
-  $output .= '<hr/>';
-
-  if ($node->vid == $new_vid) {
-    $output .= '<div class="diff-section-title">'. t('Current revision:') .'</div>';
-  }
-  else {
-    $output .= '<div class="diff-section-title">'. t('Revision of !new_date:', array('!new_date' => format_date($new_node->revision_timestamp))) .'</div>';
-  }
-  // Don't include node links (final argument) when viewing the diff.
-  $output .= node_view($new_node, FALSE, FALSE, FALSE);
   return $output;
 }
 
@@ -376,4 +410,84 @@ function _diff_get_previous_vid(&$node_revisions, $vid) {
     $previous = $revision;
   }
   return false;
+}
+
+/**
+ * Implementation of hook_form_alter().
+ * Used to add a 'Preview changes' button on the node edit form.
+ */
+function diff_form_alter($form_id, &$form) {
+  if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id) {
+    if (user_access('view revisions') && $form['nid']['#value'] > 0) {
+      $form['preview_changes'] = array('#type' => 'button', '#value' => t('Preview changes'), '#weight' => 41);
+      // Change the form render callback to display the new button
+      $form['#theme'] = 'diff_node_form';
+      // Hijack the callback to handle showing of the diff if requested.
+      $form['#after_build'] = array('diff_node_form_add_changes');
+    }
+  }
+}
+
+/**
+ * A copy of the 'theme_node_form' function with the addition of the new button
+ * to show a diff of the changes.
+ */
+function theme_diff_node_form($form) {
+  $output = "\n<div class=\"node-form\">\n";
+
+  // Admin form fields and submit buttons must be rendered first, because
+  // they need to go to the bottom of the form, and so should not be part of
+  // the catch-all call to drupal_render().
+  $admin = '';
+  if (isset($form['author'])) {
+    $admin .= "    <div class=\"authored\">\n";
+    $admin .= form_render($form['author']);
+    $admin .= "    </div>\n";
+  }
+  if (isset($form['options'])) { 
+    $admin .= "    <div class=\"options\">\n"; 
+    $admin .= form_render($form['options']); 
+    $admin .= "    </div>\n"; 
+  }
+  $buttons = form_render($form['preview']);
+  $buttons .= isset($form['preview_changes']) ? form_render($form['preview_changes']) : '';
+  $buttons .= form_render($form['submit']);
+  $buttons .= isset($form['delete']) ? form_render($form['delete']) : '';
+
+  // Everything else gets rendered here, and is displayed before the admin form
+  // field and the submit buttons.
+  $output .= "  <div class=\"standard\">\n";
+  $output .= form_render($form);
+  $output .= "  </div>\n";
+
+  if (!empty($admin)) {
+    $output .= "  <div class=\"admin\">\n";
+    $output .= $admin;
+    $output .= "  </div>\n";
+  }
+  $output .= $buttons;
+  $output .= "</div>\n";
+
+  return $output;
+}
+
+/**
+ * Callback for node edit form to prepend the changes or preview to the form.
+ */
+function diff_node_form_add_changes($form) {
+  global $form_values;
+
+  $op = isset($_POST['op']) ? $_POST['op'] : '';
+  if ($op == t('Preview changes')) {
+    $node = (object)$form_values;
+    $changes  = '<table class="diff">';
+    $changes .= _diff_table_body(node_load($form_values['nid']), $node);
+    $changes .= '</table>';
+    $form['#prefix'] = isset($form['#prefix']) ? $changes . $form['#prefix'] : $changes;
+    return $form;
+  }
+  else {
+    // call original function from node module
+    return node_form_add_preview($form);
+  }
 }
