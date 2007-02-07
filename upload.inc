@@ -14,8 +14,20 @@ function upload_diff(&$old_node, &$new_node) {
   }
   $new_files = array();
   if (isset($new_node->files)) {
-    foreach($new_node->files as $file) {
-      $new_files[] = $file->filename;
+    foreach($new_node->files as $key => $file) {
+      if (is_array($file)) {
+        // During editing the files are stored as arrays, not objects.
+        if ($file['remove']) {
+          // It looks better if a blank line is inserted for removed files.
+          $new_files[] = '';
+        }
+        else {
+          $new_files[] = $file['filename'];
+        }
+      }
+      else {
+        $new_files[] = $file->filename;
+      }
     }
   }
   $result[] = array(
