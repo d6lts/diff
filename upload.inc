@@ -19,7 +19,7 @@ function upload_diff(&$old_node, &$new_node) {
     }
   }
   $result[] = array(
-    'name' => t('Attachements'),
+    'name' => t('Attachments'),
     'old' => $old_files,
     'new' => $new_files,
     'format' => array(

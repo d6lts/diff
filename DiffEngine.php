@@ -1042,8 +1042,8 @@ class TableDiffFormatter extends DiffFormatter
 	}
 
 	function _block_header( $xbeg, $xlen, $ybeg, $ylen ) {
-		$r = '<tr><td colspan="2" align="left"><strong>Line '.$xbeg."</strong></td>\n" .
-		  '<td colspan="2" align="left"><strong>Line '.$ybeg."</strong></td></tr>\n";
+		$r = '<tr><td colspan="2" align="left"><strong>'.t('Line @line', array('@line' => $xbeg))."</strong></td>\n" .
+		     '<td colspan="2" align="left"><strong>'.t('Line @line', array('@line' => $ybeg))."</strong></td></tr>\n";
 		return $r;
 	}
 

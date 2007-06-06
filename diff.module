@@ -12,7 +12,7 @@ define('REVISION_LIST_SIZE', 50);
 function diff_help($section) {
   switch ($section) {
     case 'admin/help#diff':
-      $output = '<p>'. t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the <em>view revisions</em> permission will also be able to view the changes between any two selected revisions. You may disable this for individual node types on the node type configuration page. This module also provides a nifty <emPreview changes</em> button while editing a post.') .'</p>';
+      $output = '<p>'. t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the %view_revisions permission will also be able to view the changes between any two selected revisions. You may disable this for individual content types on the content type configuration page. This module also provides a nifty %preview_changes button while editing a post.', array('%preview_changes' => t('Preview changes'), '%view_revisions' => t('view revisions'))).'</p>';
       return $output;
   }
 }
