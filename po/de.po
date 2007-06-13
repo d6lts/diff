@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Diff 5.x\n"
 "POT-Creation-Date: 2007-06-02 20:15+0200\n"
-"PO-Revision-Date: 2007-06-06 19:12+0100\n"
+"PO-Revision-Date: 2007-06-13 16:17+0100\n"
 "Last-Translator: Alexander Hass\n"
 "Language-Team: Alexander Hass\n"
 "MIME-Version: 1.0\n"
@@ -23,11 +23,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
-
-#: diff.module:49
-#: diff.install:23
-msgid "Revisions"
-msgstr "Revisionen"
 
 #: DiffEngine.php:1045
 #: ;1046
@@ -50,19 +45,6 @@ msgstr "Taxonomie"
 msgid "Attachments"
 msgstr "Anhänge"
 
-#: diff.install:23
-msgid "Weight of %diff module set to %weight. You can now see a diff of different node revisions using the %revisions tab when viewing a node."
-msgstr "Die Gewichtung des %diff Moduls ist auf %weight eingestellt. Die Unterschiede zwischen Beitragsrevisionen können im Ansichtsmodus über den %revisions Tabulator eingesehen werden."
-
-#: diff.install:23
-#: diff.info:0
-msgid "Diff"
-msgstr "Diff"
-
-#: diff.info:0
-msgid "Show difference between node revisions."
-msgstr "Unterschiede zwischen den Beitragsrevisionen anzeigen"
-
 #: diff.module:15
 msgid "The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the %view_revisions permission will also be able to view the changes between any two selected revisions. You may disable this for individual content types on the content type configuration page. This module also provides a nifty %preview_changes button while editing a post."
 msgstr "Das Diff Modul überschreibt die normale Revisionsansicht. Die Revisionentabelle wird verbessert, um die Unterschiede zwischen Beitragsrevisionen einzusehen. Benutzer mit der Berechtigung %view_revisions haben die Möglichkeit die Änderungen zwischen zwei ausgewählten Revisonen einzusehen. Dies kann für individuelle Inhaltstypen auf der Seite des Inhaltstyps deaktiviert werden. Dieses Modul stellt während dem Bearbeiten eines Beitrages einen eleganten Knopf für eine %preview_changes zu Verfügung."
@@ -75,6 +57,11 @@ msgstr "Änderungsvorschau"
 #: diff.module:15
 msgid "view revisions"
 msgstr "Revisionen anzeigen"
+
+#: diff.module:49
+#: diff.install:23
+msgid "Revisions"
+msgstr "Revisionen"
 
 #: diff.module:92
 msgid "Diff for %title"
@@ -144,4 +131,17 @@ msgstr "Keine sichtbare Unterschiede"
 #: diff.module:0
 msgid "diff"
 msgstr "diff"
+
+#: diff.install:23
+msgid "Weight of %diff module set to %weight. You can now see a diff of different node revisions using the %revisions tab when viewing a node."
+msgstr "Die Gewichtung des %diff Moduls ist auf %weight eingestellt. Die Unterschiede zwischen Beitragsrevisionen können im Ansichtsmodus über den %revisions Tabulator eingesehen werden."
+
+#: diff.install:23
+#: diff.info:0
+msgid "Diff"
+msgstr "Diff"
+
+#: diff.info:0
+msgid "Show difference between node revisions."
+msgstr "Unterschiede zwischen den Beitragsrevisionen anzeigen"
 
