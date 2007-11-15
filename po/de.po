@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Diff 5.x\n"
 "POT-Creation-Date: 2007-06-02 20:15+0200\n"
-"PO-Revision-Date: 2007-06-13 16:17+0100\n"
+"PO-Revision-Date: 2007-11-12 16:58+0100\n"
 "Last-Translator: Alexander Hass\n"
 "Language-Team: Alexander Hass\n"
 "MIME-Version: 1.0\n"
@@ -78,7 +78,7 @@ msgstr "!date von !username"
 
 #: diff.module:182
 msgid "revert"
-msgstr "zurücksetzen"
+msgstr "Zurücksetzen"
 
 #: diff.module:185
 msgid "delete"
@@ -98,7 +98,7 @@ msgstr "Operationen"
 
 #: diff.module:246
 msgid "current revision"
-msgstr "aktuelle Revision"
+msgstr "Aktuelle Revision"
 
 #: diff.module:276
 msgid "Select different revisions to compare."
@@ -106,7 +106,7 @@ msgstr "Es müssen unterschiedliche Revisionen für einen Vergleich ausgewählt 
 
 #: diff.module:310
 msgid "next diff >"
-msgstr "Nächster Unterschied >"
+msgstr "nächster Unterschied >"
 
 #: diff.module:317
 msgid "< previous diff"
@@ -114,7 +114,7 @@ msgstr "< vorheriger Unterschied"
 
 #: diff.module:335
 msgid "Current revision:"
-msgstr "aktuelle Revision"
+msgstr "Aktuelle Revision:"
 
 #: diff.module:338
 msgid "Revision of !new_date:"
