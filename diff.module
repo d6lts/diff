@@ -487,10 +487,6 @@ function diff_node_form_add_changes($form) {
     $changes .= _diff_table_body(node_load($form_values['nid']), $node);
     $changes .= '</table>';
     $form['#prefix'] = isset($form['#prefix']) ? $changes . $form['#prefix'] : $changes;
-    return $form;
   }
-  else {
-    // call original function from node module
-    return node_form_add_preview($form);
-  }
+  return $form;
 }
