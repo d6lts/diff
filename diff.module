@@ -123,6 +123,9 @@ function diff_diffs_overview(&$node) {
 
 /**
  * Input form to select two revisions.
+ *
+ * @param $node
+ *   Node whose revisions are displayed for selection.
  */
 function diff_node_revisions(&$node) {
   global $form_values;
@@ -280,6 +283,13 @@ function diff_node_revisions_validate($form_id, $form_values) {
 /**
  * Create output string for a comparison of 'node' between
  * versions 'old_vid' and 'new_vid'.
+ *
+ * @param $node
+ *   Node on which to perform comparison
+ * @param $old_vid
+ *   Version ID of the old revision.
+ * @param $new_vid
+ *   Version ID of the new revision.
  */
 function diff_diffs_show(&$node, $old_vid, $new_vid) {
 
@@ -345,6 +355,11 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
 /**
  * Create the table body of the diff between $old_node and $new_node.
  * The result is a html table part enclosed in <tbody> tags.
+ *
+ * @param $old_node
+ *   Node for comparison which will be displayed on the left side.
+ * @param $new_node
+ *   Node for comparison which will be displayed on the right side.
  */
 function _diff_table_body(&$old_node, &$new_node) {
   drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css', 'module', 'all', FALSE);
@@ -381,8 +396,13 @@ function _diff_table_body(&$old_node, &$new_node) {
 }
 
 /**
- * Get the entry in the revisions list after 'vid'.
- * Returns false if 'vid' is the last entry.
+ * Get the entry in the revisions list after $vid.
+ * Returns false if $vid is the last entry.
+ *
+ * @param $node_revisions
+ *   Array of node revision IDs in descending order.
+ * @param $vid
+ *   Version ID to look for.
  */
 function _diff_get_next_vid(&$node_revisions, $vid) {
   $previous = NULL;
@@ -396,8 +416,13 @@ function _diff_get_next_vid(&$node_revisions, $vid) {
 }
 
 /**
- * Get the entry in the revision list before 'vid'.
- * Returns false if 'vid' is the first entry.
+ * Get the entry in the revision list before $vid.
+ * Returns false if $vid is the first entry.
+ *
+ * @param $node_revisions
+ *   Array of node revision IDs in descending order.
+ * @param $vid
+ *   Version ID to look for.
  */
 function _diff_get_previous_vid(&$node_revisions, $vid) {
   $previous = NULL;
@@ -430,6 +455,27 @@ function diff_form_alter($form_id, &$form) {
     }
   }  
 }
+
+/**
+ * Callback for node edit form to add the 'Preview changes' output.
+ */
+function diff_node_form_add_changes($form) {
+  global $form_values;
+
+  $op = isset($form_values['op']) ? $form_values['op'] : '';
+  if ($op == t('Preview changes')) {
+    $node = (object)$form_values;
+    $changes  = '<table class="diff">';
+    $changes .= _diff_table_body(node_load($form_values['nid']), $node);
+    $changes .= '</table>';
+    $form['#prefix'] = isset($form['#prefix']) ? $changes . $form['#prefix'] : $changes;
+  }
+  return $form;
+}
+
+/**
+ * Theme functions
+ */
 
 /**
  * A copy of the 'theme_node_form' function with the addition of the new button
@@ -472,21 +518,4 @@ function theme_diff_node_form($form) {
   $output .= "</div>\n";
 
   return $output;
-}
-
-/**
- * Callback for node edit form to prepend the changes or preview to the form.
- */
-function diff_node_form_add_changes($form) {
-  global $form_values;
-
-  $op = isset($form_values['op']) ? $form_values['op'] : '';
-  if ($op == t('Preview changes')) {
-    $node = (object)$form_values;
-    $changes  = '<table class="diff">';
-    $changes .= _diff_table_body(node_load($form_values['nid']), $node);
-    $changes .= '</table>';
-    $form['#prefix'] = isset($form['#prefix']) ? $changes . $form['#prefix'] : $changes;
-  }
-  return $form;
 }
