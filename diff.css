@@ -1,8 +1,10 @@
 /* $Id$ */
 
 table.diff {
-  width: 100%;
+  border-spacing: 4px;
   margin-bottom: 20px;
+  table-layout: fixed;
+  width: 100%;
 }
 td.diff-prevlink {
   text-align: left;
@@ -30,4 +32,22 @@ td.diff-context {
 span.diffchange {
   color: #f00;
   font-weight: bold;
+}
+
+table.diff col.diff-marker {
+  width: 1em;
+}
+table.diff col.diff-content {
+  width: 48%;
+}
+table.diff th {
+  padding-right: inherit;
+}
+table.diff td div {
+  overflow: auto;
+  padding: 0.1ex 0.5em;
+  word-wrap: break-word;
+}
+table.diff td {
+  padding: 0.1ex 0.4em;
 }
