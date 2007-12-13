@@ -442,8 +442,14 @@ function _diff_get_previous_vid(&$node_revisions, $vid) {
  */
 function diff_form_alter($form_id, &$form) {
   if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id) {
-    if (user_access('view revisions') && $form['nid']['#value'] > 0) {
-      $form['preview_changes'] = array('#type' => 'button', '#value' => t('Preview changes'), '#weight' => 41);
+    // Node editing form.
+    // Add a 'Preview changes' button.
+    if (variable_get('show_preview_changes_'. $form['type']['#value'], TRUE) && $form['nid']['#value'] > 0) {
+      $form['preview_changes'] = array(
+        '#type' => 'button',
+        '#value' => t('Preview changes'),
+        '#weight' => 41,
+      );
       // Change the form render callback to display the new button
       $form['#theme'] = 'diff_node_form';
       // Hijack the callback to handle showing of the diff if requested.
@@ -454,7 +460,18 @@ function diff_form_alter($form_id, &$form) {
         $form['#after_build'] = array('diff_node_form_add_changes');
       }
     }
-  }  
+  }
+  elseif ($form_id == 'node_type_form' && isset($form['identity']['type'])) {
+    // Node type edit form.
+    // Add checkbox to activate 'Preview changes' button per node type.
+    $form['workflow']['show_preview_changes'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Show %preview_changes button on node edit form', array('%preview_changes' => t('Preview changes'))),
+      '#prefix' => '<strong>'. t('Preview changes') .'</strong>',
+      '#weight' => 10,
+      '#default_value' => variable_get('show_preview_changes_'. $form['#node_type']->type, TRUE),
+    );
+  }
 }
 
 /**
