@@ -1060,17 +1060,17 @@ class TableDiffFormatter extends DiffFormatter
 
 	# HTML-escape parameter before calling this
 	function addedLine( $line ) {
-		return "<td>+</td><td class='diff-addedline'>{$line}</td>";
+		return "<td>+</td><td class='diff-addedline'><div>{$line}</div></td>";
 	}
 
 	# HTML-escape parameter before calling this
 	function deletedLine( $line ) {
-		return "<td>-</td><td class='diff-deletedline'>{$line}</td>";
+		return "<td>-</td><td class='diff-deletedline'><div>{$line}</div></td>";
 	}
 
 	# HTML-escape parameter before calling this
 	function contextLine( $line ) {
-		return "<td> </td><td class='diff-context'>{$line}</td>";
+		return "<td> </td><td class='diff-context'><div>{$line}</div></td>";
 	}
 
 	function emptyLine() {

@@ -332,6 +332,7 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
 
   // display table
   $output .= '<table class="diff">';
+  $output .= '<col class="diff-marker" /><col class="diff-content" /><col class="diff-marker" /><col class="diff-content" />';
   $output .= '<thead><tr><th></th><th>'. $old_header .'</th><th></th><th>'. $new_header .'</th></tr></thead>';
   if ($new_log || $old_log) {
     $output .= '<tr><td></td><td>'. $old_log .'</td><td></td><td>'. $new_log .'</td></tr>';
@@ -466,6 +467,7 @@ function diff_node_form_add_changes($form) {
   if ($op == t('Preview changes')) {
     $node = (object)$form_values;
     $changes  = '<table class="diff">';
+    $changes .= '<col class="diff-marker" /><col class="diff-content" /><col class="diff-marker" /><col class="diff-content" />';
     $changes .= _diff_table_body(node_load($form_values['nid']), $node);
     $changes .= '</table>';
     $form['#prefix'] = isset($form['#prefix']) ? $changes . $form['#prefix'] : $changes;
