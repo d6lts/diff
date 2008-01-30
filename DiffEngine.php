@@ -1029,143 +1029,93 @@ class WordLevelDiff extends MappedDiff
 }
 
 /**
- * Diff formatter which uses Drupal theme functions.
+ *	Wikipedia Table style diff formatter.
+ * @todo document
  * @private
  * @subpackage DifferenceEngine
  */
-class DrupalDiffFormatter extends DiffFormatter
+class TableDiffFormatter extends DiffFormatter
 {
+	function TableDiffFormatter() {
+		$this->leading_context_lines = 2;
+		$this->trailing_context_lines = 2;
+	}
 
-  var $rows;
+	function _block_header( $xbeg, $xlen, $ybeg, $ylen ) {
+		$r = '<tr><td colspan="2" align="left"><strong>'.t('Line @line', array('@line' => $xbeg))."</strong></td>\n" .
+		     '<td colspan="2" align="left"><strong>'.t('Line @line', array('@line' => $ybeg))."</strong></td></tr>\n";
+		return $r;
+	}
 
-  function DrupalDiffFormatter() {
-    $this->leading_context_lines = 2;
-    $this->trailing_context_lines = 2;
-  }
+	function _start_block( $header ) {
+		if ($this->show_header)
+  		echo $header;
+	}
 
-  function _start_diff() {
-    $this->rows = array();
-  }
+	function _end_block() {
+	}
 
-  function _end_diff() {
-    return $this->rows;
-  }
+	function _lines( $lines, $prefix=' ', $color='white' ) {
+	}
 
-  function _block_header($xbeg, $xlen, $ybeg, $ylen) {
-    return array(
-      array(
-        'data' => theme('diff_header_line', $xbeg),
-        'colspan' => 2
-      ),
-      array(
-        'data' => theme('diff_header_line', $ybeg),
-        'colspan' => 2
-      )
-    );
-  }
+	# HTML-escape parameter before calling this
+	function addedLine( $line ) {
+		return "<td>+</td><td class='diff-addedline'><div>{$line}</div></td>";
+	}
 
-  function _start_block($header) {
-    if ($this->show_header) {
-      $this->rows[] = $header;
-    }
-  }
+	# HTML-escape parameter before calling this
+	function deletedLine( $line ) {
+		return "<td>-</td><td class='diff-deletedline'><div>{$line}</div></td>";
+	}
 
-  function _end_block() {
-  }
+	# HTML-escape parameter before calling this
+	function contextLine( $line ) {
+		return "<td> </td><td class='diff-context'><div>{$line}</div></td>";
+	}
 
-  function _lines($lines, $prefix=' ', $color='white') {
-  }
+	function emptyLine() {
+		return '<td colspan="2">&nbsp;</td>';
+	}
 
-  /**
-   * Note: you should HTML-escape parameter before calling this.
-   */
-  function addedLine($line) {
-    return array(
-      '+',
-      array(
-        'data' => theme('diff_content_line', $line),
-        'class' => 'diff-addedline',
-      )
-    );
-  }
+	function _added( $lines ) {
+		foreach ($lines as $line) {
+			echo '<tr>' . $this->emptyLine() .
+				$this->addedLine( check_plain ( $line ) ) . "</tr>\n";
+		}
+	}
 
-  /**
-   * Note: you should HTML-escape parameter before calling this.
-   */
-  function deletedLine($line) {
-    return array(
-      '-',
-      array(
-        'data' => theme('diff_content_line', $line),
-        'class' => 'diff-deletedline',
-      )
-    );
-  }
+	function _deleted($lines) {
+		foreach ($lines as $line) {
+			echo '<tr>' . $this->deletedLine( check_plain ( $line ) ) .
+			  $this->emptyLine() . "</tr>\n";
+		}
+	}
 
-  /**
-   * Note: you should HTML-escape parameter before calling this.
-   */
-  function contextLine($line) {
-    return array(
-      '&nbsp;',
-      array(
-        'data' => theme('diff_content_line', $line),
-        'class' => 'diff-context',
-      )
-    );
-  }
+	function _context( $lines ) {
+		foreach ($lines as $line) {
+			echo '<tr>' .
+				$this->contextLine( check_plain ( $line ) ) .
+				$this->contextLine( check_plain ( $line ) ) . "</tr>\n";
+		}
+	}
 
-  function emptyLine() {
-    return array(
-      '&nbsp;',
-      theme('diff_empty_line', '&nbsp;'),
-    );
-  }
+	function _changed( $orig, $closing ) {
 
-  function _added($lines) {
-    foreach($lines as $line) {
-      $this->rows[] = array_merge($this->emptyLine(), $this->addedLine(check_plain($line)));
-    }
-  }
+		$diff = new WordLevelDiff( $orig, $closing );
+		$del = $diff->orig();
+		$add = $diff->closing();
 
-  function _deleted($lines) {
-    foreach($lines as $line) {
-      $this->rows[] = array_merge($this->deletedLine(check_plain($line)), $this->emptyLine());
-    }
-  }
+		# Notice that WordLevelDiff returns HTML-escaped output.
+		# Hence, we will be calling addedLine/deletedLine without HTML-escaping.
 
-  function _context($lines) {
-    foreach($lines as $line) {
-      $this->rows[] = array_merge($this->contextLine(check_plain($line)), $this->contextLine(check_plain($line)));
-    }
-  }
-
-  function _changed($orig, $closing) {
-    $diff = new WordLevelDiff($orig, $closing);
-    $del = $diff->orig();
-    $add = $diff->closing();
-
-    // Notice that WordLevelDiff returns HTML-escaped output.
-    // Hence, we will be calling addedLine/deletedLine without HTML-escaping.
-
-    while ($line = array_shift($del)) {
-      $aline = array_shift( $add );
-      $this->rows[] = array_merge($this->deletedLine($line), $this->addedLine($aline));
-    }
-    foreach ($add as $line) {  // If any leftovers
-      $this->rows[] = array_merge($this->emptyLine(), $this->addedLine($line));
-    }
-  }
-}
-  
-function theme_diff_header_line($lineno) {
-  return '<strong>'. t('Line %lineno', array('%lineno' => $lineno)) .'</strong>';
-}
-
-function theme_diff_content_line($line) {
-  return '<div>'. $line .'</div>';
-}
-
-function theme_diff_empty_line($line) {
-  return $line;
+		while ( $line = array_shift( $del ) ) {
+			$aline = array_shift( $add );
+			echo '<tr>' . $this->deletedLine( $line ) .
+				$this->addedLine( $aline ) . "</tr>\n";
+		}
+		foreach ($add as $line) {	# If any leftovers
+			echo '<tr>' . $this->emptyLine() .
+				$this->addedLine( $line ) . "</tr>\n";
+		}
+	}
 }
