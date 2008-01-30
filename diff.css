@@ -6,6 +6,10 @@ table.diff {
   table-layout: fixed;
   width: 100%;
 }
+table.diff tr.even, table.diff tr.odd {
+  background-color: inherit;
+  border: none;
+}
 td.diff-prevlink {
   text-align: left;
 }
@@ -35,10 +39,10 @@ span.diffchange {
 }
 
 table.diff col.diff-marker {
-  width: 1em;
+  width: 1.4em;
 }
 table.diff col.diff-content {
-  width: 48%;
+  width: 50%;
 }
 table.diff th {
   padding-right: inherit;

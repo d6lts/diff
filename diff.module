@@ -330,17 +330,59 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
     $prev_link = '';
   }
 
-  // display table
-  $output .= '<table class="diff">';
-  $output .= '<col class="diff-marker" /><col class="diff-content" /><col class="diff-marker" /><col class="diff-content" />';
-  $output .= '<thead><tr><th></th><th>'. $old_header .'</th><th></th><th>'. $new_header .'</th></tr></thead>';
-  if ($new_log || $old_log) {
-    $output .= '<tr><td></td><td>'. $old_log .'</td><td></td><td>'. $new_log .'</td></tr>';
+  $cols = array(
+    array(
+      array(
+        'class' => 'diff-marker',
+      ),
+      array(
+        'class' => 'diff-content',
+      ),
+      array(
+        'class' => 'diff-marker',
+      ),
+      array(
+        'class' => 'diff-content',
+      ),
+    ),
+  );
+  $header = array(
+    array(
+      'data' => $old_header,
+      'colspan' => 2
+    ),
+    array(
+      'data' => $new_header,
+      'colspan' => 2
+    )
+  );
+  $rows = array();
+  if ($old_log || $new_log) {
+    $rows[] = array(
+      array(
+        'data' => $old_log,
+        'colspan' => 2
+      ),
+      array(
+        'data' => $new_log,
+        'colspan' => 2
+      )
+    );
   }
-  $output .= '<tr><td></td><td class="diff-prevlink">'. $prev_link .'</td><td></td><td class="diff-nextlink">'. $next_link .'</td></tr>';
-  $output .= _diff_table_body($old_node, $new_node);
-  $output .= '</table>';
-  $output .= '<hr/>';
+  $rows[] = array(
+    array(
+      'data' => $prev_link,
+      'class' => 'diff-prevlink',
+      'colspan' => 2
+    ),
+    array(
+      'data' => $next_link,
+      'class' => 'diff-nextlink',
+      'colspan' => 2
+    )
+  );
+  $rows = array_merge($rows, _diff_body_rows($old_node, $new_node));
+  $output = theme('diff_table', $header, $rows, array('class' => 'diff'), NULL, $cols);
 
   if ($node->vid == $new_vid) {
     $output .= '<div class="diff-section-title">'. t('Current revision:') .'</div>';
@@ -354,18 +396,21 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
 }
 
 /**
- * Create the table body of the diff between $old_node and $new_node.
- * The result is a html table part enclosed in <tbody> tags.
+ * Creates an array of rows which represent a diff between $old_node and $new_node.
+ * The rows can be used via theme('diff_table') to be displayed.
  *
  * @param $old_node
  *   Node for comparison which will be displayed on the left side.
  * @param $new_node
  *   Node for comparison which will be displayed on the right side.
  */
-function _diff_table_body(&$old_node, &$new_node) {
+function _diff_body_rows(&$old_node, &$new_node) {
   drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css', 'module', 'all', FALSE);
   include_once('DiffEngine.php');
   include_once('node.inc');
+  if (module_exists('taxonomy')) {
+    include_once('taxonomy.inc');
+  }
   if (module_exists('upload')) {
     include_once('upload.inc');
   }
@@ -373,27 +418,45 @@ function _diff_table_body(&$old_node, &$new_node) {
     include_once('cck.inc');
   }
 
-  $output = '<tbody>';
+  $rows = array();
   $any_visible_change = false;
   $node_diffs = module_invoke_all('diff', $old_node, $new_node);
   foreach($node_diffs as $node_diff) {
     $diff = new Diff($node_diff['old'], $node_diff['new']);
-    $formatter = new TableDiffFormatter();
+    $formatter = new DrupalDiffFormatter();
     if (isset($node_diff['format'])) {
       $formatter->show_header = $node_diff['format']['show_header'];
     }
-    $formatter_output = $formatter->format($diff);
-    if ($formatter_output) {
-      $output .= '<tr><td colspan="4" class="diff-section-title">'. t('Changes to %name', array('%name' => $node_diff['name'])) .'</td></tr>';
-      $output .= $formatter_output;
+    $diff_rows = $formatter->format($diff);
+    if (count($diff_rows)) {
+      $rows[] = array(
+        array(
+          'data' => t('Changes to %name', array('%name' => $node_diff['name'])),
+          'class' => 'diff-section-title',
+          'colspan' => 4
+        )
+      );
+      $rows = array_merge($rows, $diff_rows);
       $any_visible_change = true;
     }
   }
   if (!$any_visible_change) {
-    $output .= '<tr><td colspan="4" class="diff-section-title">' .t('No visible changes') .'</td></tr>';
+    $rows[] = array(
+      array(
+        'data' => t('No visible changes'),
+        'class' => 'diff-section-title',
+        'colspan' => 4
+      ),
+    );
+    // Needed to keep safari happy
+    $rows[] = array(
+      array('data' => ''),
+      array('data' => ''),
+      array('data' => ''),
+      array('data' => ''),
+    );
   }
-  $output .= '</tbody>';
-  return $output;
+  return $rows;
 }
 
 /**
@@ -482,11 +545,12 @@ function diff_node_form_add_changes($form) {
 
   $op = isset($form_values['op']) ? $form_values['op'] : '';
   if ($op == t('Preview changes')) {
+    // Diff module expects node as object, thus $form_values is cast to an object.
     $node = (object)$form_values;
-    $changes  = '<table class="diff">';
-    $changes .= '<col class="diff-marker" /><col class="diff-content" /><col class="diff-marker" /><col class="diff-content" />';
-    $changes .= _diff_table_body(node_load($form_values['nid']), $node);
-    $changes .= '</table>';
+    // Create diff of old node and edited node
+    $rows = _diff_body_rows(node_load($form_values['nid']), $node);
+    $changes = theme('table', array(), $rows, array('class' => 'diff'));
+    // Prepend diff to edit form
     $form['#prefix'] = isset($form['#prefix']) ? $changes . $form['#prefix'] : $changes;
   }
   return $form;
@@ -536,5 +600,201 @@ function theme_diff_node_form($form) {
   $output .= $buttons;
   $output .= "</div>\n";
 
+  return $output;
+}
+
+/**
+ * Return a themed table. This is a modified version of theme_table, adding
+ * colgroup tag and col tag options.
+ *
+ * @param $header
+ *   An array containing the table headers. Each element of the array can be
+ *   either a localized string or an associative array with the following keys:
+ *   - "data": The localized title of the table column.
+ *   - "field": The database field represented in the table column (required if
+ *     user is to be able to sort on this column).
+ *   - "sort": A default sort order for this column ("asc" or "desc").
+ *   - Any HTML attributes, such as "colspan", to apply to the column header cell.
+ * @param $rows
+ *   An array of table rows. Every row is an array of cells, or an associative
+ *   array with the following keys:
+ *   - "data": an array of cells
+ *   - Any HTML attributes, such as "class", to apply to the table row.
+ *
+ *   Each cell can be either a string or an associative array with the following keys:
+ *   - "data": The string to display in the table cell.
+ *   - "header": Indicates this cell is a header.
+ *   - Any HTML attributes, such as "colspan", to apply to the table cell.
+ *
+ *   Here's an example for $rows:
+ *   @verbatim
+ *   $rows = array(
+ *     // Simple row
+ *     array(
+ *       'Cell 1', 'Cell 2', 'Cell 3'
+ *     ),
+ *     // Row with attributes on the row and some of its cells.
+ *     array(
+ *       'data' => array('Cell 1', array('data' => 'Cell 2', 'colspan' => 2)), 'class' => 'funky'
+ *     )
+ *   );
+ *   @endverbatim
+ *
+ * @param $attributes
+ *   An array of HTML attributes to apply to the table tag.
+ * @param $caption
+ *   A localized string to use for the <caption> tag.
+ * @param $cols
+ *   An array of table colum groups. Every column group is an array of columns,
+ *   or an associative array with the following keys:
+ *   - "data": an array of cells
+ *   - Any HTML attributes, such as "class", to apply to the table column group.
+ *
+ *   Each column can be either an empty array or associative array with the following keys:
+ *   - Any HTML attributes, such as "class", to apply to the table column group.
+ *
+ *   Here's an example for $cols:
+ *   @verbatim
+ *   $cols = array(
+ *     // Simple colgroup.
+ *     array(),
+ *     // Simple colgroup with attributes.
+ *     array(
+ *       'data'  => array(), 'colspan' => 2, 'style' => 'color: green;',
+ *     ),
+ *     // Simple colgroup with one col.
+ *     array(
+ *       array(),
+ *     ),
+ *     // Colgroup with attributes on the colgroup and some of its cols.
+ *     array(
+ *       'data'  => array(array('class' => 'diff-marker'), array('colspan' => 2)), 'class' => 'funky',
+ *     ),
+ *   );
+ *   @endverbatim
+ *
+ *   The HTML will look as follows:
+ *   @verbatim
+ *   <table>
+ *     <!-- Simple colgroup. -->
+ *     <colgroup />
+ *
+ *     <!-- Simple colgroup with attributes. -->
+ *     <colgroup colspan="2" style="color: green;" />
+ *
+ *     <!-- Simple colgroup with one col. -->
+ *     <colgroup>
+ *       <col />
+ *     </colgroup>
+ *
+ *     <!-- Colgroup with attributes on the colgroup and some of its cols. -->
+ *     <colgroup class="funky">
+ *       <col class="diff-marker" />
+ *       <col colspan="2" />
+ *     </colgroup>
+ *     ...
+ *   </table>
+ *   @endverbatim
+ *
+ * @return
+ *   An HTML string representing the table.
+ */
+function theme_diff_table($header, $rows, $attributes = array(), $caption = NULL, $cols = array()) {
+  $output = '<table'. drupal_attributes($attributes) .">\n";
+
+  if (isset($caption)) {
+    $output .= '<caption>'. $caption ."</caption>\n";
+  }
+
+  // Format the table columns:
+  if (count($cols)) {
+    foreach ($cols as $number => $col) {
+      $attributes = array();
+
+      // Check if we're dealing with a simple or complex column
+      if (isset($col['data'])) {
+        foreach ($col as $key => $value) {
+          if ($key == 'data') {
+            $cells = $value;
+          }
+          else {
+            $attributes[$key] = $value;
+          }
+        }
+      }
+      else {
+        $cells = $col;
+      }
+
+      // Build colgroup
+      if (is_array($cells) && count($cells)) {
+        $output .= ' <colgroup'. drupal_attributes($attributes) .'>';
+        $i = 0;
+        foreach ($cells as $cell) {
+          $output .= ' <col'. drupal_attributes($cell) .' />';
+        }
+        $output .= " </colgroup>\n";
+      }
+      else {
+        $output .= ' <colgroup'. drupal_attributes($attributes) ." />\n";
+      }
+    }
+  }
+
+  // Format the table header:
+  if (count($header)) {
+    $ts = tablesort_init($header);
+    $output .= ' <thead><tr>';
+    foreach ($header as $cell) {
+      $cell = tablesort_header($cell, $header, $ts);
+      $output .= _theme_table_cell($cell, TRUE);
+    }
+    $output .= " </tr></thead>\n";
+  }
+
+  // Format the table rows:
+  $output .= "<tbody>\n";
+  if (count($rows)) {
+    $flip = array('even' => 'odd', 'odd' => 'even');
+    $class = 'even';
+    foreach ($rows as $number => $row) {
+      $attributes = array();
+
+      // Check if we're dealing with a simple or complex row
+      if (isset($row['data'])) {
+        foreach ($row as $key => $value) {
+          if ($key == 'data') {
+            $cells = $value;
+          }
+          else {
+            $attributes[$key] = $value;
+          }
+        }
+      }
+      else {
+        $cells = $row;
+      }
+
+      // Add odd/even class
+      $class = $flip[$class];
+      if (isset($attributes['class'])) {
+        $attributes['class'] .= ' '. $class;
+      }
+      else {
+        $attributes['class'] = $class;
+      }
+
+      // Build row
+      $output .= ' <tr'. drupal_attributes($attributes) .'>';
+      $i = 0;
+      foreach ($cells as $cell) {
+        $cell = tablesort_cell($cell, $header, $ts, $i++);
+        $output .= _theme_table_cell($cell);
+      }
+      $output .= " </tr>\n";
+    }
+  }
+
+  $output .= "</tbody></table>\n";
   return $output;
 }
