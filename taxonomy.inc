@@ -9,12 +9,12 @@ function taxonomy_diff(&$old_node, &$new_node) {
   // TODO: make taxonomy by category not only by whole taxonomy?
   $old_taxonomy = array();
   $new_taxonomy = array();
-  if($old_node->taxonomy) {
+  if(isset($old_node->taxonomy) && $old_node->taxonomy) {
     foreach($old_node->taxonomy as $term) {
       $old_taxonomy[] = $term->name;
     }
   }
-  if ($new_node->taxonomy) {
+  if (isset($new_node->taxonomy) && $new_node->taxonomy) {
     foreach($new_node->taxonomy as $id => $entry) {
       if (is_array($entry)) {
         // During editing the taxonomy is built up as a list of vocabulary ids as keys

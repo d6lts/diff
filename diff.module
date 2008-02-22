@@ -275,16 +275,7 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
   }
 
   $cols = _diff_default_cols();
-  $header = array(
-    array(
-      'data' => $old_header,
-      'colspan' => 2
-    ),
-    array(
-      'data' => $new_header,
-      'colspan' => 2
-    )
-  );
+  $header = _diff_default_header($old_header, $new_header);
   $rows = array();
   if ($old_log || $new_log) {
     $rows[] = array(
@@ -467,7 +458,8 @@ function diff_node_form_build_preview_changes($form, &$form_state) {
   // Create diff of old node and edited node
   $rows = _diff_body_rows(node_load($form_state['values']['nid']), $node);
   $cols = _diff_default_cols();
-  $changes = theme('diff_table', array(), $rows, array('class' => 'diff'), NULL, $cols);
+  $header = _diff_default_header();
+  $changes = theme('diff_table', $header, $rows, array('class' => 'diff'), NULL, $cols);
   // Prepend diff to edit form
   $form_state['node_preview'] = isset($form_state['node_preview']) ? $changes . $form_state['node_preview'] : $changes;
 }
@@ -778,5 +770,21 @@ function _diff_default_cols() {
         'class' => 'diff-content',
       ),
     ),
+  );
+}
+
+/**
+ * Helper function to create default 'header' array for diff table.
+ */
+function _diff_default_header($old_header = '', $new_header = '') {
+  return array(
+    array(
+      'data' => $old_header,
+      'colspan' => 2
+    ),
+    array(
+      'data' => $new_header,
+      'colspan' => 2
+    )
   );
 }
