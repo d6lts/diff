@@ -1,3 +1,4 @@
 ; $Id$
 name = Diff
 description = Show difference between node revisions.
+core = 6.x

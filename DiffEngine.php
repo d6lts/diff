@@ -9,6 +9,8 @@
 //
 */
 
+define('USE_ASSERTS', FALSE);
+
 /**
  * @todo document
  * @private
@@ -1156,16 +1158,4 @@ class DrupalDiffFormatter extends DiffFormatter
       $this->rows[] = array_merge($this->emptyLine(), $this->addedLine($line));
     }
   }
-}
-  
-function theme_diff_header_line($lineno) {
-  return '<strong>'. t('Line %lineno', array('%lineno' => $lineno)) .'</strong>';
-}
-
-function theme_diff_content_line($line) {
-  return '<div>'. $line .'</div>';
-}
-
-function theme_diff_empty_line($line) {
-  return $line;
 }

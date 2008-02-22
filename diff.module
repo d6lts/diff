@@ -2,6 +2,11 @@
 // $Id$
 
 /**
+ * @file
+ * Provides functionality to show a diff between two node revisions.
+ */
+
+/**
  * Number of items on one page of the revision list.
  */
 define('REVISION_LIST_SIZE', 50);
@@ -9,8 +14,8 @@ define('REVISION_LIST_SIZE', 50);
 /**
  * Implementation of hook_help().
  */
-function diff_help($section) {
-  switch ($section) {
+function diff_help($path, $arg) {
+  switch ($path) {
     case 'admin/help#diff':
       $output = '<p>'. t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the %view_revisions permission will also be able to view the changes between any two selected revisions. You may disable this for individual content types on the content type configuration page. This module also provides a nifty %preview_changes button while editing a post.', array('%preview_changes' => t('Preview changes'), '%view_revisions' => t('view revisions'))).'</p>';
       return $output;
@@ -18,94 +23,28 @@ function diff_help($section) {
 }
 
 /**
- * Implementation of hook_requirements().
- * Checks if the diff modules is loaded after the node module in the hook ordering.
- */
-function diff_requirements($phase) {
-  // Don't check when installing
-  if ($phase == 'install') {
-    return;
-  }
-  $modules = array_keys(module_list());
-  if (array_search('diff', $modules) <= array_search('node', $modules)) {
-    diff_autoadjust();
-  }
-}
-
-/**
  * Implementation of hook_menu()
  * The menu path 'node/$nid/revisions' is overriden with 'diff_diffs'.
  */
-function diff_menu($may_cache) {
+function diff_menu() {
   $items = array();
-  if (!$may_cache) {
-    if (arg(0) == 'node' && is_numeric(arg(1))) {
-      $node = node_load(arg(1));
-      if ($node->nid) {
-        $revisions_access = (user_access('view revisions') || user_access('administer nodes')) && 
-                            node_access('view', $node) && 
-                            db_result(db_query('SELECT COUNT(vid) FROM {node_revisions} WHERE nid = %d', arg(1))) > 1;
-        $items[] = array(
-          'path' => 'node/'. arg(1) .'/revisions', 'title' => t('Revisions'),
-          'callback' => 'diff_diffs',
-          'access' => $revisions_access,
-          'weight' => 4,
-          'type' => MENU_LOCAL_TASK,
-        );
-      }
-    }
-  }
+  $items['node/%node/revisions/view/%/%'] = array(
+    'title' => 'Diff',
+    'page callback' => 'diff_diffs_show',
+    'page arguments' => array(1, 4, 5),
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
 /**
- * Adjust the module weights for diff to load after node module.
+ * Implementation of hook_menu_alter().
  */
-function diff_autoadjust() {
-  $modules = array_keys(module_list());
-  if (array_search('diff', $modules) <= array_search('node', $modules)) {
-    module_load_install('diff');
-    diff_set_weight();
-  }
-}
-
-/**
- * Menu callback for diff related activities.
- */
-function diff_diffs() {
-  if (is_numeric(arg(1)) && arg(2) == 'revisions') {
-    $op = arg(3) ? arg(3) : 'overview';
-    switch ($op) {
-      case 'overview':
-        $node = node_load(arg(1));
-        if ((user_access('view revisions') || user_access('administer nodes')) && node_access('view', $node)) {
-          return diff_diffs_overview($node);
-        }
-        drupal_access_denied();
-        return;
-
-      case 'view':
-        if (is_numeric(arg(4)) && is_numeric(arg(5))) {
-          $node = node_load(arg(1));
-          if ($node->nid) {
-            if ((user_access('view revisions') || user_access('administer nodes')) && node_access('view', $node)) {
-              drupal_set_title(t('Diff for %title', array('%title' => $node->title)));
-              return diff_diffs_show($node, arg(4), arg(5));
-            }
-            drupal_access_denied();
-            return;
-          }
-        }
-        break;
-
-      default:
-        // A view, revert or delete operation from the orignial node module,
-        // so call the original node module to handle this.
-        return node_revisions();
-        break;
-    }
-  }
-  drupal_not_found();
+function diff_menu_alter(&$callbacks) {
+  // Overwrite the default 'Revisions' page
+  $callbacks['node/%node/revisions']['page callback'] = 'diff_diffs_overview';
+  $callbacks['node/%node/revisions']['module'] = 'diff';
+  unset($callbacks['node/%node/revisions']['file']);
 }
 
 /**
@@ -127,7 +66,7 @@ function diff_diffs_overview(&$node) {
  * @param $node
  *   Node whose revisions are displayed for selection.
  */
-function diff_node_revisions(&$node) {
+function diff_node_revisions($form_state, &$node) {
   global $form_values;
   $form = array();
 
@@ -208,7 +147,7 @@ function diff_node_revisions(&$node) {
     '#options' => $revision_ids,
     '#default_value' => $new_vid
   );
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Show diff'));  
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Show diff'));
 
   if (count($revision_list) > REVISION_LIST_SIZE) {
     $form['#suffix'] = theme('pager', NULL, REVISION_LIST_SIZE, 0);
@@ -222,6 +161,8 @@ function diff_node_revisions(&$node) {
  * two revisions.
  */
 function theme_diff_node_revisions($form) {
+  $output = '';
+
   // Overview table:
   $header = array(
     t('Revision'),
@@ -262,19 +203,19 @@ function theme_diff_node_revisions($form) {
 /**
  * Submit code for input form to select two revisions.
  */
-function diff_node_revisions_submit($form_id, $form_values) {
+function diff_node_revisions_submit($form, &$form_state) {
   // the ids are ordered so the old revision is always on the left
-  $old_vid = min($form_values['old'], $form_values['new']);
-  $new_vid = max($form_values['old'], $form_values['new']);
-  return 'node/'.$form_values['nid'].'/revisions/view/'.$old_vid.'/'.$new_vid;
+  $old_vid = min($form_state['values']['old'], $form_state['values']['new']);
+  $new_vid = max($form_state['values']['old'], $form_state['values']['new']);
+  $form_state['redirect'] =  'node/'.$form_state['values']['nid'].'/revisions/view/'.$old_vid.'/'.$new_vid;
 }
 
 /**
  * Validation for input form to select two revisions.
  */
-function diff_node_revisions_validate($form_id, $form_values) {
-  $old_vid = $form_values['old'];
-  $new_vid = $form_values['new'];
+function diff_node_revisions_validate($form, &$form_state) {
+  $old_vid = $form_state['values']['old'];
+  $new_vid = $form_state['values']['new'];
   if ($old_vid==$new_vid || !$old_vid || !$new_vid) {
     form_set_error('diff', t('Select different revisions to compare.'));
   }
@@ -292,6 +233,9 @@ function diff_node_revisions_validate($form_id, $form_values) {
  *   Version ID of the new revision.
  */
 function diff_diffs_show(&$node, $old_vid, $new_vid) {
+
+  // Set same title as on the 'Revisions' tab for consistency
+  drupal_set_title(t('Revisions for %title', array('%title' => $node->title)));
 
   $lame_revisions = node_revision_list($node);
   foreach ($lame_revisions as $revision) {
@@ -330,22 +274,7 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
     $prev_link = '';
   }
 
-  $cols = array(
-    array(
-      array(
-        'class' => 'diff-marker',
-      ),
-      array(
-        'class' => 'diff-content',
-      ),
-      array(
-        'class' => 'diff-marker',
-      ),
-      array(
-        'class' => 'diff-content',
-      ),
-    ),
-  );
+  $cols = _diff_default_cols();
   $header = array(
     array(
       'data' => $old_header,
@@ -503,25 +432,17 @@ function _diff_get_previous_vid(&$node_revisions, $vid) {
  * Implementation of hook_form_alter().
  * Used to add a 'Preview changes' button on the node edit form.
  */
-function diff_form_alter($form_id, &$form) {
+function diff_form_alter(&$form, $form_state, $form_id) {
   if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id) {
     // Node editing form.
     // Add a 'Preview changes' button.
     if (variable_get('show_preview_changes_'. $form['type']['#value'], TRUE) && $form['nid']['#value'] > 0) {
-      $form['preview_changes'] = array(
-        '#type' => 'button',
+      $form['buttons']['preview_changes'] = array(
+        '#type' => 'submit',
         '#value' => t('Preview changes'),
-        '#weight' => 41,
+        '#weight' => 12,
+        '#submit' => array('diff_node_form_build_preview_changes')
       );
-      // Change the form render callback to display the new button
-      $form['#theme'] = 'diff_node_form';
-      // Add a callback to handle showing the diff if requested.
-      if (isset($form['#after_build']) && is_array($form['#after_build'])) {
-        $form['#after_build'][] = 'diff_node_form_add_changes';
-      }
-      else {
-        $form['#after_build'] = array('diff_node_form_add_changes');
-      }
     }
   }
   elseif ($form_id == 'node_type_form' && isset($form['identity']['type'])) {
@@ -538,22 +459,17 @@ function diff_form_alter($form_id, &$form) {
 }
 
 /**
- * Callback for node edit form to add the 'Preview changes' output.
+ * Callback if 'Preview changes' is pressed.
  */
-function diff_node_form_add_changes($form) {
-  global $form_values;
+function diff_node_form_build_preview_changes($form, &$form_state) {
+  $node = node_form_submit_build_node($form, $form_state);
 
-  $op = isset($form_values['op']) ? $form_values['op'] : '';
-  if ($op == t('Preview changes')) {
-    // Diff module expects node as object, thus $form_values is cast to an object.
-    $node = (object)$form_values;
-    // Create diff of old node and edited node
-    $rows = _diff_body_rows(node_load($form_values['nid']), $node);
-    $changes = theme('table', array(), $rows, array('class' => 'diff'));
-    // Prepend diff to edit form
-    $form['#prefix'] = isset($form['#prefix']) ? $changes . $form['#prefix'] : $changes;
-  }
-  return $form;
+  // Create diff of old node and edited node
+  $rows = _diff_body_rows(node_load($form_state['values']['nid']), $node);
+  $cols = _diff_default_cols();
+  $changes = theme('diff_table', array(), $rows, array('class' => 'diff'), NULL, $cols);
+  // Prepend diff to edit form
+  $form_state['node_preview'] = isset($form_state['node_preview']) ? $changes . $form_state['node_preview'] : $changes;
 }
 
 /**
@@ -797,4 +713,70 @@ function theme_diff_table($header, $rows, $attributes = array(), $caption = NULL
 
   $output .= "</tbody></table>\n";
   return $output;
+}
+
+/**
+ * Theme function for a header line in the diff.
+ */
+function theme_diff_header_line($lineno) {
+  return '<strong>'. t('Line %lineno', array('%lineno' => $lineno)) .'</strong>';
+}
+
+/**
+ * Theme function for a content line in the diff.
+ */
+function theme_diff_content_line($line) {
+  return '<div>'. $line .'</div>';
+}
+
+/**
+ * Theme function for an empty line in the diff.
+ */
+function theme_diff_empty_line($line) {
+  return $line;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function diff_theme() {
+  return array(
+    'diff_node_revisions' => array(
+      'arguments' => array('form' => NULL),
+    ),
+    'diff_table' => array(
+      'arguments' => array('header' => NULL, 'rows' => NULL, 'attributes' => array(), 'caption' => NULL, 'cols' => array()),
+    ),
+    'diff_header_line' => array(
+      'arguments' => array('lineno' => NULL),
+    ),
+    'diff_content_line' => array(
+      'arguments' => array('line' => NULL),
+    ),
+    'diff_empty_line' => array(
+      'arguments' => array('line' => NULL),
+    ),
+  );
+}
+
+/**
+ * Helper function to create default 'cols' array for diff table.
+ */
+function _diff_default_cols() {
+  return array(
+    array(
+      array(
+        'class' => 'diff-marker',
+      ),
+      array(
+        'class' => 'diff-content',
+      ),
+      array(
+        'class' => 'diff-marker',
+      ),
+      array(
+        'class' => 'diff-content',
+      ),
+    ),
+  );
 }
