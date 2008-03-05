@@ -341,17 +341,41 @@ function _diff_body_rows(&$old_node, &$new_node) {
   $rows = array();
   $any_visible_change = false;
   $node_diffs = module_invoke_all('diff', $old_node, $new_node);
+  
+  // We start off assuming all form elements are in the correct order.
+  $node_diffs['#sorted'] = TRUE;
+  
+  // Recurse through all child elements.
+  $count = 0;
+  foreach(element_children($node_diffs) as $key) {
+    // Assign a decimal placeholder weight to preserve original array order.
+    if (!isset($node_diffs[$key]['#weight'])) {
+      $node_diffs[$key]['#weight'] = $count/1000;
+    }
+    else {
+      // If one of the child elements has a weight then we will need to sort
+      // later.
+      unset($node_diffs['#sorted']);
+    }
+    $count++;
+  }
+  
+  // One of the children has a #weight.
+  if (!isset($node_diffs['#sorted'])) {
+    uasort($node_diffs, "element_sort");
+  }
+  
   foreach($node_diffs as $node_diff) {
-    $diff = new Diff($node_diff['old'], $node_diff['new']);
+    $diff = new Diff($node_diff['#old'], $node_diff['#new']);
     $formatter = new DrupalDiffFormatter();
-    if (isset($node_diff['format'])) {
-      $formatter->show_header = $node_diff['format']['show_header'];
+    if (isset($node_diff['#format'])) {
+      $formatter->show_header = $node_diff['#format']['show_header'];
     }
     $diff_rows = $formatter->format($diff);
     if (count($diff_rows)) {
       $rows[] = array(
         array(
-          'data' => t('Changes to %name', array('%name' => $node_diff['name'])),
+          'data' => t('Changes to %name', array('%name' => $node_diff['#name'])),
           'class' => 'diff-section-title',
           'colspan' => 4
         )
