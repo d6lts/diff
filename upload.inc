@@ -30,11 +30,12 @@ function upload_diff(&$old_node, &$new_node) {
       }
     }
   }
-  $result[] = array(
-    'name' => t('Attachments'),
-    'old' => $old_files,
-    'new' => $new_files,
-    'format' => array(
+  $result['attachments'] = array(
+    '#name' => t('Attachments'),
+    '#old' => $old_files,
+    '#new' => $new_files,
+    '#weight' => 30,
+    '#format' => array(
       'show_header' => false,
     )
   );

@@ -53,11 +53,12 @@ function content_diff(&$old_node, &$new_node) {
           }
           break;
       }
-      $result[] = array(
-        'name' => $field['widget']['label'],
-        'old' => $old_values,
-        'new' => $new_values,
-        'format' => array(
+      $result[$field['field_name']] = array(
+        '#name' => $field['widget']['label'],
+        '#old' => $old_values,
+        '#new' => $new_values,
+        '#weight' => $field['widget']['weight'],
+        '#format' => array(
           'show_header' => false,
         ),
       );

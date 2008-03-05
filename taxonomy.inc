@@ -44,11 +44,12 @@ function taxonomy_diff(&$old_node, &$new_node) {
       }
     }
   }
-  $result[] = array(
-    'name' => t('Taxonomy'),
-    'old' => $old_taxonomy,
-    'new' => $new_taxonomy,
-    'format' => array(
+  $result['taxonomy'] = array(
+    '#name' => t('Taxonomy'),
+    '#old' => $old_taxonomy,
+    '#new' => $new_taxonomy,
+    '#weight' => -3,
+    '#format' => array(
       'show_header' => false,
     )
   );
