@@ -573,7 +573,24 @@ function diff_node_form_add_changes($form) {
     $node = (object)$form_values;
     // Create diff of old node and edited node
     $rows = _diff_body_rows(node_load($form_values['nid']), $node);
-    $changes = theme('table', array(), $rows, array('class' => 'diff'));
+    $cols = array(
+      array(
+        array(
+          'class' => 'diff-marker',
+        ),
+        array(
+          'class' => 'diff-content',
+        ),
+        array(
+          'class' => 'diff-marker',
+        ),
+        array(
+          'class' => 'diff-content',
+        ),
+      ),
+    );
+
+    $changes = theme('diff_table', array(), $rows, array('class' => 'diff'), NULL, $cols);
     // Prepend diff to edit form
     $form['#prefix'] = isset($form['#prefix']) ? $changes . $form['#prefix'] : $changes;
   }
