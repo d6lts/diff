@@ -334,9 +334,6 @@ function _diff_body_rows(&$old_node, &$new_node) {
   if (module_exists('upload')) {
     include_once('upload.inc');
   }
-  if (module_exists('content')) {
-    include_once('cck.inc');
-  }
 
   $rows = array();
   $any_visible_change = false;
