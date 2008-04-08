@@ -14,7 +14,7 @@ function node_diff(&$old_node, &$new_node) {
     '#new' => array($new_node->title),
     '#weight' => -5,
     '#format' => array(
-      'show_header' => false,
+      'show_header' => FALSE,
     )
   );
   if ($type->has_body) {
@@ -24,5 +24,5 @@ function node_diff(&$old_node, &$new_node) {
       '#new' => explode("\n", $new_node->body),
     );
   }
-  return $result;	
+  return $result;
 }

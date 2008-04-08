@@ -17,7 +17,7 @@ define('REVISION_LIST_SIZE', 50);
 function diff_help($path, $arg) {
   switch ($path) {
     case 'admin/help#diff':
-      $output = '<p>'. t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the %view_revisions permission will also be able to view the changes between any two selected revisions. You may disable this for individual content types on the content type configuration page. This module also provides a nifty %preview_changes button while editing a post.', array('%preview_changes' => t('Preview changes'), '%view_revisions' => t('view revisions'))).'</p>';
+      $output = '<p>'. t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the %view_revisions permission will also be able to view the changes between any two selected revisions. You may disable this for individual content types on the content type configuration page. This module also provides a nifty %preview_changes button while editing a post.', array('%preview_changes' => t('Preview changes'), '%view_revisions' => t('view revisions'))) .'</p>';
       return $output;
   }
 }
@@ -88,7 +88,8 @@ function diff_node_revisions($form_state, &$node) {
     $pager_total_items[0] = count($revision_list);
     $pager_total[0] = ceil(count($revision_list) / REVISION_LIST_SIZE);
     $pager_page_array[0] = max(0, min($page, ((int)$pager_total[0]) - 1));
-  } else {
+  }
+  else {
     $revisions = $revision_list;
   }
 
@@ -207,7 +208,7 @@ function diff_node_revisions_submit($form, &$form_state) {
   // the ids are ordered so the old revision is always on the left
   $old_vid = min($form_state['values']['old'], $form_state['values']['new']);
   $new_vid = max($form_state['values']['old'], $form_state['values']['new']);
-  $form_state['redirect'] =  'node/'.$form_state['values']['nid'].'/revisions/view/'.$old_vid.'/'.$new_vid;
+  $form_state['redirect'] =  'node/'. $form_state['values']['nid'] .'/revisions/view/'. $old_vid .'/'. $new_vid;
 }
 
 /**
@@ -336,7 +337,7 @@ function _diff_body_rows(&$old_node, &$new_node) {
   }
 
   $rows = array();
-  $any_visible_change = false;
+  $any_visible_change = FALSE;
   $node_diffs = module_invoke_all('diff', $old_node, $new_node);
   
   // We start off assuming all form elements are in the correct order.
@@ -344,7 +345,7 @@ function _diff_body_rows(&$old_node, &$new_node) {
   
   // Recurse through all child elements.
   $count = 0;
-  foreach(element_children($node_diffs) as $key) {
+  foreach (element_children($node_diffs) as $key) {
     // Assign a decimal placeholder weight to preserve original array order.
     if (!isset($node_diffs[$key]['#weight'])) {
       $node_diffs[$key]['#weight'] = $count/1000;
@@ -362,7 +363,7 @@ function _diff_body_rows(&$old_node, &$new_node) {
     uasort($node_diffs, "element_sort");
   }
   
-  foreach($node_diffs as $node_diff) {
+  foreach ($node_diffs as $node_diff) {
     $diff = new Diff($node_diff['#old'], $node_diff['#new']);
     $formatter = new DrupalDiffFormatter();
     if (isset($node_diff['#format'])) {
@@ -378,7 +379,7 @@ function _diff_body_rows(&$old_node, &$new_node) {
         )
       );
       $rows = array_merge($rows, $diff_rows);
-      $any_visible_change = true;
+      $any_visible_change = TRUE;
     }
   }
   if (!$any_visible_change) {
@@ -402,7 +403,7 @@ function _diff_body_rows(&$old_node, &$new_node) {
 
 /**
  * Get the entry in the revisions list after $vid.
- * Returns false if $vid is the last entry.
+ * Returns FALSE if $vid is the last entry.
  *
  * @param $node_revisions
  *   Array of node revision IDs in descending order.
@@ -411,18 +412,18 @@ function _diff_body_rows(&$old_node, &$new_node) {
  */
 function _diff_get_next_vid(&$node_revisions, $vid) {
   $previous = NULL;
-  foreach($node_revisions as $revision) {
+  foreach ($node_revisions as $revision) {
     if ($revision->vid == $vid) {
-      return ($previous ? $previous->vid : false);
+      return ($previous ? $previous->vid : FALSE);
     }
     $previous = $revision;
   }
-  return false;
+  return FALSE;
 }
 
 /**
  * Get the entry in the revision list before $vid.
- * Returns false if $vid is the first entry.
+ * Returns FALSE if $vid is the first entry.
  *
  * @param $node_revisions
  *   Array of node revision IDs in descending order.
@@ -431,13 +432,13 @@ function _diff_get_next_vid(&$node_revisions, $vid) {
  */
 function _diff_get_previous_vid(&$node_revisions, $vid) {
   $previous = NULL;
-  foreach($node_revisions as $revision) {
+  foreach ($node_revisions as $revision) {
     if ($previous && $previous->vid == $vid) {
       return $revision->vid;
     }
     $previous = $revision;
   }
-  return false;
+  return FALSE;
 }
 
 /**
