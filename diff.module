@@ -33,6 +33,8 @@ function diff_menu() {
     'page callback' => 'diff_diffs_show',
     'page arguments' => array(1, 4, 5),
     'type' => MENU_CALLBACK,
+    'access callback' => '_node_revision_access',
+    'access arguments' => array(1),
   );
   return $items;
 }
@@ -446,7 +448,7 @@ function _diff_get_previous_vid(&$node_revisions, $vid) {
  * Used to add a 'Preview changes' button on the node edit form.
  */
 function diff_form_alter(&$form, $form_state, $form_id) {
-  if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id) {
+  if (isset($form['type']['#value']) && $form['type']['#value'] .'_node_form' == $form_id) {
     // Node editing form.
     // Add a 'Preview changes' button.
     if (variable_get('show_preview_changes_'. $form['type']['#value'], TRUE) && $form['nid']['#value'] > 0) {
