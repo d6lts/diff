@@ -240,10 +240,7 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
   // Set same title as on the 'Revisions' tab for consistency
   drupal_set_title(t('Revisions for %title', array('%title' => $node->title)));
 
-  $lame_revisions = node_revision_list($node);
-  foreach ($lame_revisions as $revision) {
-    $node_revisions[$revision->vid] = $revision;
-  }
+  $node_revisions = node_revision_list($node);
 
   $old_node = node_load($node->nid, $old_vid);
   $new_node = node_load($node->nid, $new_vid);
