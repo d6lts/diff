@@ -24,7 +24,6 @@ function diff_help($path, $arg) {
 
 /**
  * Implementation of hook_menu()
- * The menu path 'node/$nid/revisions' is overriden with 'diff_diffs'.
  */
 function diff_menu() {
   $items = array();
@@ -442,12 +441,10 @@ function _diff_get_previous_vid(&$node_revisions, $vid) {
 
 /**
  * Implementation of hook_form_alter().
- * Used to add a 'Preview changes' button on the node edit form.
  */
 function diff_form_alter(&$form, $form_state, $form_id) {
   if (isset($form['type']['#value']) && $form['type']['#value'] .'_node_form' == $form_id) {
-    // Node editing form.
-    // Add a 'Preview changes' button.
+    // Add a 'Preview changes' button on the node edit form.
     if (variable_get('show_preview_changes_'. $form['type']['#value'], TRUE) && $form['nid']['#value'] > 0) {
       $form['buttons']['preview_changes'] = array(
         '#type' => 'submit',

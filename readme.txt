@@ -13,11 +13,11 @@ it easier to see changes to HTML entities, etc.
 
 API
 -----------------
-- This module offers hook_diff() which modules may use to inject their changes into the presentation of the diff. For example, this is used by cck.inc, upload.inc, and taxonomy.inc in this package.
+- This module offers hook_diff() which modules may use to inject their changes into the presentation of the diff. For example, this is used by content.diff.inc (see CCK), upload.inc, and taxonomy.inc.
 
 TODO
 -----------------
-- Consider using in core.
+- Write a patch to add this to core.
 
 MAINTAINERS
 ---------------
