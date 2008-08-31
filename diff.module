@@ -35,7 +35,23 @@ function diff_menu() {
     'access callback' => '_node_revision_access',
     'access arguments' => array(1),
   );
+  $items['node/%node/revisions/view/latest'] = array(
+    'title' => 'Diff',
+    'page callback' => 'diff_latest',
+    'page arguments' => array(1),
+    'type' => MENU_CALLBACK,
+    'access callback' => '_node_revision_access',
+    'access arguments' => array(1),
+  );
   return $items;
+}
+
+// Menu callback - show latest diff for a given node.
+function diff_latest($node) {
+  $revisions = node_revision_list($node);
+  $new = array_shift($revisions);
+  $old = array_shift($revisions);
+  drupal_goto("node/$node->nid/revisions/view/$old->vid/$new->vid");
 }
 
 /**
