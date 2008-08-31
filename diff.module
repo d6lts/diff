@@ -52,10 +52,27 @@ function diff_menu($may_cache) {
           'weight' => 4,
           'type' => MENU_LOCAL_TASK,
         );
+        $items[] = array(
+          'path' => 'node/'. arg(1) .'/revisions/view/latest', 
+          'title' => t('Revisions'),
+          'callback' => 'diff_latest',
+          'callback arguments' => array(arg(1)),
+          'access' => $revisions_access,
+          'type' => MENU_CALLBACK,
+        );
       }
     }
   }
   return $items;
+}
+
+// Menu callback - show latest revision for a given node.
+function diff_latest($nid) {
+  $nid = (int)$nid;
+  $revisions = node_revision_list(node_load($nid));
+  $new = array_shift($revisions);
+  $old = array_shift($revisions);
+  drupal_goto("node/$nid/revisions/view/$old->vid/$new->vid");
 }
 
 /**
