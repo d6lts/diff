@@ -19,6 +19,10 @@ function diff_help($path, $arg) {
     case 'admin/help#diff':
       $output = '<p>'. t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the %view_revisions permission will also be able to view the changes between any two selected revisions. You may disable this for individual content types on the content type configuration page. This module also provides a nifty %preview_changes button while editing a post.', array('%preview_changes' => t('Preview changes'), '%view_revisions' => t('view revisions'))) .'</p>';
       return $output;
+    case 'node/%/revisions/%/view': // the following string is copied from string copied from node_help('node/%/revisions')
+      return '<p>'. t('The revisions let you track differences between multiple versions of a post.') .'</p>';
+    case 'node/%/revisions/view/%/%':
+      return '<p>'. t('Comparing two revisions:') .'</p>';
   }
 }
 
@@ -27,21 +31,43 @@ function diff_help($path, $arg) {
  */
 function diff_menu() {
   $items = array();
+  
+  /** 
+   * By using MENU_LOCAL_TASK (and 'tab_parent') we can get the various revision-views to
+   * show the View|Edit|Revision-tabs of the node on top, and have the Revisions-tab open.
+   * To avoid creating/showing any extra tabs or sub-tabs (tasks below top level) for the
+   * various paths (i.e. "Diff", "Show latest" and "Show a specific revision") that need
+   * a revision-id (vid) parameter, we make sure to set 'tab_parent' a bit odd.
+   * This solution may not be the prettiest one, but by avoiding having two _LOCAL_TASKs
+   * sharing a parent that can be accessed by its full path, it seems to work as desired.
+   * Breadcrumbs work decently, at least the node link is among the crumbs. For some reason
+   * any breadcrumbs "before/above" the node is only seen at 'node/%node/revisions/%/view'.
+   */ 
+  $items['node/%node/revisions/list'] = array(
+    // Not used directly, but was created to get the other menu items to work well
+    'title' => 'List revisions',
+    'page callback' => 'diff_diffs_overview',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'access callback' => '_node_revision_access',
+    'access arguments' => array(1),
+  );
   $items['node/%node/revisions/view/%/%'] = array(
     'title' => 'Diff',
     'page callback' => 'diff_diffs_show',
     'page arguments' => array(1, 4, 5),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_LOCAL_TASK,
     'access callback' => '_node_revision_access',
     'access arguments' => array(1),
+    'tab_parent' => 'node/%/revisions/list',
   );
   $items['node/%node/revisions/view/latest'] = array(
-    'title' => 'Diff',
+    'title' => 'Show latest diff',
     'page callback' => 'diff_latest',
     'page arguments' => array(1),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_LOCAL_TASK,
     'access callback' => '_node_revision_access',
     'access arguments' => array(1),
+    'tab_parent' => 'node/%/revisions/view',
   );
   return $items;
 }
@@ -62,6 +88,11 @@ function diff_menu_alter(&$callbacks) {
   $callbacks['node/%node/revisions']['page callback'] = 'diff_diffs_overview';
   $callbacks['node/%node/revisions']['module'] = 'diff';
   unset($callbacks['node/%node/revisions']['file']);
+
+  $callbacks['node/%node/revisions/%/view']['tab_parent'] = 'node/%/revisions/list';
+  $callbacks['node/%node/revisions/%/revert']['tab_parent'] = 'node/%/revisions/%/view';
+  $callbacks['node/%node/revisions/%/delete']['tab_parent'] = 'node/%/revisions/%/view';
+  return;
 }
 
 /**
