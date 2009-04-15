@@ -65,6 +65,166 @@ function diff_menu_alter(&$callbacks) {
 }
 
 /**
+ * Form for selecting two consecutive revisions for inline diff'ing.
+ */
+function diff_inline_form($form_state, $node, $revisions) {
+  $form = array();
+  $form['nid'] = array(
+    '#type' => 'value',
+    '#value' => $node->nid,
+  );
+  $form['#theme'] = 'diff_inline_form';
+
+  if (!empty($_SESSION['diff_inline_highlight'])) {
+    $rev = count($revisions);
+    $pad_length = strlen($rev);
+
+    // Build list of revisions. Label using sequential numbers instead of vids
+    // for easier reading.
+    $options = array();
+    foreach ($revisions as $r) {
+      $options[$r->vid] = t("#!num by !name", array('!num' => str_pad($rev, $pad_length, '0', STR_PAD_LEFT), '!date' => format_date($r->timestamp, 'small'), '!name' => $r->name));
+      $rev--;
+    }
+
+    $form['vid'] = array(
+      '#type' => 'select',
+      '#options' => $options,
+      '#default_value' => $node->vid,
+    );
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('View revision'),
+      '#submit' => array('diff_inline_on'),
+    );
+    $form['toggle'] = array(
+      '#type' => 'submit',
+      '#value' => t('Turn off highlighting'),
+      '#submit' => array('diff_inline_off'),
+    );
+  }
+  else {
+    $form['vid'] = array(
+      '#type' => 'value',
+      '#value' => $node->vid,
+    );
+    $form['toggle'] = array(
+      '#type' => 'submit',
+      '#value' => t('Highlight changes'),
+      '#submit' => array('diff_inline_on'),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Diff inline form submit handler. Retrieves node/revision information and
+ * directs user to the correct node revision page.
+ */
+function diff_inline_on(&$form, &$form_state) {
+  $_SESSION['diff_inline_highlight'] = TRUE;
+  $form_state['redirect'] = "node/{$form_state['values']['nid']}/revisions/{$form_state['values']['vid']}/view";
+}
+
+/**
+ * Diff inline form toggle submit handler. Turns off inline diff highlighting.
+ */
+function diff_inline_off(&$form, &$form_state) {
+  $_SESSION['diff_inline_highlight'] = FALSE;
+  $form_state['redirect'] = "node/{$form_state['values']['nid']}";
+}
+
+/**
+ * Theme function for diff inline forms.
+ */
+function theme_diff_inline_form($form) {
+  $output = "<div class='diff-inline-form clear-block'>";
+  $output .= "<div class='toggle'>". drupal_render($form['toggle']) ."</div>";
+  $output .= drupal_render($form);
+  $output .= "</div>";
+  return $output;
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function diff_nodeapi(&$node, $op, $teaser, $page) {
+  switch ($op) {
+    case 'view':
+      if ($page && user_access('view revisions') && variable_get('show_diff_inline_'. $node->type, FALSE)) {
+        $revisions = node_revision_list($node);
+
+        // Only render the form if there are multiple revisions
+        if (count($revisions) > 1) {
+          drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css', 'module', 'all', FALSE);
+          $node->content['diff_inline'] = array(
+            '#value' => drupal_get_form('diff_inline_form', $node, $revisions),
+            '#weight' => -100,
+          );
+
+          $vids = array_keys($revisions);
+          $position = array_search($node->vid, $vids) + 1;
+          $old = isset($vids[$position]) ? $vids[$position] : NULL;
+
+          // Only highlight changes if inline highlighting is enabled & there
+          // is actually an older revision to diff against.
+          if ($old && !empty($_SESSION['diff_inline_highlight'])) {
+            // @TODO: This is a bad hack that should instead be a patch against the node module.
+            menu_set_active_item("node/{$node->nid}");
+
+            module_load_include('php', 'diff', 'DiffEngine');
+            $new = drupal_clone($node);
+
+            // We could use a node_load() / node_prepare() combo here but for now
+            // we would rather save queries...
+            $old = db_fetch_object(db_query("SELECT body, format FROM {node_revisions} WHERE nid = %d AND vid = %d", $node->nid, $old));
+            $old->body = check_markup($old->body, $old->format, FALSE);
+
+            $new = preg_split('/(<[^>]+?>)/', $new->body, -1, PREG_SPLIT_DELIM_CAPTURE);
+            $old = preg_split('/(<[^>]+?>)/', $old->body, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+            $diff = new Diff($old, $new);
+
+            // Assemble highlighted output
+            $output = '';
+            foreach ($diff->edits as $chunk) {
+              switch ($chunk->type) {
+                case 'copy':
+                  $output .= implode("", $chunk->closing);
+                  break;
+                case 'add':
+                case 'change':
+                  foreach ($chunk->closing as $i =>$piece) {
+                    if (strpos($piece, '<') === 0 && substr($piece, strlen($piece) - 1) === '>') {
+                      $output .= $piece;
+                    }
+                    else {
+                      $output .= "<span class='diff-changed'>{$piece}</span>";
+                    }
+                  }
+                  break;
+                default:
+                  foreach ($chunk->orig as $i =>$piece) {
+                    if (strpos($piece, '<') === 0 && substr($piece, strlen($piece) - 1) === '>') {
+                      $output .= $piece;
+                    }
+                    else {
+                      $output .= "<span class='diff-deleted'>{$piece}</span>";
+                    }
+                  }
+                  break;
+              }
+            }
+            $node->content['body']['#value'] = $output;
+          }
+        }
+      }
+      break;
+  }
+}
+
+/**
  * Generate an overview table of older revisions of a node and provide 
  * an input form to select two revisions for a comparison.
  */
@@ -480,6 +640,14 @@ function diff_form_alter(&$form, $form_state, $form_id) {
       '#weight' => 10,
       '#default_value' => variable_get('show_preview_changes_'. $form['#node_type']->type, TRUE),
     );
+    // Add checkbox to present inline diff forms and highlighting to users.
+    $form['workflow']['show_diff_inline'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Show diffs inline for this content type'),
+      '#weight' => 10,
+      '#prefix' => "<strong>". t('Inline diffs') ."</strong>",
+      '#default_value' => variable_get('show_diff_inline_'. $form['#node_type']->type, FALSE),
+    );
   }
 }
 
@@ -738,6 +906,9 @@ function diff_theme() {
     ),
     'diff_empty_line' => array(
       'arguments' => array('line' => NULL),
+    ),
+    'diff_inline_form' => array(
+      'arguments' => array('form' => NULL),
     ),
   );
 }
