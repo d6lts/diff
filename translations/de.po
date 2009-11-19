@@ -128,7 +128,7 @@ msgid "The diff module overwrites the normal revisions view. The revisions table
 msgstr "Das Diff-Modul überschreibt die normale Versionenansicht von Drupal. Die Tabelle für Versionen wurde erweitert um die Möglichkeit den Unterschied zwischen zwei Versionen anzuzeigen. Benutzer mit der Berechtigung %view_revisions können auch die Differnz zwischen zwei ausgewählten Versionen sehen. Dies kann für einzelne Inhaltstpyen in der Konfiguration deaktiviert werden. Dieses Modul bietet auch eine praktische Schaltfläche %preview_changes während der Bearbeitung eines Beitrags."
 
 #: diff.module:20;175;186;187
-msgid "Preview changes"
+msgid "View changes"
 msgstr "Änderungsvorschau"
 
 #: diff.module:20

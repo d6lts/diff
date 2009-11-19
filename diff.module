@@ -17,7 +17,7 @@ define('REVISION_LIST_SIZE', 50);
 function diff_help($path, $arg) {
   switch ($path) {
     case 'admin/help#diff':
-      $output = '<p>'. t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the %view_revisions permission will also be able to view the changes between any two selected revisions. You may disable this for individual content types on the content type configuration page. This module also provides a nifty %preview_changes button while editing a post.', array('%preview_changes' => t('Preview changes'), '%view_revisions' => t('view revisions'))) .'</p>';
+      $output = '<p>'. t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the %view_revisions permission will also be able to view the changes between any two selected revisions. You may disable this for individual content types on the content type configuration page. This module also provides a nifty %preview_changes button while editing a post.', array('%preview_changes' => t('View changes'), '%view_revisions' => t('view revisions'))) .'</p>';
       return $output;
     case 'node/%/revisions/%/view':
       // the following string is copied from string copied from node_help('node/%/revisions')
@@ -181,11 +181,11 @@ function diff_nodeapi(&$node, $op, $teaser, $page) {
  */
 function diff_form_alter(&$form, $form_state, $form_id) {
   if (isset($form['type']['#value']) && $form['type']['#value'] .'_node_form' == $form_id) {
-    // Add a 'Preview changes' button on the node edit form.
+    // Add a 'View changes' button on the node edit form.
     if (variable_get('show_preview_changes_'. $form['type']['#value'], TRUE) && $form['nid']['#value'] > 0) {
       $form['buttons']['preview_changes'] = array(
         '#type' => 'submit',
-        '#value' => t('Preview changes'),
+        '#value' => t('View changes'),
         '#weight' => 12,
         '#submit' => array('diff_node_form_build_preview_changes')
       );
@@ -193,11 +193,11 @@ function diff_form_alter(&$form, $form_state, $form_id) {
   }
   elseif ($form_id == 'node_type_form' && isset($form['identity']['type'])) {
     // Node type edit form.
-    // Add checkbox to activate 'Preview changes' button per node type.
+    // Add checkbox to activate 'View changes' button per node type.
     $form['workflow']['show_preview_changes'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Show %preview_changes button on node edit form', array('%preview_changes' => t('Preview changes'))),
-      '#prefix' => '<strong>'. t('Preview changes') .'</strong>',
+      '#title' => t('Show %preview_changes button on node edit form', array('%preview_changes' => t('View changes'))),
+      '#prefix' => '<strong>'. t('View changes') .'</strong>',
       '#weight' => 10,
       '#default_value' => variable_get('show_preview_changes_'. $form['#node_type']->type, TRUE),
     );
@@ -221,7 +221,7 @@ function diff_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Callback if 'Preview changes' is pressed.
+ * Callback if 'View changes' is pressed.
  */
 function diff_node_form_build_preview_changes($form, &$form_state) {
   module_load_include('inc', 'diff', 'diff.pages');
