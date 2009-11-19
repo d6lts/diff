@@ -898,7 +898,7 @@ class DiffFormatter {
 
   function _start_block($header) {
     if ($this->show_header) {
-      echo $header;
+      echo $header . "\n";
     }
   }
 
