@@ -49,7 +49,7 @@ function diff_menu() {
     'title' => 'List revisions',
     'page callback' => 'diff_diffs_overview',
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'access callback' => '_node_revision_access',
+    'access callback' => 'diff_node_revision_access',
     'access arguments' => array(1),
     'file' => 'diff.pages.inc',
   );
@@ -58,7 +58,7 @@ function diff_menu() {
     'page callback' => 'diff_diffs_show',
     'page arguments' => array(1, 4, 5),
     'type' => MENU_LOCAL_TASK,
-    'access callback' => '_node_revision_access',
+    'access callback' => 'diff_node_revision_access',
     'access arguments' => array(1),
     'tab_parent' => 'node/%/revisions/list',
     'file' => 'diff.pages.inc',
@@ -68,7 +68,7 @@ function diff_menu() {
     'page callback' => 'diff_latest',
     'page arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
-    'access callback' => '_node_revision_access',
+    'access callback' => 'diff_node_revision_access',
     'access arguments' => array(1),
     'tab_parent' => 'node/%/revisions/view',
     'file' => 'diff.pages.inc',
@@ -98,7 +98,20 @@ function diff_menu_alter(&$callbacks) {
   $callbacks['node/%node/revisions/%/view']['tab_parent'] = 'node/%/revisions/list';
   $callbacks['node/%node/revisions/%/revert']['tab_parent'] = 'node/%/revisions/%/view';
   $callbacks['node/%node/revisions/%/delete']['tab_parent'] = 'node/%/revisions/%/view';
+
+  $callbacks['node/%node/revisions']['access callback'] =
+  $callbacks['node/%node/revisions/%/view']['access callback'] =
+  $callbacks['node/%node/revisions/%/revert']['access callback'] =
+  $callbacks['node/%node/revisions/%/delete']['access callback'] = 'diff_node_revision_access';
   return;
+}
+
+/**
+ * Access callback for the node revisions page.
+ */
+function diff_node_revision_access($node) {
+  $may_revision_this_type = variable_get('enable_revisions_page_'. $node->type, TRUE) || user_access('administer nodes');
+  return $may_revision_this_type && _node_revision_access($node);
 }
 
 /**
@@ -195,6 +208,14 @@ function diff_form_alter(&$form, $form_state, $form_id) {
       '#weight' => 10,
       '#prefix' => "<strong>". t('Inline diffs') ."</strong>",
       '#default_value' => variable_get('show_diff_inline_'. $form['#node_type']->type, FALSE),
+    );
+    // Add checkbox to enable 'Revisions' page per node type.
+    $form['workflow']['enable_revisions_page'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable the %revisions page for this content type', array('%revisions' => t('Revisions'))),
+      '#prefix' => '<strong>'. t('Enable revisions page') .'</strong>',
+      '#weight' => 11,
+      '#default_value' => variable_get('enable_revisions_page_'. $form['#node_type']->type, TRUE),
     );
   }
 }
