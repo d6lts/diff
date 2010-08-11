@@ -32,8 +32,8 @@ function diff_help($path, $arg) {
  */
 function diff_menu() {
   $items = array();
-  
-  /** 
+
+  /**
    * By using MENU_LOCAL_TASK (and 'tab_parent') we can get the various revision-views to
    * show the View|Edit|Revision-tabs of the node on top, and have the Revisions-tab open.
    * To avoid creating/showing any extra tabs or sub-tabs (tasks below top level) for the
@@ -43,7 +43,7 @@ function diff_menu() {
    * sharing a parent that can be accessed by its full path, it seems to work as desired.
    * Breadcrumbs work decently, at least the node link is among the crumbs. For some reason
    * any breadcrumbs "before/above" the node is only seen at 'node/%node/revisions/%/view'.
-   */ 
+   */
   $items['node/%node/revisions/list'] = array(
     // Not used directly, but was created to get the other menu items to work well
     'title' => 'List revisions',
@@ -170,7 +170,10 @@ function diff_nodeapi(&$node, $op, $teaser, $page) {
       // is actually an older revision to diff against.
       if ($old && !empty($_SESSION['diff_inline_highlight'])) {
         module_load_include('inc', 'diff', 'diff.pages');
-        $node->content['body']['#value'] = diff_inline_diff($node, $old);        
+        $display = diff_inline_diff($node, $old);
+        $node->content = array();
+        $node->content['diff_inline'] = array('#value' => theme('diff_inline_controls', $node), '#weight' => -100);
+        $node->content['body'] = array('#value'=>$display);
       }
     }
   }

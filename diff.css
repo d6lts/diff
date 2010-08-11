@@ -28,8 +28,11 @@ table.diff-inline-revisions td { vertical-align:top; }
  * Inline diff markup
  */
 span.diff-deleted { color:#ccc; }
+span.diff-deleted img { border: solid 2px #ccc; }
 span.diff-changed { background:#ffb; }
+span.diff-changed img { border:solid 2px #ffb; }
 span.diff-added { background:#cfc; }
+span.diff-added img { border: solid 2px #cfc; }
 
 /**
  * Traditional split diff theming

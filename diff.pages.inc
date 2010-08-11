@@ -415,15 +415,18 @@ function _diff_default_header($old_header = '', $new_header = '') {
  */
 function diff_inline_diff($node, $target_vid) {
   module_load_include('php', 'diff', 'DiffEngine');
-  $new = drupal_clone($node);
+  $new = node_build_content(drupal_clone($node));
+  unset($new->content['diff_inline']);
+  $new = drupal_render($new->content);
 
   // We could use a node_load() / node_prepare() combo here but for now
   // we would rather save queries...
-  $old = db_fetch_object(db_query("SELECT body, format FROM {node_revisions} WHERE nid = %d AND vid = %d", $node->nid, $target_vid));
-  $old->body = check_markup($old->body, $old->format, FALSE);
+  $old = node_build_content(node_load($node->nid, $target_vid, TRUE));
+  unset($old->content['diff_inline']);
+  $old = drupal_render($old->content);
 
-  $new = preg_split('/(<[^>]+?>| )/', $new->body, -1, PREG_SPLIT_DELIM_CAPTURE);
-  $old = preg_split('/(<[^>]+?>| )/', $old->body, -1, PREG_SPLIT_DELIM_CAPTURE);
+  $new = preg_split('/(<[^>]+?>| )/', $new, -1, PREG_SPLIT_DELIM_CAPTURE);
+  $old = preg_split('/(<[^>]+?>| )/', $old, -1, PREG_SPLIT_DELIM_CAPTURE);
 
   $diff = new Diff($old, $new);
   $diff->edits = _diff_inline_process_edits($diff->edits);
@@ -447,9 +450,8 @@ function diff_inline_diff($node, $target_vid) {
         break;
       default:
         $chunk->closing = _diff_inline_process_chunk($chunk->closing);
-
         foreach ($chunk->closing as $i => $piece) {
-          if ($piece === ' ' || (strpos($piece, '<') === 0 && substr($piece, strlen($piece) - 1) === '>')) {
+          if ($piece === ' ' || (strpos($piece, '<') === 0 && substr($piece, strlen($piece) - 1) === '>' && strtolower(substr($piece, 1, 3)) != 'img')) {
             $output .= $piece;
           }
           else {
