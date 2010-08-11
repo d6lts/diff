@@ -1,16 +1,22 @@
 <?php
 
 /**
+ * Menu callback - show latest diff for a given node.
+ */
+function diff_latest($node) {
+  $revisions = node_revision_list($node);
+  $new = array_shift($revisions);
+  $old = array_shift($revisions);
+  drupal_goto("node/{$node->nid}/revisions/view/{$old->vid}/{$new->vid}");
+}
+
+/**
  * Generate an overview table of older revisions of a node and provide
  * an input form to select two revisions for a comparison.
  */
 function diff_diffs_overview($node) {
-  $output = '';
-
   drupal_set_title(t('Revisions for %title', array('%title' => $node->title)));
-  $output .= drupal_get_form('diff_node_revisions', $node);
-
-  return $output;
+  return drupal_get_form('diff_node_revisions', $node);
 }
 
 /**
@@ -233,7 +239,6 @@ function diff_diffs_show($node, $old_vid, $new_vid) {
  */
 function _diff_body_rows($old_node, $new_node) {
   drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css', 'module', 'all', FALSE);
-  module_load_include('php', 'diff', 'DiffEngine');
   module_load_include('inc', 'diff', 'node');
   if (module_exists('taxonomy')) {
     module_load_include('inc', 'diff', 'taxonomy');
@@ -269,33 +274,25 @@ function _diff_body_rows($old_node, $new_node) {
     uasort($node_diffs, "element_sort");
   }
 
+  // Render diffs for each.
   foreach ($node_diffs as $node_diff) {
-    $diff = new Diff($node_diff['#old'], $node_diff['#new']);
-    $formatter = new DrupalDiffFormatter();
-    if (isset($node_diff['#format'])) {
-      $formatter->show_header = $node_diff['#format']['show_header'];
-    }
-    $diff_rows = $formatter->format($diff);
-    if (count($diff_rows)) {
-      $rows[] = array(
-        array(
-          'data' => t('Changes to %name', array('%name' => $node_diff['#name'])),
-          'class' => 'diff-section-title',
-          'colspan' => 4
-        )
-      );
-      $rows = array_merge($rows, $diff_rows);
+    $show_header = isset($node_diff['#format']['show_header']) ? $node_diff['#format']['show_header'] : FALSE;
+    if ($node_diff_rows = diff_get_rows($node_diff['#old'], $node_diff['#new'], $show_header)) {
+      $rows[] = array(array(
+        'data' => t('Changes to %name', array('%name' => $node_diff['#name'])),
+        'class' => 'diff-section-title',
+        'colspan' => 4
+      ));
+      $rows = array_merge($rows, $node_diff_rows);
       $any_visible_change = TRUE;
     }
   }
   if (!$any_visible_change) {
-    $rows[] = array(
-      array(
-        'data' => t('No visible changes'),
-        'class' => 'diff-section-title',
-        'colspan' => 4
-      ),
-    );
+    $rows[] = array(array(
+      'data' => t('No visible changes'),
+      'class' => 'diff-section-title',
+      'colspan' => 4
+    ),);
     // Needed to keep safari happy
     $rows[] = array(
       array('data' => ''),
@@ -414,7 +411,6 @@ function _diff_default_header($old_header = '', $new_header = '') {
  * Generate a rendered inline diff of the node body.
  */
 function diff_inline_diff($node, $target_vid) {
-  module_load_include('php', 'diff', 'DiffEngine');
   $new = node_build_content(drupal_clone($node));
   unset($new->content['diff_inline']);
   $new = drupal_render($new->content);
@@ -425,105 +421,5 @@ function diff_inline_diff($node, $target_vid) {
   unset($old->content['diff_inline']);
   $old = drupal_render($old->content);
 
-  $new = preg_split('/(<[^>]+?>| )/', $new, -1, PREG_SPLIT_DELIM_CAPTURE);
-  $old = preg_split('/(<[^>]+?>| )/', $old, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-  $diff = new Diff($old, $new);
-  $diff->edits = _diff_inline_process_edits($diff->edits);
-
-  // Assemble highlighted output
-  $output = '';
-  foreach ($diff->edits as $chunk) {
-    switch ($chunk->type) {
-      case 'copy':
-        $output .= implode("", $chunk->closing);
-        break;
-      case 'delete':
-        foreach ($chunk->orig as $i => $piece) {
-          if (strpos($piece, '<') === 0 && substr($piece, strlen($piece) - 1) === '>') {
-            $output .= $piece;
-          }
-          else {
-            $output .= theme('diff_inline_chunk', $piece, $chunk->type);
-          }
-        }
-        break;
-      default:
-        $chunk->closing = _diff_inline_process_chunk($chunk->closing);
-        foreach ($chunk->closing as $i => $piece) {
-          if ($piece === ' ' || (strpos($piece, '<') === 0 && substr($piece, strlen($piece) - 1) === '>' && strtolower(substr($piece, 1, 3)) != 'img')) {
-            $output .= $piece;
-          }
-          else {
-            $output .= theme('diff_inline_chunk', $piece, $chunk->type);
-          }
-        }
-        break;
-    }
-  }
-  return $output;
-}
-
-/**
- * Merge chunk segments between tag delimiters.
- */
-function _diff_inline_process_chunk($chunk) {
-  $processed = array();
-  $j = 0;
-  foreach ($chunk as $i => $piece) {
-    $next = isset($chunk[$i+1]) ? $chunk[$i+1] : NULL;
-    if (strpos($piece, '<') === 0 && substr($piece, strlen($piece) - 1) === '>') {
-      $processed[$j] = $piece;
-      $j++;
-    }
-    else if (isset($next) && strpos($next, '<') === 0 && substr($next, strlen($next) - 1) === '>') {
-      $processed[$j] .= $piece;
-      $j++;
-    }
-    else {
-      $processed[$j] .= $piece;
-    }
-  }
-  return $processed;
-}
-
-/**
- * Merge copy and equivalent edits into intelligible chunks.
- */
-function _diff_inline_process_edits($edits) {
-  $processed = array();
-  $current = array_shift($edits);
-
-  // Make two passes -- first merge space delimiter copies back into their originals.
-  while ($chunk = array_shift($edits)) {
-    if ($chunk->type == 'copy' && $chunk->orig === array(' ')) {
-      $current->orig = array_merge((array) $current->orig, (array) $chunk->orig);
-      $current->closing = array_merge((array) $current->closing, (array) $chunk->closing);
-    }
-    else {
-      $processed[] = $current;
-      $current = $chunk;
-    }
-  }
-  $processed[] = $current;
-
-  // Initial setup
-  $edits = $processed;
-  $processed = array();
-  $current = array_shift($edits);
-
-  // Second, merge equivalent chunks into each other.
-  while ($chunk = array_shift($edits)) {
-    if ($current->type == $chunk->type) {
-      $current->orig = array_merge((array) $current->orig, (array) $chunk->orig);
-      $current->closing = array_merge((array) $current->closing, (array) $chunk->closing);
-    }
-    else {
-      $processed[] = $current;
-      $current = $chunk;
-    }
-  }
-  $processed[] = $current;
-
-  return $processed;
+  return diff_get_inline($old, $new);
 }

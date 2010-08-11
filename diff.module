@@ -77,16 +77,6 @@ function diff_menu() {
 }
 
 /**
- * Menu callback - show latest diff for a given node.
- */
-function diff_latest($node) {
-  $revisions = node_revision_list($node);
-  $new = array_shift($revisions);
-  $old = array_shift($revisions);
-  drupal_goto("node/{$node->nid}/revisions/view/{$old->vid}/{$new->vid}");
-}
-
-/**
  * Implementation of hook_menu_alter().
  */
 function diff_menu_alter(&$callbacks) {
@@ -289,4 +279,42 @@ function diff_theme() {
       'file' => 'diff.theme.inc',
     ),
   );
+}
+
+/**
+ * Render a diff of two strings to a $rows array suitable for use with
+ * theme('table') or theme('diff_table').
+ *
+ * @param string $a
+ *   The source string to compare from.
+ * @param string $b
+ *   The target string to compare to.
+ * @param boolean $show_header
+ *   Display diff context headers, e.g. "Line x".
+ * @return
+ *   Array of rows usable with theme('table').
+ */
+function diff_get_rows($a, $b, $show_header = FALSE) {
+  module_load_include('php', 'diff', 'DiffEngine');
+  $formatter = new DrupalDiffFormatter();
+  $formatter->show_header = $show_header;
+  $diff = new Diff($a, $b);
+  return $formatter->format($diff);
+}
+
+/**
+ * Render a diff of two strings into HTML markup indicating additions, changes
+ * and deletions.
+ *
+ * @param string $a
+ *   The source string to compare from.
+ * @param string $b
+ *   The target string to compare to.
+ * @return
+ *   String containing HTML markup.
+ */
+function diff_get_inline($a, $b) {
+  module_load_include('php', 'diff', 'DiffEngine');
+  $diff = new DrupalDiffInline($a, $b);
+  return $diff->render();
 }
