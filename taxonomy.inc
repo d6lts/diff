@@ -38,6 +38,11 @@ function taxonomy_diff($old_node, $new_node) {
           }
         }
       }
+      elseif (is_numeric($entry)) {
+        // During editing, taxonomy is a single id.
+        $term = taxonomy_get_term($entry);
+        $new_taxonomy[] = $term->name;
+      }
       else {
         // Not during editing the taxonomy list is a list of terms.
         $new_taxonomy[] = $entry->name;
