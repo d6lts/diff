@@ -4,8 +4,8 @@
 /**
  * Implementation of hook_diff() for node.module (body and title).
  */
-function node_diff(&$old_node, &$new_node) {
-  
+function node_diff($old_node, $new_node) {
+
   $result = array();
   $type = node_get_types('type', $new_node);
   $result['title'] = array(

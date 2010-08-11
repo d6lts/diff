@@ -4,7 +4,7 @@
 /**
  * Implementation of hook_diff() for taxonomy.
  */
-function taxonomy_diff(&$old_node, &$new_node) {
+function taxonomy_diff($old_node, $new_node) {
   $result = array();
   // TODO: make taxonomy by category not only by whole taxonomy?
   $old_taxonomy = array();

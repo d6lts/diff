@@ -4,7 +4,7 @@
 /**
  * Implementation of hook_diff() for file attachments.
  */
-function upload_diff(&$old_node, &$new_node) {
+function upload_diff($old_node, $new_node) {
   $result = array();
   $old_files = array();
   if (isset($old_node->files)) {
@@ -39,5 +39,5 @@ function upload_diff(&$old_node, &$new_node) {
       'show_header' => FALSE,
     )
   );
-  return $result; 
+  return $result;
 }

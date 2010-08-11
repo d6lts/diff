@@ -4,7 +4,7 @@
  * Generate an overview table of older revisions of a node and provide
  * an input form to select two revisions for a comparison.
  */
-function diff_diffs_overview(&$node) {
+function diff_diffs_overview($node) {
   $output = '';
 
   drupal_set_title(t('Revisions for %title', array('%title' => $node->title)));
@@ -19,7 +19,7 @@ function diff_diffs_overview(&$node) {
  * @param $node
  *   Node whose revisions are displayed for selection.
  */
-function diff_node_revisions($form_state, &$node) {
+function diff_node_revisions($form_state, $node) {
   global $form_values;
   $form = array();
 
@@ -142,7 +142,7 @@ function diff_node_revisions_validate($form, &$form_state) {
  * @param $new_vid
  *   Version ID of the new revision.
  */
-function diff_diffs_show(&$node, $old_vid, $new_vid) {
+function diff_diffs_show($node, $old_vid, $new_vid) {
 
   // Set same title as on the 'Revisions' tab for consistency
   drupal_set_title(t('Revisions for %title', array('%title' => $node->title)));
@@ -231,7 +231,7 @@ function diff_diffs_show(&$node, $old_vid, $new_vid) {
  * @param $new_node
  *   Node for comparison which will be displayed on the right side.
  */
-function _diff_body_rows(&$old_node, &$new_node) {
+function _diff_body_rows($old_node, $new_node) {
   drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css', 'module', 'all', FALSE);
   module_load_include('php', 'diff', 'DiffEngine');
   module_load_include('inc', 'diff', 'node');
@@ -244,7 +244,7 @@ function _diff_body_rows(&$old_node, &$new_node) {
 
   $rows = array();
   $any_visible_change = FALSE;
-  $node_diffs = module_invoke_all('diff', $old_node, $new_node);
+  $node_diffs = _diff_module_invoke_all($old_node, $new_node);
 
   // We start off assuming all form elements are in the correct order.
   $node_diffs['#sorted'] = TRUE;
@@ -308,6 +308,31 @@ function _diff_body_rows(&$old_node, &$new_node) {
 }
 
 /**
+ * Helper function to invoke hook_diff in all enabled modules that implement it.
+ *
+ * Don't use module_invoke_all() since if date.module is enabled will clash with
+ * PHP 5.3's date_diff() function.
+ *
+ * @see module_invoke_all()
+ */
+function _diff_module_invoke_all($old_node, $new_node) {
+  $return = array();
+  foreach (module_implements('diff') as $module) {
+    if ($module == 'date') {
+      continue; // Avoid function name collision with date_diff().
+    }
+    $result = module_invoke($module, 'diff', $old_node, $new_node);
+    if (isset($result) && is_array($result)) {
+      $return = array_merge_recursive($return, $result);
+    }
+    else if (isset($result)) {
+      $return[] = $result;
+    }
+  }
+  return $return;
+}
+
+/**
  * Get the entry in the revisions list after $vid.
  * Returns FALSE if $vid is the last entry.
  *
@@ -316,7 +341,7 @@ function _diff_body_rows(&$old_node, &$new_node) {
  * @param $vid
  *   Version ID to look for.
  */
-function _diff_get_next_vid(&$node_revisions, $vid) {
+function _diff_get_next_vid($node_revisions, $vid) {
   $previous = NULL;
   foreach ($node_revisions as $revision) {
     if ($revision->vid == $vid) {
@@ -336,7 +361,7 @@ function _diff_get_next_vid(&$node_revisions, $vid) {
  * @param $vid
  *   Version ID to look for.
  */
-function _diff_get_previous_vid(&$node_revisions, $vid) {
+function _diff_get_previous_vid($node_revisions, $vid) {
   $previous = NULL;
   foreach ($node_revisions as $revision) {
     if ($previous && $previous->vid == $vid) {
