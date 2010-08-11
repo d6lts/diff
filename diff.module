@@ -109,9 +109,9 @@ function diff_menu_alter(&$callbacks) {
 /**
  * Access callback for the node revisions page.
  */
-function diff_node_revision_access($node) {
+function diff_node_revision_access($node, $op = 'view') {
   $may_revision_this_type = variable_get('enable_revisions_page_'. $node->type, TRUE) || user_access('administer nodes');
-  return $may_revision_this_type && _node_revision_access($node);
+  return $may_revision_this_type && _node_revision_access($node, $op);
 }
 
 /**
