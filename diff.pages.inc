@@ -1,4 +1,10 @@
 <?php
+// $Id$
+
+/**
+ * @file
+ * Menu callbacks for hook_menu().
+ */
 
 /**
  * Menu callback - show latest diff for a given node.
@@ -249,6 +255,7 @@ function _diff_body_rows($old_node, $new_node) {
 
   $rows = array();
   $any_visible_change = FALSE;
+  // @todo quick workaround for PHP >= 5.3.0 date_diff() conflict.
   $node_diffs = _diff_module_invoke_all($old_node, $new_node);
 
   // We start off assuming all form elements are in the correct order.
@@ -292,7 +299,7 @@ function _diff_body_rows($old_node, $new_node) {
       'data' => t('No visible changes'),
       'class' => 'diff-section-title',
       'colspan' => 4
-    ),);
+    ));
     // Needed to keep safari happy
     $rows[] = array(
       array('data' => ''),
@@ -310,6 +317,8 @@ function _diff_body_rows($old_node, $new_node) {
  * Don't use module_invoke_all() since if date.module is enabled will clash with
  * PHP 5.3's date_diff() function.
  *
+ * @todo figure out any else possible solution but not workaround.
+ * @link http://drupal.org/node/639320
  * @see module_invoke_all()
  */
 function _diff_module_invoke_all($old_node, $new_node) {
@@ -322,7 +331,7 @@ function _diff_module_invoke_all($old_node, $new_node) {
     if (isset($result) && is_array($result)) {
       $return = array_merge_recursive($return, $result);
     }
-    else if (isset($result)) {
+    elseif (isset($result)) {
       $return[] = $result;
     }
   }

@@ -1,4 +1,10 @@
 <?php
+// $Id$
+
+/**
+ * @file
+ * Themeable function callbacks for diff.module.
+ */
 
 /**
  * Theme function to display the revisions formular with means to select

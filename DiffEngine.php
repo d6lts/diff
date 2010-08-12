@@ -2,6 +2,7 @@
 // $Id$
 
 /**
+ * @file
  * A PHP diff engine for phpwiki. (Taken from phpwiki-1.3.3)
  *
  * Copyright (C) 2000, 2001 Geoffrey T. Dairiki <dairiki@dairiki.org>
@@ -485,7 +486,7 @@ class _DiffEngine {
       while (++$i < $len && $changed[$i]) {
         continue;
       }
-      
+
       do {
         /*
          * Record the length of this run of changes, so that
@@ -774,7 +775,7 @@ class DiffFormatter {
    * Should a block header be shown?
    */
   var $show_header = TRUE;
-  
+
   /**
    * Number of leading context "lines" to preserve.
    *

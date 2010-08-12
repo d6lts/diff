@@ -2,6 +2,11 @@
 // $Id$
 
 /**
+ * @file
+ * Implementation of hook_diff() for node.module (body and title).
+ */
+
+/**
  * Implementation of hook_diff() for node.module (body and title).
  */
 function node_diff($old_node, $new_node) {

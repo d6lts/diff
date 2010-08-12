@@ -2,6 +2,11 @@
 // $Id$
 
 /**
+ * @file
+ * Implementation of hook_diff() for file attachments.
+ */
+
+/**
  * Implementation of hook_diff() for file attachments.
  */
 function upload_diff($old_node, $new_node) {

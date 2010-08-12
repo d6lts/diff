@@ -2,6 +2,11 @@
 // $Id$
 
 /**
+ * @file
+ * Implementation of hook_diff() for taxonomy.
+ */
+
+/**
  * Implementation of hook_diff() for taxonomy.
  */
 function taxonomy_diff($old_node, $new_node) {
