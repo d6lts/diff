@@ -239,12 +239,12 @@ function diff_diffs_show($node, $old_vid, $new_vid) {
  */
 function _diff_body_rows($old_node, $new_node) {
   drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css', 'module', 'all', FALSE);
-  module_load_include('inc', 'diff', 'node');
+  module_load_include('inc', 'diff', 'includes/node');
   if (module_exists('taxonomy')) {
-    module_load_include('inc', 'diff', 'taxonomy');
+    module_load_include('inc', 'diff', 'includes/taxonomy');
   }
   if (module_exists('upload')) {
-    module_load_include('inc', 'diff', 'upload');
+    module_load_include('inc', 'diff', 'includes/upload');
   }
 
   $rows = array();
