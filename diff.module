@@ -73,6 +73,14 @@ function diff_menu() {
     'tab_parent' => 'node/%/revisions/view',
     'file' => 'diff.pages.inc',
   );
+  $items['node/%node/revisions/diff-inline'] = array(
+    'page callback' => 'diff_inline_ahah',
+    'page arguments' => array(1),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'diff_node_revision_access',
+    'access arguments' => array(1),
+    'file' => 'diff.pages.inc',
+  );
   return $items;
 }
 
@@ -108,24 +116,17 @@ function diff_node_revision_access($node, $op = 'view') {
  * Implementation of hook_block().
  */
 function diff_block($op = 'list', $delta = 0, $edit = array()) {
-  switch ($op) {
-    case 'list':
-      return array('inline' => array('info' => t('Diff: inline diff revisions')));
-    case 'view':
-      switch ($delta) {
-        case 'inline':
-          $block = array();
-          if (!empty($_SESSION['diff_inline_highlight'])) {
-            $node = menu_get_object();
-            $revisions = node_revision_list($node);
-            if (count($revisions) > 1) {
-              $block['subject'] = t('Revisions');
-              $block['content'] = theme('diff_inline_revisions', $node, $revisions);
-            }
-          }
-          return $block;
-      }
-      break;
+  if ($op === 'list') {
+    return array('inline' => array('info' => t('Diff: inline diff revisions')));
+  }
+  elseif ($op === 'view' && $delta === 'inline' && user_access('view revisions') && $node = menu_get_object()) {
+    $block = array();
+    $revisions = node_revision_list($node);
+    if (count($revisions) > 1) {
+      $block['subject'] = t('Highlight changes');
+      $block['content'] = drupal_get_form('diff_inline_form', $node, $revisions);
+    }
+    return $block;
   }
 }
 
@@ -134,38 +135,14 @@ function diff_block($op = 'list', $delta = 0, $edit = array()) {
  */
 function diff_nodeapi(&$node, $op, $teaser, $page) {
   if ($page && $op == 'view' && user_access('view revisions') && variable_get('show_diff_inline_'. $node->type, FALSE)) {
-    // Set the hilight flag if specified in the URL
-    if (isset($_GET['diff'])) {
-      $_SESSION['diff_inline_highlight'] = !empty($_GET['diff']);
+    // Ugly but cheap way to check that we are viewing a node's revision page.
+    if (arg(2) === 'revisions' && arg(3) === $node->vid) {
+      module_load_include('inc', 'diff', 'diff.pages');
+      $old_vid = _diff_get_previous_vid(node_revision_list($node), $node->vid);
+      $node->content = array('#value' => diff_inline_show($node, $old_vid));
     }
-
-    $vids = array_keys(node_revision_list($node));
-
-    // Only render inline diff if there are multiple revisions
-    if (count($vids) > 1) {
-      // Set the active vid before we blow this information away from others by menu_set_active_item().
-      _diff_inline_set_vid($node->vid);
-
-      // @TODO: This is a bad hack that should instead be a patch against the node module.
-      menu_set_active_item("node/{$node->nid}");
-
-      // Add inline controls.
-      $node->content['diff_inline'] = array('#value' => theme('diff_inline_controls', $node), '#weight' => -100);
-
-      // Retrieve the vid immediately antecedent to the current vid.
-      $position = array_search($node->vid, $vids) + 1;
-      $old = isset($vids[$position]) ? $vids[$position] : NULL;
-
-      // Only highlight changes if inline highlighting is enabled & there
-      // is actually an older revision to diff against.
-      if ($old && !empty($_SESSION['diff_inline_highlight'])) {
-        module_load_include('inc', 'diff', 'diff.pages');
-        $display = diff_inline_diff($node, $old);
-        $node->content = array();
-        $node->content['diff_inline'] = array('#value' => theme('diff_inline_controls', $node), '#weight' => -100);
-        $node->content['body'] = array('#value'=>$display);
-      }
-    }
+    $node->content['#prefix'] = isset($node->content['#prefix']) ? "<div id='diff-inline-{$node->nid}'>" . $node->content['#prefix'] : "<div id='diff-inline-{$node->nid}'>";
+    $node->content['#suffix'] = isset($node->content['#suffix']) ? $node->content['#suffix'] . "</div>" : "</div>";
   }
 }
 
@@ -231,17 +208,6 @@ function diff_node_form_build_preview_changes($form, &$form_state) {
 }
 
 /**
- * Helper static cache to set/retrieve the current active vid.
- */
-function _diff_inline_set_vid($vid = NULL) {
-  static $active;
-  if (!empty($vid)) {
-    $active = $vid;
-  }
-  return $active;
-}
-
-/**
  * Implementation of hook_theme().
  */
 function diff_theme() {
@@ -266,12 +232,12 @@ function diff_theme() {
       'arguments' => array('line' => NULL),
       'file' => 'diff.theme.inc',
     ),
-    'diff_inline_controls' => array(
-      'arguments' => array('info' => NULL),
+    'diff_inline_form' => array(
+      'arguments' => array('form' => array()),
       'file' => 'diff.theme.inc',
     ),
-    'diff_inline_revisions' => array(
-      'arguments' => array('form' => NULL),
+    'diff_inline_metadata' => array(
+      'arguments' => array(),
       'file' => 'diff.theme.inc',
     ),
     'diff_inline_chunk' => array(
@@ -317,4 +283,49 @@ function diff_get_inline($a, $b) {
   module_load_include('php', 'diff', 'DiffEngine');
   $diff = new DrupalDiffInline($a, $b);
   return $diff->render();
+}
+
+/**
+ * Form builder: Inline diff controls.
+ */
+function diff_inline_form($form_state, $node, $revisions) {
+  $form = array();
+  $form['node'] = array(
+    '#type' => 'value',
+    '#value' => $node
+  );
+  $form['revision'] = array(
+    '#type' => 'select',
+    '#options' => array(0 => '< '. t('No highlighting') . ' >'),
+    '#default_value' => (arg(2) === 'revisions' && arg(3) === $node->vid) ? $node->vid : 0,
+    '#ahah' => array(
+      'path' => "node/{$node->nid}/revisions/diff-inline",
+      'wrapper' => "diff-inline-{$node->nid}",
+      'method' => 'replace',
+    ),
+  );
+  foreach ($revisions as $revision) {
+    $form['revision']['#options'][$revision->vid] = t('@revision by @name', array(
+      '@revision' => format_date($revision->timestamp, 'small'),
+      '@name' => $revision->name,
+    ));
+  }
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('View'),
+    '#submit' => array('diff_inline_form_submit'),
+    '#attributes' => array('class' => 'diff-js-hidden'),
+  );
+  return $form;
+}
+
+/**
+ * Form submission handler for diff_inline_form() for JS-disabled clients.
+ */
+function diff_inline_form_submit(&$form, &$form_state) {
+  if (isset($form_state['values']['revision'], $form_state['values']['node'])) {
+    $node = $form_state['values']['node'];
+    $vid = $form_state['values']['revision'];
+    $form_state['redirect'] = "node/{$node->nid}/revisions/{$vid}/view";
+  }
 }

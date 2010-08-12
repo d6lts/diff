@@ -408,18 +408,41 @@ function _diff_default_header($old_header = '', $new_header = '') {
 }
 
 /**
- * Generate a rendered inline diff of the node body.
+ * AHAH callback for rendering the inline diff of a node.
  */
-function diff_inline_diff($node, $target_vid) {
-  $new = node_build_content(drupal_clone($node));
-  unset($new->content['diff_inline']);
+function diff_inline_ahah($node) {
+  $form_state = array('values' => $_POST);
+  if ($form = form_get_cache($form_state['values']['form_build_id'], $form_state)) {
+    if (!empty($form_state['values']['revision']) && is_numeric($form_state['values']['revision'])) {
+      $vid = $form_state['values']['revision'];
+    }
+    else {
+      $vid = 0;
+    }
+    drupal_json(array('status' => TRUE, 'data' => diff_inline_show($node, $vid)));
+    exit;
+  }
+  drupal_json(array('status' => FALSE, 'data' => ''));
+  exit;
+}
+
+/**
+ * Show the inline diff for a given node, vid. If vid = 0 or no previous vid
+ * exists for the given revision returns the normally rendered content of the
+ * specified revision.
+ */
+function diff_inline_show($node, $vid = 0, $metadata = TRUE) {
+  $new_node = $vid ? node_load($node->nid, $vid, TRUE) : drupal_clone($node);
+  $new = node_build_content($new_node);
   $new = drupal_render($new->content);
 
-  // We could use a node_load() / node_prepare() combo here but for now
-  // we would rather save queries...
-  $old = node_build_content(node_load($node->nid, $target_vid, TRUE));
-  unset($old->content['diff_inline']);
-  $old = drupal_render($old->content);
-
-  return diff_get_inline($old, $new);
+  $old = $vid ? _diff_get_previous_vid(node_revision_list($node), $vid) : 0;
+  if ($old) {
+    $old = node_build_content(node_load($node->nid, $old, TRUE));
+    $old = drupal_render($old->content);
+    $output = $metadata ? theme('diff_inline_metadata', $new_node) : '';
+    $output .= diff_get_inline($old, $new);
+    return $output;
+  }
+  return $new;
 }
