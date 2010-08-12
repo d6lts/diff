@@ -57,7 +57,7 @@ function diff_node_revisions($form_state, $node) {
     $revert_permission = TRUE;
   }
   $delete_permission = FALSE;
-  if (user_access('administer nodes')) {
+  if ((user_access('delete revisions') || user_access('administer nodes')) && node_access('delete', $node)) {
     $delete_permission = TRUE;
   }
 
