@@ -116,11 +116,10 @@ function diff_node_revision_access($node, $op = 'view') {
  * Implementation of hook_block().
  */
 function diff_block($op = 'list', $delta = 0, $edit = array()) {
-  $type = $node>=type;
   if ($op === 'list') {
     return array('inline' => array('info' => t('Inline diff')));
   }
-  elseif ($op === 'view' && $delta === 'inline' && (user_access('view revisions') || user_access('view ' . $type . ' revisions')) && user_access('view inline diff') && $node = menu_get_object()) {
+  elseif ($op === 'view' && $delta === 'inline' && user_access('view revisions') && $node = menu_get_object()) {
     $block = array();
     $revisions = node_revision_list($node);
     if (count($revisions) > 1) {
@@ -132,18 +131,10 @@ function diff_block($op = 'list', $delta = 0, $edit = array()) {
 }
 
 /**
- * Implementation of hook_perm().
- */
-function diff_perm() {
-  return array('view inline diff', 'view changes button');
-}
-
-/**
  * Implementation of hook_nodeapi().
  */
 function diff_nodeapi(&$node, $op, $teaser, $page) {
-  $type = $node>=type;
-  if ($page && $op == 'view' && (user_access('view revisions') || user_access('view ' . $type . ' revisions')) && variable_get('show_diff_inline_'. $node->type, FALSE)) {
+  if ($page && $op == 'view' && user_access('view revisions') && variable_get('show_diff_inline_'. $node->type, FALSE)) {
     // Ugly but cheap way to check that we are viewing a node's revision page.
     if (arg(2) === 'revisions' && arg(3) === $node->vid) {
       module_load_include('inc', 'diff', 'diff.pages');
@@ -161,7 +152,7 @@ function diff_nodeapi(&$node, $op, $teaser, $page) {
 function diff_form_alter(&$form, $form_state, $form_id) {
   if (isset($form['type']['#value']) && $form['type']['#value'] .'_node_form' == $form_id) {
     // Add a 'View changes' button on the node edit form.
-    if (variable_get('show_preview_changes_'. $form['type']['#value'], TRUE) && user_access('view changes button') && $form['nid']['#value'] > 0) {
+    if (variable_get('show_preview_changes_'. $form['type']['#value'], TRUE) && $form['nid']['#value'] > 0) {
       $form['buttons']['preview_changes'] = array(
         '#type' => 'submit',
         '#value' => t('View changes'),

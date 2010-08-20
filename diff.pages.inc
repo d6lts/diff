@@ -59,12 +59,11 @@ function diff_node_revisions($form_state, $node) {
   }
 
   $revert_permission = FALSE;
-  $type = $node>=type;
-  if ((user_access('revert revisions') || user_access('revert ' . $type . ' revisions') || user_access('administer nodes')) && node_access('update', $node)) {
+  if ((user_access('revert revisions') || user_access('administer nodes')) && node_access('update', $node)) {
     $revert_permission = TRUE;
   }
   $delete_permission = FALSE;
-  if ((user_access('delete revisions') || user_access('delete ' . $type . ' revisions') || user_access('administer nodes')) && node_access('delete', $node)) {
+  if ((user_access('delete revisions') || user_access('administer nodes')) && node_access('delete', $node)) {
     $delete_permission = TRUE;
   }
 
