@@ -238,7 +238,7 @@ function diff_theme() {
       'file' => 'diff.theme.inc',
     ),
     'diff_inline_metadata' => array(
-      'arguments' => array(),
+      'arguments' => array('node' => NULL),
       'file' => 'diff.theme.inc',
     ),
     'diff_inline_chunk' => array(
@@ -262,6 +262,9 @@ function diff_theme() {
  *   Array of rows usable with theme('table').
  */
 function diff_get_rows($a, $b, $show_header = FALSE) {
+  $a = is_array($a) ? $a : explode("\n", $a);
+  $b = is_array($b) ? $b : explode("\n", $b);
+
   module_load_include('php', 'diff', 'DiffEngine');
   $formatter = new DrupalDiffFormatter();
   $formatter->show_header = $show_header;
