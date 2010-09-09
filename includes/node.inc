@@ -12,9 +12,9 @@
 function node_diff($old_node, $new_node) {
 
   $result = array();
-  $type = node_get_types('type', $new_node);
+  $type = node_type_get_type($new_node);
   $result['title'] = array(
-    '#name' => $type->title_label,
+    '#name' => t($type->title_label),
     '#old' => array($old_node->title),
     '#new' => array($new_node->title),
     '#weight' => -5,
@@ -22,12 +22,22 @@ function node_diff($old_node, $new_node) {
       'show_header' => FALSE,
     )
   );
-  if ($type->has_body) {
-    $result['body'] = array(
-      '#name' => $type->body_label,
-      '#old' => explode("\n", $old_node->body),
-      '#new' => explode("\n", $new_node->body),
-    );
+
+  // @TODO: abstract this to work with all field types and/or split this
+  // integration out to be more generic.
+  $instances = field_info_instances('node', field_extract_bundle('node', $type));
+  foreach ($instances as $instance) {
+    $field_name = $instance['field_name'];
+    $langcode = field_language('node', $new_node, $field_name);
+    foreach (array_keys($new_node->{$field_name}[$langcode]) as $delta) {
+      $view_old = $old_node->{$field_name}[$langcode][$delta]['value'];
+      $view_new = $new_node->{$field_name}[$langcode][$delta]['value'];
+      $result["{$field_name}_{$delta}"] = array(
+        '#name' => t($instance['label']),
+        '#old' => explode("\n", $view_old),
+        '#new' => explode("\n", $view_new),
+      );
+    }
   }
   return $result;
 }

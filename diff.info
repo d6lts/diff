@@ -1,4 +1,10 @@
 ; $Id$
 name = Diff
 description = Show difference between node revisions.
-core = 6.x
+core = 7.x
+
+files[] = diff.module
+files[] = diff.pages.inc
+files[] = diff.theme.inc
+files[] = DiffEngine.php
+files[] = includes/node.inc
