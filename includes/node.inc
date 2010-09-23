@@ -29,14 +29,18 @@ function node_diff($old_node, $new_node) {
   foreach ($instances as $instance) {
     $field_name = $instance['field_name'];
     $langcode = field_language('node', $new_node, $field_name);
-    foreach (array_keys($new_node->{$field_name}[$langcode]) as $delta) {
-      $view_old = $old_node->{$field_name}[$langcode][$delta]['value'];
-      $view_new = $new_node->{$field_name}[$langcode][$delta]['value'];
-      $result["{$field_name}_{$delta}"] = array(
-        '#name' => t($instance['label']),
-        '#old' => explode("\n", $view_old),
-        '#new' => explode("\n", $view_new),
-      );
+    if (isset($new_node->{$field_name}[$langcode])) {
+      foreach (array_keys($new_node->{$field_name}[$langcode]) as $delta) {
+        if (isset($new_node->{$field_name}[$langcode][$delta]['value'])) {
+          $view_old = $old_node->{$field_name}[$langcode][$delta]['value'];
+          $view_new = $new_node->{$field_name}[$langcode][$delta]['value'];
+          $result["{$field_name}_{$delta}"] = array(
+            '#name' => t($instance['label']),
+            '#old' => explode("\n", $view_old),
+            '#new' => explode("\n", $view_new),
+          );
+        }
+      }
     }
   }
   return $result;
