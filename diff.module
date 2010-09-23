@@ -53,7 +53,7 @@ function diff_menu() {
     'access arguments' => array(1),
     'file' => 'diff.pages.inc',
   );
-  $items['node/%node/revisions/view/%/%'] = array(
+  $items['node/%node/revisions/view'] = array(
     'title' => 'Diff',
     'page callback' => 'diff_diffs_show',
     'page arguments' => array(1, 4, 5),
