@@ -115,7 +115,7 @@ function diff_node_revisions($form, $form_state, $node) {
   $form['submit'] = array('#type' => 'submit', '#value' => t('Show diff'));
 
   if (count($revision_list) > REVISION_LIST_SIZE) {
-    $form['#suffix'] = theme('pager', NULL, REVISION_LIST_SIZE, 0);
+    $form['#suffix'] = theme('pager');
   }
 
   return $form;
@@ -229,7 +229,8 @@ function diff_diffs_show($node, $old_vid, $new_vid) {
     $output .= '<div class="diff-section-title">'. t('Revision of !new_date:', array('!new_date' => format_date($new_node->revision_timestamp))) .'</div>';
   }
   // Don't include node links (final argument) when viewing the diff.
-  $output .= drupal_render(node_view($new_node, 'full'));
+  $view = node_view($new_node, 'full');
+  $output .= drupal_render($view);
   return $output;
 }
 
