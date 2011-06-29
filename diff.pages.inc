@@ -244,7 +244,7 @@ function diff_diffs_show($node, $old_vid, $new_vid) {
  *   Node for comparison which will be displayed on the right side.
  */
 function _diff_body_rows($old_node, $new_node) {
-  drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css', 'module', 'all', FALSE);
+  drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css');
   module_load_include('inc', 'diff', 'includes/node');
 
   $rows = array();
