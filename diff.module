@@ -67,7 +67,7 @@ function diff_menu() {
     'page callback' => 'diff_latest',
     'page arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
-    'access callback' => 'diff_node_revision_access',
+    'access callback' => '_node_revision_access',
     'access arguments' => array(1),
     'tab_parent' => 'node/%/revisions/view',
     'file' => 'diff.pages.inc',
@@ -96,10 +96,6 @@ function diff_menu_alter(&$callbacks) {
   $callbacks['node/%node/revisions/%/revert']['tab_parent'] = 'node/%/revisions/%/view';
   $callbacks['node/%node/revisions/%/delete']['tab_parent'] = 'node/%/revisions/%/view';
 
-  $callbacks['node/%node/revisions']['access callback'] =
-  $callbacks['node/%node/revisions/%/view']['access callback'] =
-  $callbacks['node/%node/revisions/%/revert']['access callback'] =
-  $callbacks['node/%node/revisions/%/delete']['access callback'] = 'diff_node_revision_access';
   return;
 }
 
