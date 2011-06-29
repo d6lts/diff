@@ -74,7 +74,7 @@ function diff_node_revisions($form, $form_state, $node) {
       $form['info'][$revision->vid] = array(
         '#markup' => t('!date by !username', array(
           '!date' => l(format_date($revision->timestamp, 'small'), "node/$node->nid"),
-          '!username' => theme('username', array('name' => $revision))))
+          '!username' => theme('username', array('account' => $revision))))
         . (($revision->log != '') ? '<p class="revision-log">'. filter_xss($revision->log) .'</p>' : ''),
       );
     }
@@ -82,7 +82,7 @@ function diff_node_revisions($form, $form_state, $node) {
       $form['info'][$revision->vid] = array(
         '#markup' => t('!date by !username', array(
           '!date' => l(format_date($revision->timestamp, 'small'), "node/$node->nid/revisions/$revision->vid/view"),
-          '!username' => theme('username', array('name' => $revision))))
+          '!username' => theme('username', array('account' => $revision))))
         . (($revision->log != '') ? '<p class="revision-log">'. filter_xss($revision->log) .'</p>' : '')
       );
       if ($revert_permission) {
@@ -166,11 +166,11 @@ function diff_diffs_show($node, $old_vid, $new_vid) {
   // Generate table header (date, username, logmessage).
   $old_header = t('!date by !username', array(
     '!date' => l(format_date($old_node->revision_timestamp), "node/$node->nid/revisions/$old_node->vid/view"),
-    '!username' => theme('username', array('name' => $node_revisions[$old_vid])),
+    '!username' => theme('username', array('account' => $node_revisions[$old_vid])),
   ));
   $new_header = t('!date by !username', array(
     '!date' => l(format_date($new_node->revision_timestamp), "node/$node->nid/revisions/$new_node->vid/view"),
-    '!username' => theme('username', array('name' => $node_revisions[$new_vid])),
+    '!username' => theme('username', array('account' => $node_revisions[$new_vid])),
   ));
 
   $old_log = $old_node->log != '' ? '<p class="revision-log">'. filter_xss($old_node->log) .'</p>' : '';
