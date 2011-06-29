@@ -314,7 +314,7 @@ function _diff_body_rows($old_node, $new_node) {
   }
 
   // save result to cache
-  cache_set($cid, $rows);
+  cache_set($cid, $rows, 'cache');
 
   return $rows;
 }
