@@ -306,7 +306,7 @@ function diff_inline_form($form_state, $node, $revisions) {
   foreach ($revisions as $revision) {
     $form['revision']['#options'][$revision->vid] = t('@revision by @name', array(
       '@revision' => format_date($revision->timestamp, 'small'),
-      '@name' => $revision->name,
+      '@name' => theme('username', $revision, array('plain' => TRUE)),
     ));
   }
   $form['submit'] = array(
