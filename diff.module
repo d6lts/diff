@@ -133,8 +133,7 @@ function diff_nodeapi(&$node, $op, $teaser, $page) {
     // Ugly but cheap way to check that we are viewing a node's revision page.
     if (arg(2) === 'revisions' && arg(3) === $node->vid) {
       module_load_include('inc', 'diff', 'diff.pages');
-      $old_vid = _diff_get_previous_vid(node_revision_list($node), $node->vid);
-      $node->content = array('#value' => diff_inline_show($node, $old_vid));
+      $node->content = array('#value' => diff_inline_show($node, $node->vid));
     }
     $node->content['#prefix'] = isset($node->content['#prefix']) ? "<div id='diff-inline-{$node->nid}'>" . $node->content['#prefix'] : "<div id='diff-inline-{$node->nid}'>";
     $node->content['#suffix'] = isset($node->content['#suffix']) ? $node->content['#suffix'] . "</div>" : "</div>";
