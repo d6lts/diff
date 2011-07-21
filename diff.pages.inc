@@ -245,15 +245,6 @@ function diff_diffs_show($node, $old_vid, $new_vid) {
 function _diff_body_rows($old_node, $new_node) {
   drupal_add_css(drupal_get_path('module', 'diff') .'/diff.css', 'module', 'all', FALSE);
 
-  // cache the result rows from the diff as it's time consuming
-  $cid = 'diff_'. $old_node->vid .'_'. $new_node->vid;
-
-  $cache = cache_get($cid);
-  if ($cache && $cache->data) {
-    return $cache->data;
-  }
-
-  // no cache, do diff
   module_load_include('inc', 'diff', 'includes/node');
   if (module_exists('taxonomy')) {
     module_load_include('inc', 'diff', 'includes/taxonomy');
@@ -317,9 +308,6 @@ function _diff_body_rows($old_node, $new_node) {
       array('data' => ''),
     );
   }
-
-  // save result to cache
-  cache_set($cid, $rows);
 
   return $rows;
 }
