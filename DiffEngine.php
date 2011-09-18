@@ -1240,7 +1240,7 @@ class DrupalDiffInline {
           break;
         case 'delete':
           foreach ($chunk->orig as $i => $piece) {
-            if (drupal_strpos($piece, '<') === 0 && drupal_substr($piece, drupal_strlen($piece) - 1) === '>') {
+            if (strpos($piece, '<') === 0 && drupal_substr($piece, drupal_strlen($piece) - 1) === '>') {
               $output .= $piece;
             }
             else {
@@ -1251,7 +1251,7 @@ class DrupalDiffInline {
         default:
           $chunk->closing = $this->process_chunk($chunk->closing);
           foreach ($chunk->closing as $i => $piece) {
-            if ($piece === ' ' || (drupal_strpos($piece, '<') === 0 && drupal_substr($piece, drupal_strlen($piece) - 1) === '>' && drupal_strtolower(drupal_substr($piece, 1, 3)) != 'img')) {
+            if ($piece === ' ' || (strpos($piece, '<') === 0 && drupal_substr($piece, drupal_strlen($piece) - 1) === '>' && drupal_strtolower(drupal_substr($piece, 1, 3)) != 'img')) {
               $output .= $piece;
             }
             else {
@@ -1272,11 +1272,11 @@ class DrupalDiffInline {
     $j = 0;
     foreach ($chunk as $i => $piece) {
       $next = isset($chunk[$i+1]) ? $chunk[$i+1] : NULL;
-      if (drupal_strpos($piece, '<') === 0 && drupal_substr($piece, drupal_strlen($piece) - 1) === '>') {
+      if (strpos($piece, '<') === 0 && drupal_substr($piece, drupal_strlen($piece) - 1) === '>') {
         $processed[$j] = $piece;
         $j++;
       }
-      elseif (isset($next) && drupal_strpos($next, '<') === 0 && drupal_substr($next, drupal_strlen($next) - 1) === '>') {
+      elseif (isset($next) && strpos($next, '<') === 0 && drupal_substr($next, drupal_strlen($next) - 1) === '>') {
         $processed[$j] .= $piece;
         $j++;
       }
