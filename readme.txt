@@ -1,5 +1,5 @@
 
-Diff 2.x for Drupal 6.x
+Diff
 -----------------------
 Diff enhances usage of node revisions by adding the following features:
 
@@ -13,12 +13,12 @@ Diff enhances usage of node revisions by adding the following features:
 Installation
 ------------
 Diff can be installed like any other Drupal module -- place it in
-the modules directory for your site and enable it on the `admin/build/modules`
+the modules directory for your site and enable it on the `admin/modules`
 page.
 
 Diff needs to be configured to be used with specific node types on your site.
 Enable any of diff's options on a content type's settings page (e.g.
-`admin/content/node-type/page`).
+`admin/structure/types/manage/page`).
 
 
 Technical
@@ -35,6 +35,7 @@ into the presentation of the diff. For example, this is used by
 
 Maintainers
 -----------
+- realityloop (Brian Gilbert)
 - dww (Derek Wright)
 - moshe (Moshe Weitzman)
 - rötzi (Julian)
