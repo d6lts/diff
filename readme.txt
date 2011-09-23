@@ -20,6 +20,11 @@ Diff needs to be configured to be used with specific node types on your site.
 Enable any of diff's options on a content type's settings page (e.g.
 `admin/structure/types/manage/page`).
 
+It is strongly advised that you also enable the automatic creation of revisions 
+on any content types you want to use this with. (e.g. 
+'admin/structure/types/manage/article/edit' Publishing options, enable Create 
+new revision)
+
 
 Technical
 ---------
