@@ -96,6 +96,14 @@ function diff_menu_alter(&$callbacks) {
 }
 
 /**
+ * Implements hook_admin_paths_alter().
+ */
+function diff_admin_paths_alter(&$paths) {
+  // Treat all user pages as administrative.
+  $paths['node/*/revisions/view/*/*'] = TRUE;
+}
+
+/**
  * Access callback for the node revisions page.
  */
 function diff_node_revision_access($node, $op = 'view') {
