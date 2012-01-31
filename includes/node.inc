@@ -50,7 +50,7 @@ function node_diff($old_node, $new_node) {
             '#new' => explode("\n", $view_new),
           );
         }
-        elseif (isset($old_node->{$field_name}[$langcode]) && !empty($old_node->{$field_name}[$langcode])) {
+        elseif (isset($old_node->{$field_name}[$langcode][$delta]['value']) && !empty($old_node->{$field_name}[$langcode][$delta]['value'])) {
           // We have a value that has been removed from the field.
           $view_old = $old_node->{$field_name}[$langcode][$delta]['value'];
           $result["{$field_name}_{$delta}"] = array(
