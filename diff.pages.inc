@@ -324,7 +324,8 @@ function _diff_module_invoke_all($old_node, $new_node) {
     if ($module == 'date') {
       continue; // Avoid function name collision with date_diff().
     }
-    $result = module_invoke($module, 'diff', $old_node, $new_node);
+    $function = "{$module}_diff";
+    $result = $function($old_node, $new_node);
     if (isset($result) && is_array($result)) {
       $return = array_merge_recursive($return, $result);
     }
