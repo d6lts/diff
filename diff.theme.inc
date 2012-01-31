@@ -296,7 +296,7 @@ function theme_diff_inline_metadata($vars) {
   $output = "<div class='diff-inline-metadata clear-block'>";
   $output .= "<div class='diff-inline-byline'>";
   $output .= t('Updated by !name on @date', array(
-    '!name' => theme('username', array('name' => $node)),
+    '!name' => theme('username', array('account' => user_load($node->revision_uid))),
     '@date' => format_date($node->revision_timestamp, 'small'),
   ));
   $output .= "</div>";
