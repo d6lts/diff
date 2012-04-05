@@ -318,7 +318,7 @@ function diff_inline_form($form, $form_state, $node, $revisions) {
     '#default_value' => (arg(2) === 'revisions' && arg(3) === $node->vid) ? $node->vid : 0,
     '#ajax' => array(
       'callback' => 'diff_inline_ajax',
-      'wrapper' => "diff-inline-{$node->nid}",
+      'wrapper' => "node-{$node->nid}",
       'method' => 'replace',
     ),
   );
@@ -344,7 +344,7 @@ function diff_inline_ajax($form, $form_state) {
   module_load_include('inc', 'diff', 'diff.pages');
   $node = $form['node']['#value'];
   $vid = isset($form_state['values']['revision']) ? $form_state['values']['revision'] : 0;
-  return "<div id='diff-inline-{$node->nid}'>" . diff_inline_show($node, $vid) . "</div>";
+  return "<div id='node-{$node->nid}'>" . diff_inline_show($node, $vid) . "</div>";
 }
 
 /**
