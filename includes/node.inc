@@ -8,7 +8,7 @@
 /**
  * Implementation of hook_diff() for node.module (body and title).
  */
-function node_diff($old_node, $new_node) {
+function node_diff($old_node, $new_node, $remove_markup) {
 
   $result = array();
   $type = node_get_types('type', $new_node);
@@ -24,8 +24,8 @@ function node_diff($old_node, $new_node) {
   if ($type->has_body) {
     $result['body'] = array(
       '#name' => $type->body_label,
-      '#old' => explode("\n", $old_node->body),
-      '#new' => explode("\n", $new_node->body),
+      '#old' => explode("\n", ($remove_markup) ? drupal_html_to_text($old_node->body) : $old_node->body),
+      '#new' => explode("\n", ($remove_markup) ? drupal_html_to_text($new_node->body) : $new_node->body),
     );
   }
   return $result;

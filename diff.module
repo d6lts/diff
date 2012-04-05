@@ -169,6 +169,12 @@ function diff_form_alter(&$form, $form_state, $form_id) {
       '#weight' => 10,
       '#default_value' => variable_get('show_preview_changes_'. $form['#node_type']->type, TRUE),
     );
+    $form['workflow']['diff']['remove_markup_default'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Remove markup by default when comparing body text'),
+      '#weight' => 10,
+      '#default_value' => variable_get('remove_markup_default_'. $form['#node_type']->type, FALSE),
+    );
     $form['workflow']['diff']['show_diff_inline'] = array(
       '#type' => 'checkbox',
       '#title' => t('Show diffs inline for this content type'),
@@ -193,7 +199,7 @@ function diff_node_form_build_preview_changes($form, &$form_state) {
   $node = node_form_submit_build_node($form, $form_state);
 
   // Create diff of old node and edited node
-  $rows = _diff_body_rows(node_load($form_state['values']['nid']), $node);
+  $rows = _diff_body_rows(node_load($form_state['values']['nid']), $node, variable_get('remove_markup_default_'. $node->type, FALSE));
   $cols = _diff_default_cols();
   $header = _diff_default_header();
   $changes = theme('diff_table', $header, $rows, array('class' => 'diff'), NULL, $cols);
