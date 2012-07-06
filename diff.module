@@ -55,7 +55,7 @@ function diff_menu() {
   $items['node/%node/revisions/view'] = array(
     'title' => 'Diff',
     'page callback' => 'diff_diffs_show',
-    'page arguments' => array(1, 4, 5),
+    'page arguments' => array(1, 4, 5, 6),
     'type' => MENU_LOCAL_TASK,
     'access callback' => 'diff_node_revision_access',
     'access arguments' => array(1),
@@ -187,6 +187,12 @@ function diff_form_node_type_form_alter(&$form, $form_state) {
       '#weight' => 10,
       '#default_value' => variable_get('show_preview_changes_' . $form['#node_type']->type, TRUE),
     );
+    $form['diff']['remove_markup_default'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Remove markup by default when comparing body text'),
+      '#weight' => 10,
+      '#default_value' => variable_get('remove_markup_default_'. $form['#node_type']->type, FALSE),
+    );
     $form['diff']['show_diff_inline'] = array(
       '#type' => 'checkbox',
       '#title' => t('Show diffs inline for this content type'),
@@ -212,7 +218,7 @@ function diff_node_form_build_preview_changes($form, &$form_state) {
   $node = node_form_submit_build_node($form, $form_state);
 
   // Create diff of old node and edited node
-  $rows = _diff_body_rows($old_node, $node);
+  $rows = _diff_body_rows($old_node, $node, variable_get('remove_markup_default_'. $node->type, FALSE));
   $cols = _diff_default_cols();
   $header = _diff_default_header();
   $changes = theme('diff_table', array('header' => $header, 'rows' => $rows, 'attributes' => array('class' => 'diff'), 'cols' => $cols));

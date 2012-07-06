@@ -9,7 +9,7 @@
 /**
  * Implements hook_diff() for node.module (body and title).
  */
-function node_diff($old_node, $new_node) {
+function node_diff($old_node, $new_node, $remove_markup) {
 
   $result = array();
   $type = node_type_get_type($new_node);
@@ -36,8 +36,8 @@ function node_diff($old_node, $new_node) {
           $view_new = $new_node->{$field_name}[$langcode][$delta]['value'];
           $result["{$field_name}_{$delta}"] = array(
             '#name' => $instance['label'],
-            '#old' => explode("\n", $view_old),
-            '#new' => explode("\n", $view_new),
+            '#old' => explode("\n", ($remove_markup) ? drupal_html_to_text($view_old) : $view_old),
+            '#new' => explode("\n", ($remove_markup) ? drupal_html_to_text($view_new) : $view_new),
           );
         }
         elseif (isset($new_node->{$field_name}[$langcode][$delta]['value'])) {
@@ -47,7 +47,7 @@ function node_diff($old_node, $new_node) {
           $result["{$field_name}_{$delta}"] = array(
             '#name' => $instance['label'],
             '#old' => '',
-            '#new' => explode("\n", $view_new),
+            '#new' => explode("\n", ($remove_markup) ? drupal_html_to_text($view_new) : $view_new),
           );
         }
         elseif (isset($old_node->{$field_name}[$langcode][$delta]['value']) && !empty($old_node->{$field_name}[$langcode][$delta]['value'])) {
@@ -55,7 +55,7 @@ function node_diff($old_node, $new_node) {
           $view_old = $old_node->{$field_name}[$langcode][$delta]['value'];
           $result["{$field_name}_{$delta}"] = array(
             '#name' => $instance['label'],
-            '#old' => explode("\n", $view_old),
+            '#old' => explode("\n", ($remove_markup) ? drupal_html_to_text($view_old) : $view_old),
             '#new' => '',
           );
         }
@@ -68,7 +68,7 @@ function node_diff($old_node, $new_node) {
           $view_old = $old_node->{$field_name}[$langcode][$delta]['value'];
           $result["{$field_name}_{$delta}"] = array(
             '#name' => $instance['label'],
-            '#old' => explode("\n", $view_old),
+            '#old' => explode("\n", ($remove_markup) ? drupal_html_to_text($view_old) : $view_old),
             '#new' => '',
           );
         }

@@ -153,8 +153,10 @@ function diff_node_revisions_validate($form, &$form_state) {
  *   Version ID of the old revision.
  * @param $new_vid
  *   Version ID of the new revision.
+ * @param $remove_markup
+ *   Strip markup before doing the diff
  */
-function diff_diffs_show($node, $old_vid, $new_vid) {
+function diff_diffs_show($node, $old_vid, $new_vid, $remove_markup = NULL) {
 
   // Set same title as on the 'Revisions' tab for consistency
   drupal_set_title(t('Revisions for @title', array('@title' => $node->title)));
@@ -163,6 +165,11 @@ function diff_diffs_show($node, $old_vid, $new_vid) {
 
   $old_node = node_load($node->nid, $old_vid);
   $new_node = node_load($node->nid, $new_vid);
+
+  // Set default for remove markup if not set
+  if ($remove_markup == NULL) {
+    $remove_markup = variable_get('remove_markup_default_'. $node->type, FALSE);
+  }
 
   // Generate table header (date, username, logmessage).
   $old_header = t('!date by !username', array(
@@ -220,7 +227,22 @@ function diff_diffs_show($node, $old_vid, $new_vid) {
       'colspan' => 2
     )
   );
-  $rows = array_merge($rows, _diff_body_rows($old_node, $new_node));
+
+  if ($remove_markup) {
+    $show_hide_markup_link= l(t('Show Markup'), 'node/'. $node->nid .'/revisions/view/'. $old_vid .'/'. $new_vid .'/0');
+  }
+  else {
+    $show_hide_markup_link = l(t('Hide Markup'), 'node/'. $node->nid .'/revisions/view/'. $old_vid .'/'. $new_vid .'/1');
+  }
+  $rows[] = array(
+    array(
+      'data' => $show_hide_markup_link,
+      'class' => 'diff-prevlink',
+      'colspan' => 4,
+    )
+  );
+
+  $rows = array_merge($rows, _diff_body_rows($old_node, $new_node, $remove_markup));
   $output = theme('diff_table', array('header' => $header, 'rows' => $rows, 'attributes' => array('class' => array('diff')), 'cols' => $cols));
 
   if ($node->vid == $new_vid) {
@@ -243,8 +265,10 @@ function diff_diffs_show($node, $old_vid, $new_vid) {
  *   Node for comparison which will be displayed on the left side.
  * @param $new_node
  *   Node for comparison which will be displayed on the right side.
+ * @param $remove_markup
+ *   Strip markup before doing the diff
  */
-function _diff_body_rows($old_node, $new_node) {
+function _diff_body_rows($old_node, $new_node, $remove_markup = FALSE) {
   drupal_add_css(drupal_get_path('module', 'diff') . '/diff.css');
 
   module_load_include('inc', 'diff', 'includes/node');
@@ -252,7 +276,7 @@ function _diff_body_rows($old_node, $new_node) {
   $rows = array();
   $any_visible_change = FALSE;
   // @todo quick workaround for PHP >= 5.3.0 date_diff() conflict.
-  $node_diffs = _diff_module_invoke_all($old_node, $new_node);
+  $node_diffs = _diff_module_invoke_all($old_node, $new_node, $remove_markup);
 
   // We start off assuming all form elements are in the correct order.
   $node_diffs['#sorted'] = TRUE;
@@ -318,14 +342,14 @@ function _diff_body_rows($old_node, $new_node) {
  * @link http://drupal.org/node/639320
  * @see module_invoke_all()
  */
-function _diff_module_invoke_all($old_node, $new_node) {
+function _diff_module_invoke_all($old_node, $new_node, $remove_markup = FALSE) {
   $return = array();
   foreach (module_implements('diff') as $module) {
     if ($module == 'date') {
       continue; // Avoid function name collision with date_diff().
     }
     $function = "{$module}_diff";
-    $result = $function($old_node, $new_node);
+    $result = $function($old_node, $new_node, $remove_markup);
     if (isset($result) && is_array($result)) {
       $return = array_merge_recursive($return, $result);
     }
