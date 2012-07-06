@@ -21,7 +21,7 @@ function diff_latest($node) {
  * an input form to select two revisions for a comparison.
  */
 function diff_diffs_overview($node) {
-  drupal_set_title(t('Revisions for @title', array('@title' => $node->title)));
+  drupal_set_title(t('Revisions for %title', array('%title' => $node->title)), PASS_THROUGH);
   return drupal_get_form('diff_node_revisions', $node);
 }
 
