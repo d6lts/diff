@@ -13,11 +13,9 @@ function diff_uninstall() {
   $prefixes = array(
     'diff_enable_revisions_page_',
     'diff_show_',
-    'diff_show_preview_changes_',
     'diff_view_mode_',
     'diff_admin_path_',
     'diff_default_state_',
-    'diff_remove_markup_default_'
   );
   foreach ($prefixes as $prefix) {
     db_delete('variable')
