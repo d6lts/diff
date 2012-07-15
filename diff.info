@@ -3,3 +3,7 @@ description = Show difference between node revisions.
 core = 7.x
 
 files[] = DiffEngine.php
+
+; This would support Module supports if it ever gets ported.
+; The module Field formatter settings enables field formatter alter hooks.
+recommends[] = field_formatter_settings

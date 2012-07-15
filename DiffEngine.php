@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file
@@ -799,7 +798,6 @@ class DiffFormatter {
    * @return string The formatted output.
    */
   function format($diff) {
-
     $xi = $yi = 1;
     $block = FALSE;
     $context = array();
@@ -851,6 +849,14 @@ class DiffFormatter {
       $this->_block($x0, $xi - $x0, $y0, $yi - $y0, $block);
     }
     $end = $this->_end_diff();
+
+    if (!empty($xi)) {
+      $this->line_stats['counter']['x'] += $xi;
+    }
+    if (!empty($yi)) {
+      $this->line_stats['counter']['y'] += $yi;
+    }
+
     return $end;
   }
 
@@ -1084,10 +1090,14 @@ class WordLevelDiff extends MappedDiff {
 class DrupalDiffFormatter extends DiffFormatter {
 
   var $rows;
+  var $line_stats = array(
+    'counter' => array('x' => 0, 'y' => 0),
+    'offset' => array('x' => 0, 'y' => 0),
+  );
 
   function DrupalDiffFormatter() {
-    $this->leading_context_lines = 2;
-    $this->trailing_context_lines = 2;
+    $this->leading_context_lines = variable_get('diff_leading_context_lines', 2);
+    $this->trailing_context_lines = variable_get('diff_trailing_context_lines', 2);
   }
 
   function _start_diff() {
@@ -1101,11 +1111,11 @@ class DrupalDiffFormatter extends DiffFormatter {
   function _block_header($xbeg, $xlen, $ybeg, $ylen) {
     return array(
       array(
-        'data' => theme('diff_header_line', array('lineno' => $xbeg)),
+        'data' => theme('diff_header_line', array('lineno' => $xbeg + $this->line_stats['offset']['x'])),
         'colspan' => 2,
       ),
       array(
-        'data' => theme('diff_header_line', array('lineno' => $ybeg)),
+        'data' => theme('diff_header_line', array('lineno' => $ybeg + $this->line_stats['offset']['y'])),
         'colspan' => 2,
       )
     );
@@ -1128,10 +1138,13 @@ class DrupalDiffFormatter extends DiffFormatter {
    */
   function addedLine($line) {
     return array(
-      '+',
+      array(
+        'data' => '+',
+        'class' => 'diff-marker',
+      ),
       array(
         'data' => theme('diff_content_line', array('line' => $line)),
-        'class' => 'diff-addedline',
+        'class' => 'diff-context diff-addedline',
       )
     );
   }
@@ -1141,10 +1154,13 @@ class DrupalDiffFormatter extends DiffFormatter {
    */
   function deletedLine($line) {
     return array(
-      '-',
+      array(
+        'data' => '-',
+        'class' => 'diff-marker',
+      ),
       array(
         'data' => theme('diff_content_line', array('line' => $line)),
-        'class' => 'diff-deletedline',
+        'class' => 'diff-context diff-deletedline',
       )
     );
   }
@@ -1197,7 +1213,7 @@ class DrupalDiffFormatter extends DiffFormatter {
 
     while ($line = array_shift($del)) {
       $aline = array_shift( $add );
-      $this->rows[] = array_merge($this->deletedLine($line), $this->addedLine($aline));
+      $this->rows[] = array_merge($this->deletedLine($line), isset($aline) ? $this->addedLine($aline) : $this->emptyLine());
     }
     foreach ($add as $line) {  // If any leftovers
       $this->rows[] = array_merge($this->emptyLine(), $this->addedLine($line));
@@ -1272,6 +1288,9 @@ class DrupalDiffInline {
     $j = 0;
     foreach ($chunk as $i => $piece) {
       $next = isset($chunk[$i+1]) ? $chunk[$i+1] : NULL;
+      if (!isset($processed[$j])) {
+        $processed[$j] = '';
+      }
       if (strpos($piece, '<') === 0 && drupal_substr($piece, drupal_strlen($piece) - 1) === '>') {
         $processed[$j] = $piece;
         $j++;
