@@ -1096,8 +1096,8 @@ class DrupalDiffFormatter extends DiffFormatter {
   );
 
   function DrupalDiffFormatter() {
-    $this->leading_context_lines = variable_get('diff_leading_context_lines', 2);
-    $this->trailing_context_lines = variable_get('diff_trailing_context_lines', 2);
+    $this->leading_context_lines = variable_get('diff_context_lines_leading', 2);
+    $this->trailing_context_lines = variable_get('diff_context_lines_trailing', 2);
   }
 
   function _start_diff() {

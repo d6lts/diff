@@ -24,11 +24,11 @@ function diff_uninstall() {
   }
 
   // Delete global variables.
-  variable_del('diff_trailing_context_lines');
-  variable_del('diff_leading_context_lines');
+  variable_del('diff_context_lines_trailing');
+  variable_del('diff_context_lines_leading');
   variable_del('diff_normalise_text');
   variable_del('diff_theme');
-  variable_del('diff_script_revisioning', '');
+  variable_del('diff_radio_behavior', '');
 
   foreach (field_info_fields() as $field) {
     variable_del("diff_{$field['module']}_field_{$field['type']}_default_options");
@@ -78,4 +78,22 @@ function diff_update_7301() {
 function diff_update_7302() {
   variable_set('menu_rebuild_needed', TRUE);
   variable_set('diff_script_revisioning', '');
+}
+
+/**
+ * Rename some admin settings.
+ */
+function diff_update_7303() {
+  // Get current values
+  $radio = variable_get('diff_script_revisioning');
+  $leading = variable_get('diff_leading_context_lines');
+  $trailing = variable_get('diff_trailing_context_lines');
+  // Create new variable names
+  variable_set('diff_radio_behavior', $radio);
+  variable_set('diff_context_lines_leading', $leading);
+  variable_set('diff_context_lines_trailing', $trailing);
+  // Delete old variables
+  variable_del('diff_script_revisioning');
+  variable_del('diff_leading_context_lines');
+  variable_del('diff_trailing_context_lines');
 }

@@ -710,7 +710,7 @@ function diff_build_attachments($jscript = FALSE) {
       drupal_get_path('module', 'diff') . "/css/diff.{$theme}.css",
     );
   }
-  if ($jscript && $type = variable_get('diff_script_revisioning', 'simple')) {
+  if ($jscript && $type = variable_get('diff_radio_behavior', 'simple')) {
     $attachments['js'] = array(
       drupal_get_path('module', 'diff') . "/js/diff.js",
       array(

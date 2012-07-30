@@ -11,18 +11,19 @@
 function diff_admin_settings($form, $form_state) {
   $form['diff_theme'] = array(
     '#type' => 'select',
-    '#title' => t('CSS'),
+    '#title' => t('CSS Options'),
     '#default_value' => variable_get('diff_theme', 'default'),
     '#options' => array(
       'default' => t('Classic'),
       'boxes' => t('Boxes'),
     ),
     '#empty_option' => t('None'),
+    '#description' => t('Alter the CSS used when displaying diff results.'),
   );
-  $form['diff_script_revisioning'] = array(
+  $form['diff_radio_behavior'] = array(
     '#type' => 'select',
-    '#title' => t('Revisioning JScript Options'),
-    '#default_value' => variable_get('diff_script_revisioning', 'simple'),
+    '#title' => t('Diff Radio Behavior'),
+    '#default_value' => variable_get('diff_radio_behavior', 'simple'),
     '#options' => array(
       'simple' => t('Simple exclusion'),
       'linear' => t('Linear restrictions'),
@@ -32,23 +33,23 @@ function diff_admin_settings($form, $form_state) {
   );
 
   $options = drupal_map_assoc(array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-  $form['diff_leading_context_lines'] = array(
+  $form['diff_context_lines_leading'] = array(
     '#type' => 'select',
     '#title' => t('Leading context lines'),
     '#description' => t('This governs the number of unchanged leading context "lines" to preserve.'),
-    '#default_value' => variable_get('diff_leading_context_lines', 2),
+    '#default_value' => variable_get('diff_context_lines_leading', 2),
     '#options' => $options,
   );
-  $form['diff_trailing_context_lines'] = array(
+  $form['diff_context_lines_trailing'] = array(
     '#type' => 'select',
     '#title' => t('Trailing context lines'),
     '#description' => t('This governs the number of unchanged trailing context "lines" to preserve.'),
-    '#default_value' => variable_get('diff_trailing_context_lines', 2),
+    '#default_value' => variable_get('diff_context_lines_trailing', 2),
     '#options' => $options,
   );
   $form['diff_normalise_text'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Normalise text'),
+    '#title' => t('Normalise text newlines before diff display'),
     '#description' => t('Convert all Windows and Mac newlines to a single newline, so diff only need to deal with one newline type. Unix users should have no need to enable this option.'),
     '#default_value' => variable_get('diff_normalise_text', 0),
   );
