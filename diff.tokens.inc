@@ -10,12 +10,12 @@
  */
 function diff_token_info() {
   $node['diff'] = array(
-    'name' => t('Latest diff'),
-    'description' => t('The difference between the current revision and the previous revision of this node.'),
+    'name' => t('Latest differences'),
+    'description' => t('The differences between the current revision and the previous revision of this node.'),
   );
   $node['diff-markdown'] = array(
-    'name' => t('Latest diff (markdowned)'),
-    'description' => t('The difference between the current revision and the previous revision of this node, but comparison uses a markdowned state.'),
+    'name' => t('Latest differences (marked down)'),
+    'description' => t('The differences between the current revision and the previous revision of this node, but with a marked-down form of each revision used for comparison.'),
   );
 
   return array(

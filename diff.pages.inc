@@ -115,7 +115,7 @@ function diff_node_revisions($form, $form_state, $node) {
     '#default_value' => $new_vid,
   );
 
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Show diff'));
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Compare'));
 
   if (count($revision_list) > REVISION_LIST_SIZE) {
     $form['#suffix'] = theme('pager');
@@ -170,7 +170,7 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
 
   // Same title as the 'Revisions' tab. Blocked by non-page requests.
   if (node_is_page($node)) {
-    drupal_set_title(t('Revisions for @title', array('@title' => $node->title)));
+    drupal_set_title(t('Revisions for %title', array('%title' => $node->title)), PASS_THROUGH);
   }
   $node_revisions = node_revision_list($node);
 
@@ -194,14 +194,14 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
   $nav_suffix = ($default_state != $state) ? '/' . str_replace('_', '-', $state) : '';
   $next_vid = _diff_get_next_vid($node_revisions, $new_vid);
   if ($next_vid) {
-    $next_link = l(t('next diff >'), 'node/' . $node->nid . '/revisions/view/' . $new_vid . '/' . $next_vid . $nav_suffix, array('absolute' => 1));
+    $next_link = l(t('next difference >'), 'node/' . $node->nid . '/revisions/view/' . $new_vid . '/' . $next_vid . $nav_suffix, array('absolute' => 1));
   }
   else {
     $next_link = '';
   }
   $prev_vid = _diff_get_previous_vid($node_revisions, $old_vid);
   if ($prev_vid) {
-    $prev_link = l(t('< previous diff'), 'node/' . $node->nid . '/revisions/view/' . $prev_vid . '/' . $old_vid . $nav_suffix, array('absolute' => 1));
+    $prev_link = l(t('< previous difference'), 'node/' . $node->nid . '/revisions/view/' . $prev_vid . '/' . $old_vid . $nav_suffix, array('absolute' => 1));
   }
   else {
     $prev_link = '';
@@ -275,7 +275,7 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
       $header .= '<div class="diff-section-title">' . t('Current revision:') . '</div>';
     }
     else {
-      $header .= '<div class="diff-section-title">' . t('Revision of !new_date:', array('!new_date' => format_date($new_node->revision_timestamp))) . '</div>';
+      $header .= '<div class="diff-section-title">' . t('Revision of @new_date:', array('@new_date' => format_date($new_node->revision_timestamp))) . '</div>';
     }
     $build['diff_preview']['header']['#markup'] = $header;
     // Don't include node links (final argument) when viewing the diff.

@@ -80,7 +80,7 @@ function diff_admin_global_entity_settings($form, $form_state, $entity_type) {
  */
 function diff_admin_field_overview() {
   $build['info'] = array(
-    '#markup' => t('<p>This table provides a summary of the field type support found on the system. It is recommended that you use global settings whenever possible to configure field comparison settings.</p>'),
+    '#markup' => '<p>' . t('This table provides a summary of the field type support found on the system. It is recommended that you use global settings whenever possible to configure field comparison settings.') . '</p>',
   );
 
   $header = array(t('Type'), t('Module'), t('Operations'));

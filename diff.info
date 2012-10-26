@@ -1,5 +1,5 @@
 name = Diff
-description = Show difference between node revisions.
+description = Show differences between content revisions.
 core = 7.x
 
 files[] = DiffEngine.php

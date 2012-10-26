@@ -37,11 +37,11 @@ define('DIFF_SORT_CUSTOM', '-1');
 function diff_help($path, $arg) {
   switch ($path) {
     case 'admin/help#diff':
-      $output = '<p>' . t('The diff module overwrites the normal revisions view. The revisions table is enhanced with a possibility to view the difference between two node revisions. Users with the %view_revisions permission will also be able to view the changes between any two selected revisions. You may disable this for individual content types on the content type configuration page. This module also provides a nifty %preview_changes button while editing a post.', array('%preview_changes' => t('View changes'), '%view_revisions' => t('view revisions'))) . '</p>';
+      $output = '<p>' . t('The Diff module replaces the normal <em>Revisions</em> node tab. Diff enhances the listing of revisions with an option to view the differences between any two node revisions. Access to this feature is controlled with the <em>View revisions</em> permission. The feature can be disabled for an entire content type on the content type configuration page. Diff also provides an optional <em>View changes</em> button while editing a node.') . '</p>';
       return $output;
     case 'node/%/revisions/%/view':
       // The translated strings should match node_help('node/%/revisions').
-      return '<p>' . t('The revisions let you track differences between multiple versions of a post.') . '</p>';
+      return '<p>' . t('Revisions allow you to track differences between multiple versions of your content, and revert back to older versions.') . '</p>';
     case 'node/%/revisions/view/%/%':
       return '<p>' . t('Comparing two revisions:') . '</p>';
   }
@@ -91,7 +91,7 @@ function diff_menu() {
     'file' => 'diff.pages.inc',
   );
   $items['node/%node/revisions/view'] = array(
-    'title' => 'Diff',
+    'title' => 'Compare revisions',
     'page callback' => 'diff_diffs_show',
     'page arguments' => array(1, 4, 5, 6),
     'type' => MENU_LOCAL_TASK,
@@ -102,7 +102,7 @@ function diff_menu() {
   );
 
   $items['node/%node/revisions/view/latest'] = array(
-    'title' => 'Show latest diff',
+    'title' => 'Show latest difference',
     'page callback' => 'diff_latest',
     'page arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
@@ -268,7 +268,7 @@ function diff_entity_info_alter(&$entity_info) {
  * Implements hook_block_info().
  */
 function diff_block_info() {
-  return array('inline' => array('info' => t('Inline diff')));
+  return array('inline' => array('info' => t('Inline differences')));
 }
 
 /**
@@ -327,36 +327,35 @@ function diff_form_node_type_form_alter(&$form, $form_state) {
   if (isset($form['type'])) {
     $type = $form['#node_type'];
     $form['diff'] = array(
-      '#title' => t('Diff'),
+      '#title' => t('Compare revisions'),
       '#type' => 'fieldset',
       '#group' => 'additional_settings',
       '#tree' => FALSE,
     );
     $form['diff']['diff_show_preview_changes_node'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Show %preview_changes button on node edit form', array('%preview_changes' => t('View changes'))),
+      '#title' => t('Show <em>View changes<em> button on node edit form'),
       '#weight' => 10,
       '#default_value' => variable_get('diff_show_preview_changes_node_' . $type->type, TRUE),
     );
     $form['diff']['diff_show_diff_inline_node'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Show diffs inline for this content type'),
-      '#description' => t("You must enable the 'Inline diff' block to use this feature"),
+      '#title' => t('Show inline differences for this content type'),
+      '#description' => t('You must enable the <em>Inline differences</em> block to use this feature.'),
       '#weight' => 10,
       '#default_value' => variable_get('diff_show_diff_inline_node_' . $type->type, FALSE),
     );
     $form['diff']['diff_enable_revisions_page_node'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Enable the %revisions page for this content type', array('%revisions' => t('Revisions'))),
+      '#title' => t('Enable the <em>Revisions</em> page for this content type'),
       '#weight' => 11,
       '#default_value' => variable_get('diff_enable_revisions_page_node_' . $type->type, TRUE),
     );
     $form['diff']['diff_view_mode_standard_node'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Use %view_mode view mode when doing standard field comparisons', array('%view_mode' => t('Diff standard'))),
-      '#description' => t('<p>You need to enable this view mode in the @type_label types %custom_display_settings to control settings other than just what fields are shown. Once enabled you can configure many of the diff options used to compare these fields.</p><p><em>If it is not selected, all compatable fields will be compared using default settings.</em></p>', array(
+      '#title' => t('Use <em>Diff standard</em> view mode when doing standard field comparisons'),
+      '#description' => t("You need to enable this view mode in the @type_label type's <em>Custom display settings</em> to control settings other than just what fields are shown. Once enabled you can configure many of the diff options used to compare these fields. <em>If it is not selected, all compatible fields will be compared using default settings.</em>", array(
         '@type_label' => $type->name,
-        '%custom_display_settings' => t('Custom display settings'),
       )),
       '#weight' => 12,
       '#default_value' => variable_get('diff_view_mode_standard_node_' . $type->type, FALSE),
@@ -369,9 +368,7 @@ function diff_form_node_type_form_alter(&$form, $form_state) {
     $form['diff']['diff_view_mode_preview_node'] = array(
       '#type' => 'select',
       '#title' => t('Standard comparison preview'),
-      '#description' => t('This governs the %current view mode when doing standard comparisons.', array(
-        '%current' => t('Current revision:'),
-      )),
+      '#description' => t('Governs the <em>Current revision</em> view mode when doing standard comparisons.'),
       '#options' => $options,
       '#weight' => 13,
       '#default_value' => variable_get('diff_view_mode_preview_node_' . $type->type, 'full'),
@@ -381,7 +378,7 @@ function diff_form_node_type_form_alter(&$form, $form_state) {
     $form['diff']['diff_view_mode_inline_node'] = array(
       '#type' => 'select',
       '#title' => t('Inline diff view mode'),
-      '#description' => t('This governs what view mode is used to compare and display content in this block.'),
+      '#description' => t('Governs which view mode is used to compare and display content in this block.'),
       '#options' => $options,
       '#weight' => 14,
       '#default_value' => variable_get('diff_view_mode_inline_node_' . $type->type, 'diff_complete'),
@@ -549,7 +546,7 @@ function diff_inline_form($form, $form_state, $node, $revisions) {
   );
   $form['revision'] = array(
     '#type' => 'select',
-    '#options' => array(0 => '< ' . t('No highlighting') . ' >'),
+    '#options' => array(0 => t('- No highlighting -')),
     '#default_value' => (arg(2) === 'revisions' && arg(3) === $node->vid) ? $node->vid : 0,
     '#ajax' => array(
       'callback' => 'diff_inline_ajax',
