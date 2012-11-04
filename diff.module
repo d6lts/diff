@@ -37,7 +37,7 @@ define('DIFF_SORT_CUSTOM', '-1');
 function diff_help($path, $arg) {
   switch ($path) {
     case 'admin/help#diff':
-      $output = '<p>' . t('The Diff module replaces the normal <em>Revisions</em> node tab. Diff enhances the listing of revisions with an option to view the differences between any two node revisions. Access to this feature is controlled with the <em>View revisions</em> permission. The feature can be disabled for an entire content type on the content type configuration page. Diff also provides an optional <em>View changes</em> button while editing a node.') . '</p>';
+      $output = '<p>' . t('The Diff module replaces the normal <em>Revisions</em> node tab. Diff enhances the listing of revisions with an option to view the differences between any two content revisions. Access to this feature is controlled with the <em>View revisions</em> permission. The feature can be disabled for an entire content type on the content type configuration page. Diff also provides an optional <em>View changes</em> button while editing a node.') . '</p>';
       return $output;
     case 'node/%/revisions/%/view':
       // The translated strings should match node_help('node/%/revisions').
@@ -230,7 +230,7 @@ function diff_entity_info_alter(&$entity_info) {
     if (!empty($entity_info[$entity_type]['view modes'])) {
       $entity_info[$entity_type]['view modes'] += array(
         'diff_standard' => array(
-          'label' => t('Diff comparison'),
+          'label' => t('Revision comparison'),
           'custom settings' => FALSE,
         ),
       );

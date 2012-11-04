@@ -11,24 +11,24 @@
 function diff_admin_settings($form, $form_state) {
   $form['diff_theme'] = array(
     '#type' => 'select',
-    '#title' => t('CSS Options'),
+    '#title' => t('CSS options'),
     '#default_value' => variable_get('diff_theme', 'default'),
     '#options' => array(
       'default' => t('Classic'),
       'boxes' => t('Boxes'),
     ),
-    '#empty_option' => t('None'),
+    '#empty_option' => t('- None -'),
     '#description' => t('Alter the CSS used when displaying diff results.'),
   );
   $form['diff_radio_behavior'] = array(
     '#type' => 'select',
-    '#title' => t('Diff Radio Behavior'),
+    '#title' => t('Diff radio behavior'),
     '#default_value' => variable_get('diff_radio_behavior', 'simple'),
     '#options' => array(
       'simple' => t('Simple exclusion'),
       'linear' => t('Linear restrictions'),
     ),
-    '#empty_option' => t('None'),
+    '#empty_option' => t('- None -'),
     '#description' => t('<em>Simple exclusion</em> means that users will not be able to select the same revision, <em>Linear restrictions</em> means that users can only select older or newer revisions of the current selections.'),
   );
 

@@ -85,12 +85,12 @@ function diff_node_revisions($form, $form_state, $node) {
       );
       if ($revert_permission) {
         $operations[] = array(
-          '#markup' => l(t('revert'), "node/$node->nid/revisions/$revision->vid/revert"),
+          '#markup' => l(t('Revert'), "node/$node->nid/revisions/$revision->vid/revert"),
         );
       }
       if ($delete_permission) {
         $operations[] = array(
-          '#markup' => l(t('delete'), "node/$node->nid/revisions/$revision->vid/delete"),
+          '#markup' => l(t('Delete'), "node/$node->nid/revisions/$revision->vid/delete"),
         );
       }
       // Set a dummy, even if the user has no permission for the other
@@ -194,14 +194,14 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
   $nav_suffix = ($default_state != $state) ? '/' . str_replace('_', '-', $state) : '';
   $next_vid = _diff_get_next_vid($node_revisions, $new_vid);
   if ($next_vid) {
-    $next_link = l(t('next difference >'), 'node/' . $node->nid . '/revisions/view/' . $new_vid . '/' . $next_vid . $nav_suffix, array('absolute' => 1));
+    $next_link = l(t('Next difference >'), 'node/' . $node->nid . '/revisions/view/' . $new_vid . '/' . $next_vid . $nav_suffix, array('absolute' => 1));
   }
   else {
     $next_link = '';
   }
   $prev_vid = _diff_get_previous_vid($node_revisions, $old_vid);
   if ($prev_vid) {
-    $prev_link = l(t('< previous difference'), 'node/' . $node->nid . '/revisions/view/' . $prev_vid . '/' . $old_vid . $nav_suffix, array('absolute' => 1));
+    $prev_link = l(t('< Previous difference'), 'node/' . $node->nid . '/revisions/view/' . $prev_vid . '/' . $old_vid . $nav_suffix, array('absolute' => 1));
   }
   else {
     $prev_link = '';

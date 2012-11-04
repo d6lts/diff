@@ -79,7 +79,7 @@ function theme_diff_node_revisions($vars) {
  * Theme function for a header line in the diff.
  */
 function theme_diff_header_line($vars) {
-  return '<strong>' . t('Line %lineno', array('%lineno' => $vars['lineno'])) . '</strong>';
+  return '<strong>' . t('Line @lineno', array('@lineno' => $vars['lineno'])) . '</strong>';
 }
 
 /**
