@@ -79,7 +79,7 @@ function text_field_diff_default_options($field_type) {
   $settings = array(
     'compare_format' => 0,
     'markdown' => 'drupal_html_to_text',
-    'line_counter' => 'line',
+    'line_counter' => '',
   );
   if ($field_type == 'text_with_summary') {
     $settings += array(

@@ -47,12 +47,6 @@ function diff_admin_settings($form, $form_state) {
     '#default_value' => variable_get('diff_context_lines_trailing', 2),
     '#options' => $options,
   );
-  $form['diff_normalise_text'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Normalise text newlines before diff display'),
-    '#description' => t('Convert all Windows and Mac newlines to a single newline, so diff only need to deal with one newline type. Unix users should have no need to enable this option.'),
-    '#default_value' => variable_get('diff_normalise_text', 0),
-  );
 
   return system_settings_form($form);
 }
@@ -61,16 +55,18 @@ function diff_admin_settings($form, $form_state) {
  * Global entity settings.
  */
 function diff_admin_global_entity_settings($form, $form_state, $entity_type) {
+  $entity_info = entity_get_info($entity_type);
+  drupal_set_title(t('Diff settings for %entity_label entities', array('%entity_label' => $entity_info['label'])), PASS_THROUGH);
   $form['diff_show_header_' . $entity_type] = array(
     '#type' => 'checkbox',
     '#title' => t('Show entity label header'),
-		'#default_value' => variable_get('diff_show_header_' . $entity_type, 1),
+    '#default_value' => variable_get('diff_show_header_' . $entity_type, 1),
   );
   $form['diff_admin_path_' . $entity_type] = array(
     '#type' => 'checkbox',
     '#title' => t('Treat diff pages as administrative'),
     '#description' => t('Diff pages are treated as administrative pages by default, although it is up to each module to enforce this and to implement this optional setting.'),
-	  '#default_value' => variable_get('diff_admin_path_' . $entity_type, 1),
+    '#default_value' => variable_get('diff_admin_path_' . $entity_type, 1),
   );
   return system_settings_form($form);
 }
@@ -141,7 +137,7 @@ function diff_admin_global_field_settings($form, $form_state, $type) {
   $settings = variable_get($variable_name, array());
   $settings = _diff_field_default_settings($field_type['module'], $type, $settings);
   $func = $field_type['module'] . '_field_diff_options_form';
-  if (function_exists($func) && $options_form = $func($type, $settings)) {
+  if (function_exists($func) && ($options_form = $func($type, $settings))) {
     $form[$variable_name] = $options_form;
   }
   $form[$variable_name]['#tree'] = TRUE;

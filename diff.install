@@ -26,7 +26,6 @@ function diff_uninstall() {
   // Delete global variables.
   variable_del('diff_context_lines_trailing');
   variable_del('diff_context_lines_leading');
-  variable_del('diff_normalise_text');
   variable_del('diff_theme');
   variable_del('diff_radio_behavior', '');
 
@@ -57,37 +56,21 @@ function diff_update_7300() {
 }
 
 /**
- * This checks that the right display view mode is selected.
+ * Removed diff_update_7301().
  */
-function diff_update_7301() {
-  $node_types = array_keys(node_type_get_types());
-  foreach ($node_types as $bundle) {
-    // For each type we look for a custom full view mode. If found, we need to
-    // set the diff view modes to this to ensure that there is minimal change
-    // in the front end functionality.
-    $view_mode_settings = field_view_mode_settings('node', $bundle);
-    if (!empty($view_mode_settings['full']['custom_settings'])) {
-      variable_set('diff_view_mode_inline_node_' . $node_type, 'full');
-    }
-  }
-}
 
 /**
- * Register new administration menu items.
+ * Removed diff_update_7302().
  */
-function diff_update_7302() {
-  variable_set('menu_rebuild_needed', TRUE);
-  variable_set('diff_script_revisioning', '');
-}
 
 /**
- * Rename some admin settings.
+ * Renames some internal settings names.
  */
 function diff_update_7303() {
   // Get current values
-  $radio = variable_get('diff_script_revisioning');
-  $leading = variable_get('diff_leading_context_lines');
-  $trailing = variable_get('diff_trailing_context_lines');
+  $radio = variable_get('diff_script_revisioning', 'simple');
+  $leading = variable_get('diff_leading_context_lines', 2);
+  $trailing = variable_get('diff_trailing_context_lines', 2);
   // Create new variable names
   variable_set('diff_radio_behavior', $radio);
   variable_set('diff_context_lines_leading', $leading);
@@ -96,4 +79,46 @@ function diff_update_7303() {
   variable_del('diff_script_revisioning');
   variable_del('diff_leading_context_lines');
   variable_del('diff_trailing_context_lines');
+}
+
+/**
+ * Removes unused variable settings and merges inline diff block settings.
+ */
+function diff_update_7304() {
+  // This is now always applied to text fields.
+  variable_del('diff_normalise_text');
+
+  // Merge the content type settings for the inline diff block into a single variable.
+  // diff_update_7300() - show_diff_inline_TYPE to diff_show_diff_inline_node_TYPE
+  $node_types = array_keys(node_type_get_types());
+  $enabled_types = array();
+  foreach ($node_types as $node_type) {
+    if (variable_get('diff_show_diff_inline_node_' . $node_type, FALSE)) {
+      $enabled_types[$node_type] = $node_type;
+    }
+    variable_del('diff_show_diff_inline_node_' . $node_type);
+  }
+  variable_set('diff_show_diff_inline_node_bundles', $enabled_types);
+
+  // Warn users that these settings are altered.
+  drupal_set_message(t('Diff <em>Inline differences</em> content type settings are now located within the <em>Inline differences</em> block settings.'));
+}
+
+/**
+ * Updates to normalize the new view mode settings.
+ */
+function diff_update_7305() {
+  // Rebuild the menus.
+  variable_set('menu_rebuild_needed', TRUE);
+
+  // Removed the enforced entity view mode.
+  db_delete('variable')
+      ->condition('name', db_like('diff_view_mode_standard_node_') . '%', 'LIKE')
+      ->execute();
+
+  // Removes the configurable view mode for the inline diff block, as this
+  // is fairly meaningless and confusing to users.
+  db_delete('variable')
+      ->condition('name', db_like('diff_view_mode_inline_') . '%', 'LIKE')
+      ->execute();
 }

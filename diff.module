@@ -65,9 +65,7 @@ function diff_avaiable_states($entity_type = NULL) {
  * @todo: Review this.
  */
 function diff_menu() {
-  $items = array();
-
-  /**
+  /*
    * By using MENU_LOCAL_TASK (and 'tab_parent') we can get the various
    * revision-views to show the View|Edit|Revision-tabs of the node on top,
    * and have the Revisions-tab open. To avoid creating/showing any extra tabs
@@ -159,24 +157,6 @@ function diff_menu() {
     'weight' => -10,
   );
 
-  // Safely restriction from core Field UI module.
-  if (defined('MAINTENANCE_MODE')) {
-    return $items;
-  }
-  // Create tabs for all entities.
-  foreach (entity_get_info() as $entity_type => $entity_info) {
-    if ($entity_type == 'node') {
-      continue;
-    }
-    $items['admin/config/content/diff/entities/' . $entity_type] = array(
-      'title' => $entity_info['label'],
-      'file' => 'diff.admin.inc',
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('diff_admin_global_entity_settings', $entity_type),
-      'access arguments' => array('administer site configuration'),
-      'type' => MENU_LOCAL_TASK,
-    );
-  }
   return $items;
 }
 
@@ -244,19 +224,13 @@ function diff_hook_info() {
  * extendable API for any entity, so we supply two view modes for all entities.
  * - diff_standard: This view mode is used to tell the module how to compare
  *                  individual fields. This is used on the revisions page.
- * - diff_complete: The view mode is used to compare the entire entity as a
- *                  single rendered string. This is used by the inline block.
  */
 function diff_entity_info_alter(&$entity_info) {
   foreach (array_keys($entity_info) as $entity_type) {
     if (!empty($entity_info[$entity_type]['view modes'])) {
       $entity_info[$entity_type]['view modes'] += array(
         'diff_standard' => array(
-          'label' => t('Diff standard'),
-          'custom settings' => FALSE,
-        ),
-        'diff_complete' => array(
-          'label' => t('Diff complete'),
+          'label' => t('Diff comparison'),
           'custom settings' => FALSE,
         ),
       );
@@ -268,21 +242,58 @@ function diff_entity_info_alter(&$entity_info) {
  * Implements hook_block_info().
  */
 function diff_block_info() {
-  return array('inline' => array('info' => t('Inline differences')));
+  return array(
+    'inline' => array(
+      'info' => t('Inline differences'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function diff_block_configure($delta = '') {
+  $form = array();
+  switch ($delta) {
+    case 'inline':
+      $form['bundles'] = array(
+        '#type' => 'checkboxes',
+        '#title' => t('Enabled content types'),
+        '#default_value' => variable_get('diff_show_diff_inline_node_bundles', array()),
+        '#options' => node_type_get_names(),
+        '#description' => t('Show this block only on pages that display content of the given type(s).'),
+      );
+      break;
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function diff_block_save($delta = '', $edit = array()) {
+  switch ($delta) {
+    case 'inline':
+      variable_set('diff_show_diff_inline_node_bundles', $edit['bundles']);
+      break;
+  }
 }
 
 /**
  * Implements hook_block_view().
  */
 function diff_block_view($delta) {
-  if ($delta === 'inline' && user_access('view revisions') && $node = menu_get_object()) {
-    $block = array();
-    $revisions = node_revision_list($node);
-    if (count($revisions) > 1) {
-      $block['subject'] = t('Highlight changes');
-      $block['content'] = drupal_get_form('diff_inline_form', $node, $revisions);
+  if ($delta === 'inline' && user_access('view revisions') && ($node = menu_get_object()) && arg(2) !== 'edit') {
+    $enabled_types = variable_get('diff_show_diff_inline_node_bundles', array());
+    if (!empty($enabled_types[$node->type])) {
+      $block = array();
+      $revisions = node_revision_list($node);
+      if (count($revisions) > 1) {
+        $block['subject'] = t('Highlight changes');
+        $block['content'] = drupal_get_form('diff_inline_form', $node, $revisions);
+      }
+      return $block;
     }
-    return $block;
   }
 }
 
@@ -291,12 +302,11 @@ function diff_block_view($delta) {
  */
 function diff_node_view_alter(&$build) {
   $node = $build['#node'];
-  if (user_access('view revisions') && variable_get('diff_show_diff_inline_node_' . $node->type, FALSE)) {
+  if (user_access('view revisions') && in_array($node->type, variable_get('diff_show_diff_inline_node_bundles', array()))) {
     // Ugly but cheap way to check that we are viewing a node's revision page.
     if (arg(2) === 'revisions' && arg(3) === $node->vid) {
       module_load_include('inc', 'diff', 'diff.pages');
       $old_vid = _diff_get_previous_vid(node_revision_list($node), $node->vid);
-      // $node->content = array('#value' => diff_inline_show($node, $old_vid));
       $build = array('#markup' => diff_inline_show($node, $old_vid));
     }
     $build['#prefix'] = isset($build['#prefix']) ? "<div id='diff-inline-{$node->nid}'>" . $build['#prefix'] : "<div id='diff-inline-{$node->nid}'>";
@@ -334,31 +344,15 @@ function diff_form_node_type_form_alter(&$form, $form_state) {
     );
     $form['diff']['diff_show_preview_changes_node'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Show <em>View changes<em> button on node edit form'),
+      '#title' => t('Show <em>View changes</em> button on node edit form'),
       '#weight' => 10,
       '#default_value' => variable_get('diff_show_preview_changes_node_' . $type->type, TRUE),
-    );
-    $form['diff']['diff_show_diff_inline_node'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Show inline differences for this content type'),
-      '#description' => t('You must enable the <em>Inline differences</em> block to use this feature.'),
-      '#weight' => 10,
-      '#default_value' => variable_get('diff_show_diff_inline_node_' . $type->type, FALSE),
     );
     $form['diff']['diff_enable_revisions_page_node'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable the <em>Revisions</em> page for this content type'),
       '#weight' => 11,
       '#default_value' => variable_get('diff_enable_revisions_page_node_' . $type->type, TRUE),
-    );
-    $form['diff']['diff_view_mode_standard_node'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Use <em>Diff standard</em> view mode when doing standard field comparisons'),
-      '#description' => t("You need to enable this view mode in the @type_label type's <em>Custom display settings</em> to control settings other than just what fields are shown. Once enabled you can configure many of the diff options used to compare these fields. <em>If it is not selected, all compatible fields will be compared using default settings.</em>", array(
-        '@type_label' => $type->name,
-      )),
-      '#weight' => 12,
-      '#default_value' => variable_get('diff_view_mode_standard_node_' . $type->type, FALSE),
     );
     $options = array();
     $info = entity_get_info('node');
@@ -375,14 +369,6 @@ function diff_form_node_type_form_alter(&$form, $form_state) {
       '#empty_value' => '',
       '#empty_option' => t('- Do not display -'),
     );
-    $form['diff']['diff_view_mode_inline_node'] = array(
-      '#type' => 'select',
-      '#title' => t('Inline diff view mode'),
-      '#description' => t('Governs which view mode is used to compare and display content in this block.'),
-      '#options' => $options,
-      '#weight' => 14,
-      '#default_value' => variable_get('diff_view_mode_inline_node_' . $type->type, 'diff_complete'),
-    );
   }
 }
 
@@ -396,9 +382,6 @@ function diff_node_type_update($info) {
     $type_variables = array(
       'diff_show_preview_changes_node',
       'diff_enable_revisions_page_node',
-      'diff_show_diff_inline_node',
-      'diff_view_mode_standard_node',
-      'diff_view_mode_inline_node',
       'diff_view_mode_preview_node',
     );
     foreach ($type_variables as $prefix) {
@@ -407,6 +390,16 @@ function diff_node_type_update($info) {
         variable_del($prefix . '_' . $info->old_type);
         variable_set($prefix . '_' . $info->type, $setting);
       }
+    }
+
+    // Block settings are combined in a single variable.
+    $inline_block_types = variable_get('diff_show_diff_inline_node_bundles', array());
+    if (isset($inline_block_types[$info->old_type])) {
+      if (!empty($inline_block_types[$info->old_type])) {
+        $inline_block_types[$info->type] = $info->type;
+      }
+      unset($inline_block_types[$info->old_type]);
+      variable_set('diff_show_diff_inline_node_bundles', $inline_block_types);
     }
   }
 }
@@ -417,9 +410,6 @@ function diff_node_type_update($info) {
 function diff_node_type_delete($info) {
   variable_del('diff_show_preview_changes_node_' . $info->type);
   variable_del('diff_enable_revisions_page_node_' . $info->type);
-  variable_del('diff_show_diff_inline_node_' . $info->type);
-  variable_del('diff_view_mode_standard_node_' . $info->type);
-  variable_del('diff_view_mode_inline_node_' . $info->type);
   variable_del('diff_view_mode_preview_node_' . $info->type);
 }
 
@@ -494,7 +484,7 @@ function diff_theme() {
  * @param string $b
  *   The target string to compare to.
  * @param boolean $show_header
- *   Display diff context headers, e.g. "Line x".
+ *   Display diff context headers. For example, "Line x".
  * @param array $line_stats
  *   This structure tracks line numbers across multiple calls to DiffFormatter.
  *
@@ -597,11 +587,7 @@ function diff_inline_form_submit(&$form, &$form_state) {
  * - line endings: Mac, Windows and UNIX all use different line endings.
  */
 function diff_normalise_text($text) {
-  if (variable_get('diff_normalise_text', 0) && drupal_strlen($text)) {
-    // Convert all Windows and Mac newlines to a single newline, so diff only
-    // need to deal with one possibility.
-    $text = str_replace(array("\r\n", "\r"), "\n", $text);
-  }
+  $text = str_replace(array("\r\n", "\r"), "\n", $text);
   return $text;
 }
 
@@ -613,101 +599,18 @@ function diff_filter_xss($string) {
 }
 
 /**
- * Implements hook_field_formatter_info_alter().
- *
- * This adds the additional settings that are used by the module if the view
- * mode is used.
- *
- * This require the Field formatter settings (field_formatter_settings) module.
- */
-function diff_field_formatter_info_alter(&$formatters) {
-  foreach ($formatters as $formatter => $info) {
-    $settings = &$formatters[$formatter]['settings'];
-    $settings += array(
-      'diff_custom' => 0,
-      'diff_custom_settings' => array(),
-    );
-  }
-}
-
-/**
- * Implements hook_field_formatter_settings_form_alter().
- *
- * This require the Field formatter settings (field_formatter_settings) module.
- */
-function diff_field_formatter_settings_form_alter(array &$settings_form, array $context) {
-  if (diff_supported_view_mode($context['view_mode'])) {
-    module_load_include('diff.inc', 'diff');
-    $field = $context['field'];
-    $instance = $context['instance'];
-    $display = $instance['display'][$context['view_mode']];
-    $display['settings'] += array(
-      'diff_custom' => 0,
-      'diff_custom_settings' => array(),
-    );
-
-    $settings_form['diff_custom'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Enable custom Diff settings'),
-      '#default_value' => $display['settings']['diff_custom'],
-    );
-    $settings_form['diff_custom_settings'] = array(
-      '#type' => 'container',
-      '#states' => array(
-        'visible' => array(
-          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][diff_custom]"]' => array('checked' => TRUE),
-        ),
-      ),
-    );
-
-    // This will handle the autoload for the field module.
-    $diff_settings = diff_get_field_instance_settings($context);
-    $func = $field['module'] . '_field_diff_options_form';
-    if (function_exists($func) && $options_form = $func($field['type'], $diff_settings)) {
-      $settings_form['diff_custom_settings'] += $options_form;
-    }
-    diff_global_settings_form($settings_form['diff_custom_settings'], $form_state, $type, $settings);
-  }
-}
-
-/**
- * Implements hook_field_formatter_settings_summary_alter().
- *
- * This require the Field formatter settings (field_formatter_settings) module.
- */
-function diff_field_formatter_settings_summary_alter(&$summary, array $context) {
-  if (diff_supported_view_mode($context['view_mode'])) {
-    $field = $context['field'];
-    $display = $context['instance']['display'][$context['view_mode']];
-
-    $summary = empty($summary) ? '' : $summary . '<br />';
-    if (empty($display['settings']['diff_custom'])) {
-      $summary .= t('Diff custom settings: No');
-    }
-    else {
-      $summary .= t('Diff custom settings: Yes');
-    }
-  }
-}
-
-/**
- * Helper function to check the view mode.
- */
-function diff_supported_view_mode($view_mode) {
-  return in_array($view_mode, array('diff_standard', 'diff_complete'));
-}
-
-/**
  * Helper function to load any CSS or JScript files required by a page or form.
  */
 function diff_build_attachments($jscript = FALSE) {
   $attachments = array();
-  if ($theme = variable_get('diff_theme', 'default')) {
+  $theme = variable_get('diff_theme', 'default');
+  if ($theme) {
     $attachments['css'] = array(
       drupal_get_path('module', 'diff') . "/css/diff.{$theme}.css",
     );
   }
-  if ($jscript && $type = variable_get('diff_radio_behavior', 'simple')) {
+  $type = variable_get('diff_radio_behavior', 'simple');
+  if ($jscript && $type) {
     $attachments['js'] = array(
       drupal_get_path('module', 'diff') . "/js/diff.js",
       array(

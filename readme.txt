@@ -54,34 +54,18 @@ e.g. http://www.example.com/admin/structure/types/manage/page
 
   a) Diff options
 
-  Under "Diff", enable the settings that you want;
+  Under "Compare revisions", enable the settings that you want;
   
-    i) "Show diffs inline" is required for the Inline Diff block but doesn't
-       expose any new features by itself.
-  
-    ii) "Show View changes button on node edit form" adds a new "Preview" like
+    i) "Show View changes button on node edit form" adds a new "Preview" like
         submit button to node editing pages. This shows a diff preview.
   
-    iii) "Enable the Revisions page for this content type" adds the revisioning
+    ii) "Enable the Revisions page for this content type" adds the revisioning
          tab to content. This allows users to compare between various revisions
          that they have access to.
   
-    The additional settings are new to the 7.x-3.x branch.
-  
-    iv) "Use Diff standard view mode when doing standard field comparisons"
-  
-        This is recommended if you want to control the visibility and ordering
-        of the fields. And if you install the "Field formatter settings" module,
-        you can get additional options to control the field diff settings. 
-  
-        ** Note that it is recommended to use the global field settings. **
-  
-    v) "Standard comparison preview" option allows you to control the rendering
-       of the latest revisions' rendered content when you compare revisions. It
-       also allows you to hide this altogether.
+    iii) "Standard comparison preview" option allows you to control how the most
+          current revision is show on the revision comparision page.
        
-    vi) "Inline diff view mode" controls the view mode of the Inline Diff block.
-
   b) Publishing options
 
   It is strongly advised that you also enable the automatic creation of
@@ -97,8 +81,6 @@ e.g. http://www.example.com/admin/structure/types/manage/page
 
    http://www.example.com/admin/config/content/diff/fields
 
-   a) Globally shared options
-   
    "Show field title" toggles field title visibility on the comparison page.
    
    "Markdown callback" is the callback used to render the field when viewing the
@@ -109,21 +91,9 @@ e.g. http://www.example.com/admin/structure/types/manage/page
    
    Other fields add additional settings here.
    
-   b) Field instance specific settings
-   
-   These are only enabled on the "Diff standard" and "Diff complete" view modes.
-   
-   If the "Field formatter settings" module is enabled, you can also set
-   instance specific settings per content type in the display settings.
-   
-   However, this is both time consuming and difficult to track. So you should
-   use global settings if possible.
-
-
 3) Entity revisioning settings
 
-We provide global configurable settings on all entities, but the module only
-provides an User Interface for node revisions.
+  Global configurable settings limited to node entities.
 
   a) Show entity label header
   

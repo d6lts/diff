@@ -64,8 +64,6 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context) {
 
   $field_context = $context;
 
-  // Custom settings must be checked to prevent pulling out view mode settings
-  // for Diff standard / complete if not enabled.
   $actual_mode = FALSE;
   list(,, $bundle_name) = entity_extract_ids($entity_type, $new_entity);
   $instances = field_info_instances($entity_type, $bundle_name);
@@ -119,7 +117,7 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context) {
       // Load files containing the field callbacks.
       _diff_autoload($field);
 
-      $field_context['settings'] = diff_get_field_instance_settings($field_context);
+      $field_context['settings'] = diff_get_field_settings($field_context);
 
       // Reference fields can optionally prepare objects in bulk to reduce
       // overheads related to multiple database calls. If a field considers
@@ -127,7 +125,7 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context) {
       // to provide cleaner results.
       $func = $field['module'] . '_field_diff_view_prepare';
       if (function_exists($func)) {
-        $func = $func($old_items, $new_items, $field_context);
+        $func($old_items, $new_items, $field_context);
       }
       // Allow other modules to act safely on behalf of the core field module.
       drupal_alter('field_diff_view_prepare', $old_items, $new_items, $field_context);
@@ -203,81 +201,40 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context) {
  */
 function diff_field_diff_view($items, $context) {
   $diff_items = array();
-  foreach ($items as $delta => $item) {
-    if (isset($item['safe_value'])) {
-      if (is_scalar($item['safe_value'])) {
-        $diff_items[$delta] = (string) $item['safe_value'];
-      }
-      else {
-        $diff_items[$delta] = (string) implode("\n", $item['safe_value']);
-      }
-    }
-    elseif (isset($item['value'])) {
-      if (is_scalar($item['value'])) {
-        $diff_items[$delta] = (string) $item['value'];
-      }
-      else {
-        $diff_items[$delta] = (string) implode("\n", $item['value']);
-      }
-    }
-  }
+   $entity = clone $context['entity'];
+   $langcode = field_language($context['entity_type'], $entity, $context['field']['field_name']);
+   $view_mode = empty($context['view_mode']) ? 'diff_standard' : $context['view_mode'];
+   $element = field_view_field($context['entity_type'], $entity, $context['field']['field_name'], $view_mode, $langcode);
+
+   foreach (element_children($element) as $delta) {
+     $diff_items[$delta] = drupal_render($element[$delta]);
+   }
   return $diff_items;
 }
 
 /**
  * Helper function to get the settings for a given field or formatter.
  *
- * This will parse the field display formatter settings if the view mode is
- * set to either Diff standard or Diff complete. These then have any new
- * global settings added, followed by any field default settings.
- *
  * @param array $context
  *   This will get the settings for a field.
  *   - field (required): The field that the items belong to.
- *
- *   And optionally include these to parse the display settings.
  *   - entity: The entity that we are looking up.
  *   - instance: The instance that the items belong to.
  *   - view_mode: The view mode to use. Defaults to FALSE.
  *
  * @return array
- *   The settings for this field or formatter.
+ *   The settings for this field type.
  */
-function diff_get_field_instance_settings($context) {
-  // This only pulls out custom settings for fields that are using the two
-  // diff view modes. This is done to match the UI that only alters these
-  // two view modes.
-  $display_settings = array();
-  if (!empty($context['view_mode'])) {
-    $entity_type = $context['instance']['entity_type'];
-    $bundle = $context['instance']['bundle'];
-    $view_mode_settings = field_view_mode_settings($entity_type, $bundle);
-    $actual_mode = (!empty($view_mode_settings[$context['view_mode']]['custom_settings'])) ? $view_mode : 'default';
-    if (diff_supported_view_mode($actual_mode)) {
-      // Should we directly use the instance settings or the hooked version?
-      // $display = $context['instance']['display'][$actual_mode];
-      $display = field_get_display($context['instance'], $context['view_mode'], $context['entity']);
-      $display_settings = $display['settings'];
-    }
-  }
-  $display_settings += array(
-    'diff_custom' => 0,
-    'diff_custom_settings' => array(),
-  );
-
-  $field = $context['field'];
-
-  // Load files containing the field callbacks.
-  _diff_autoload($field);
+function diff_get_field_settings($field_context) {
+  $field = $field_context['field'];
 
   // Update saved settings from the global settings for this field type.
   $settings = variable_get("diff_{$field['module']}_field_{$field['type']}_default_options", array());
-  if (!empty($display_settings['diff_custom'])) {
-    // Merge any additional global settings into the field formatter settings.
-    $display_settings['diff_custom_settings'] += $settings;
-    $settings = $display_settings['diff_custom_settings'];
-  }
+
   $settings = _diff_field_default_settings($field['module'], $field['type'], $settings);
+
+  // Allow modules to alter the field settings based on the current context.
+  drupal_alter('diff_field_settings', $settings, $field_context);
 
   return $settings;
 }
@@ -385,6 +342,7 @@ function _diff_autoload($field_or_module) {
       'list' => module_exists('list'),
       'taxonomy' => module_exists('taxonomy'),
       'text' => module_exists('text'),
+    	'number' => module_exists('number'),
     );
   }
 

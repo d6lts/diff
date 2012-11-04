@@ -1,23 +1,11 @@
+
 CHANGELOG for Diff 7.x-2.0+13-dev to 7.x-3.x
 ============================================
 
 1) System variable names have been changed
 ------------------------------------------
 
-  Diff system variables were prefixed with "diff_" and node type specific
-  variables were tagged with the entity type 'node'
-
-  The full list of variable name changes include:
-    - enable_revisions_page_TYPE to  diff_enable_revisions_page_node_TYPE
-    - show_diff_inline_TYPE      to  diff_show_diff_inline_node_TYPE
-    - show_preview_changes_TYPE  to  diff_show_preview_changes_node_TYPE
-
-  The corresponding changes would be used like:
-
-<?php
--    variable_get('enable_revisions_page_' . $node_type, 1);
-+    variable_get('diff_enable_revisions_page_node_' . $node_type, 1);
-?>
+Considerable changes have occurred.
 
 2) hook_diff() was removed
 --------------------------
@@ -60,8 +48,8 @@ If you need to make this configurable, there are two additional hooks:
 4) Field diffs are now configurable
 -----------------------------------
 
-Each field type defined by core (with exception of number module) have
-configurable settings to control the rendering of the comparison.
+Each field type defined by core have configurable settings to control the
+rendering of the comparison.
 
   a) Global configuration
 
@@ -72,39 +60,26 @@ configurable settings to control the rendering of the comparison.
 
   b) View mode display options
 
-  Requires the Field formatter settings (field_formatter_settings) module to
-  do anything other than toggle the field visibility and weight.
+  The display "Diff comparison" is used to control the fields that are displayed 
+  when comparing different revisions.
 
-  This allows for fine grain control per content type and per bundle.
+  The following is a walk-through on how you would configure the Basic page
+  (page) content types field configuration.
 
-  For the Standard comparison, used when comparing different revisions, you
-  need to do the following: Basic page (page) is used in these examples.
-
-  - Check "Use Diff standard view mode when doing standard field comparisons"
-
-    Navigate to admin/structure/types/manage/page and look at the Diff settings.
-
-  - Enable "Diff standard" custom view mode
+  - Enable "Diff comparison" custom view mode
 
     Navigate to admin/structure/types/manage/page/display and look at the
     Custom Display Settings for this view mode. Check and save.
 
   - Configure the display
 
-    After Saving this page, a new tab appears "Diff standard", click this or
+    After Saving this page, a new tab appears "Diff comparison", click this or
     navigate directly to admin/structure/types/manage/page/display/diff_standard
 
-    - Options without Field formatter settings module
-      These are limited. You can hide or show the fields that you want to
-      display when doing comparisons.
-
-    - Options with Field formatter settings module
-      All of the global variables mentioned above can be edited per field. Click
-      the small clog wheel beside the fields saying "Diff custom settings: No".
-
-      Check "Enable custom Diff settings" and configure the options that you
-      want to enable / configure. Click Update, and **Important** Save the page
-      using the buttons at the bottom.
+    - You can hide or show the fields that you want to display when doing 
+      comparisons.
+    - If the field has no inbuilt diff support, then the renderred field items
+      will be compared.
 
 5) Standard comparison preview / Inline diff view setting
 ---------------------------------------------------------
@@ -128,8 +103,17 @@ This spices up the revision checkboxes on the revisions page.
 Use-case, email notifications when content has changes. If these support tokens,
 then you can embed Diffs into these emails.
 
-9) And much more...
--------------------
+9) Extensive string review
+--------------------------
+See http://drupal.org/node/1785742
+
+
+10) Inline block settings changes
+---------------------------------
+The inline block settings are now in the block configuration page.
+
+11) And much more...
+--------------------
 
 The complete change log follows:
 
@@ -144,6 +128,7 @@ Diff 7.x-2.x
     o #1673856 by Alan D.: Use hook_form_BASE_FORM_ID_alter() rather than hook_form_alter()
     o #1673856 by Alan D.: Normalise line endings
     o #114308 by Alan D.: add jQuery for hiding radios that shouldn't show diffs
+    o #1688840 by Alan D.: Enable new JScript behaviour by default
     o #372957 by erykmynn, JuliaKM, lsrzj, andrew_rs, alexpott, et al: HTML Strip for Diff, WYSIWYG Friendly
       (This was refactored in the 7.x-3.x branch from the commited 7.x-2.x code)    
     o #521212 by Alan D., blakehall: Make diff comparison page themable
@@ -151,6 +136,8 @@ Diff 7.x-2.x
     o #114699 by smokris, Alan D.: Diff module should support Token
     o #372957 by c31ck: display either Hide or Show based on what clicking it will do at any time (HTML Strip for Diff)
       This was altered for the 7.x-3.x branch.
+    o #1807510 & #1825202: Simplify Diff administration
+    o #1812162 by mitchell, Alan D.: 'Highlight changes' block appears on edit form
 
     Node to Entity changes
     ----------------------

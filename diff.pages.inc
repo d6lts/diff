@@ -278,10 +278,13 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
       $header .= '<div class="diff-section-title">' . t('Revision of @new_date:', array('@new_date' => format_date($new_node->revision_timestamp))) . '</div>';
     }
     $build['diff_preview']['header']['#markup'] = $header;
-    // Don't include node links (final argument) when viewing the diff.
+    // Don't include node links or comments when viewing the diff.
     $build['diff_preview']['content'] = node_view($new_node, $view_mode);
     if (isset($build['diff_preview']['content']['links'])) {
       unset($build['diff_preview']['content']['links']);
+    }
+    if (isset($build['diff_preview']['content']['comments'])) {
+      unset($build['diff_preview']['content']['comments']);
     }
   }
   return $build;
@@ -311,6 +314,7 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
   $context = array(
     'entity_type' => 'node',
     'states' => array($state),
+    'view_mode' => 'diff_standard',
   );
 
   $node_diffs = diff_compare_entities($old_node, $new_node, $context);
@@ -331,7 +335,7 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
 
     // Line counting and line header options.
     if (empty($node_diff['#settings']['line_counter'])) {
-      $line_counter = FALSE;;
+      $line_counter = FALSE;
     }
     else {
       $line_counter = $node_diff['#settings']['line_counter'];
@@ -405,13 +409,9 @@ function diff_compare_entities($left_entity, $right_entity, $context) {
   $context['new_entity'] = $right_entity;
   $context += array(
     'states' => array('raw'),
+    'view_mode' => FALSE,
+    'language' => LANGUAGE_NONE,
   );
-  if (empty($context['view_mode']) && variable_get('diff_view_mode_standard_' . $entity_type . '_' . $bundle, FALSE)) {
-    $context['view_mode'] = 'diff_standard';
-  }
-  else {
-    $context['view_mode'] = FALSE;
-  }
 
   $diff = module_invoke_all('entity_diff', $left_entity, $right_entity, $context);
 
@@ -616,13 +616,13 @@ function _diff_default_header($old_header = '', $new_header = '') {
  */
 function diff_inline_show($node, $vid = 0, $metadata = TRUE) {
   $new_node = $vid ? node_load($node->nid, $vid, TRUE) : clone $node;
-  node_build_content($new_node, variable_get('diff_view_mode_inline_node_' . $new_node->type, 'diff_complete'));
+  node_build_content($new_node);
   $new = drupal_render($new_node->content);
 
   $old = $vid ? _diff_get_previous_vid(node_revision_list($node), $vid) : 0;
   if ($old) {
     $old_node = node_load($node->nid, $old, TRUE);
-    node_build_content($old_node, variable_get('diff_view_mode_inline_node_' . $old_node->type, 'diff_complete'));
+    node_build_content($old_node);
     $old = drupal_render($old_node->content);
     $output = $metadata ? theme('diff_inline_metadata', array('node' => $new_node)) : '';
     $output .= diff_get_inline($old, $new);
