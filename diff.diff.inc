@@ -342,7 +342,7 @@ function _diff_autoload($field_or_module) {
       'list' => module_exists('list'),
       'taxonomy' => module_exists('taxonomy'),
       'text' => module_exists('text'),
-    	'number' => module_exists('number'),
+      'number' => module_exists('number'),
     );
   }
 
