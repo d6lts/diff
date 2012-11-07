@@ -314,9 +314,13 @@ function _diff_field_default_settings($module, $field_type, $settings = array())
     $settings += $func($field_type);
   }
 
+  // Check for Diff support. If it doesn't exist, the default markdown should
+  // escape the field display, otherwise a raw format should be used.
+  $func = $module . '_field_diff_view';
+
   // Global settings.
   $settings += array(
-    'markdown' => '',
+    'markdown' => function_exists($func) ? '' : 'drupal_html_to_text',
     'line_counter' => '',
     'show_header' => 1,
     // Can we? This seems too hard to track in the DiffFormatter as all we
