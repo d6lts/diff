@@ -50,7 +50,7 @@ function diff_help($path, $arg) {
 /**
  * The various states that are available.
  */
-function diff_avaiable_states($entity_type = NULL) {
+function diff_available_states($entity_type = NULL) {
   $states = array(
     'raw' => t('Standard'),
     'raw_plain' => t('Marked down'),

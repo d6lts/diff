@@ -164,7 +164,7 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
   	$state = $default_state;
   }
   $state = str_replace('-', '_', $state);
-  if (!array_key_exists($state, diff_avaiable_states())) {
+  if (!array_key_exists($state, diff_available_states())) {
     $state = $default_state;
   }
 
@@ -235,7 +235,7 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
   );
 
   $links = array();
-  foreach (diff_avaiable_states('node') as $alternative_state => $label) {
+  foreach (diff_available_states('node') as $alternative_state => $label) {
     if ($alternative_state == $state) {
       // @todo: Should we show both or just alternatives?
     }
