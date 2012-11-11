@@ -29,7 +29,7 @@ function diff_admin_settings($form, $form_state) {
       'raw_plain' => t('Plain view'),
     ),
     '#empty_option' => t('- None -'),
-    '#description' => t('Set the default display to show when viewing a diff, html tags in diffed result or as plain text.'),
+    '#description' => t('Default display to show when viewing a diff, html tags in diffed result or as plain text.'),
   );
   $form['diff_radio_behavior'] = array(
     '#type' => 'select',
