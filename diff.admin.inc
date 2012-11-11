@@ -20,6 +20,17 @@ function diff_admin_settings($form, $form_state) {
     '#empty_option' => t('- None -'),
     '#description' => t('Alter the CSS used when displaying diff results.'),
   );
+  $form['diff_default_state_node'] = array(
+    '#type' => 'select',
+    '#title' => t('Diff default state'),
+    '#default_value' => variable_get('diff_default_state', 'raw'),
+    '#options' => array(
+      'raw' => t('HTML view'),
+      'raw_plain' => t('Plain view'),
+    ),
+    '#empty_option' => t('- None -'),
+    '#description' => t('Set the default display to show when viewing a diff, html tags in diffed result or as plain text.'),
+  );
   $form['diff_radio_behavior'] = array(
     '#type' => 'select',
     '#title' => t('Diff radio behavior'),
