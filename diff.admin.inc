@@ -23,7 +23,7 @@ function diff_admin_settings($form, $form_state) {
   $form['diff_default_state_node'] = array(
     '#type' => 'select',
     '#title' => t('Diff default state'),
-    '#default_value' => variable_get('diff_default_state', 'raw'),
+    '#default_value' => variable_get('diff_default_state_node', 'raw'),
     '#options' => array(
       'raw' => t('HTML view'),
       'raw_plain' => t('Plain view'),
