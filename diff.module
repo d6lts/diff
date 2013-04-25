@@ -128,7 +128,7 @@ function diff_block($op = 'list', $delta = 0, $edit = array()) {
 /**
  * Implementation of hook_nodeapi().
  */
-function diff_nodeapi(&$node, $op, $teaser, $page) {
+function diff_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
   if ($page && $op == 'view' && user_access('view revisions') && variable_get('show_diff_inline_'. $node->type, FALSE)) {
     // Ugly but cheap way to check that we are viewing a node's revision page.
     if (arg(2) === 'revisions' && arg(3) === $node->vid) {
