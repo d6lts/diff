@@ -128,8 +128,7 @@ function diff_node_revisions_submit($form, &$form_state) {
   // the ids are ordered so the old revision is always on the left
   $old_vid = min($form_state['values']['old'], $form_state['values']['new']);
   $new_vid = max($form_state['values']['old'], $form_state['values']['new']);
-  $remove_markup = $form_state['values']['remove_markup'];
-  $form_state['redirect'] =  'node/'. $form_state['values']['nid'] .'/revisions/view/'. $old_vid .'/'. $new_vid .'/'. $remove_markup;
+  $form_state['redirect'] =  'node/'. $form_state['values']['nid'] .'/revisions/view/'. $old_vid .'/'. $new_vid;
 }
 
 /**
