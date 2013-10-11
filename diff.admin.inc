@@ -68,9 +68,25 @@ function diff_admin_settings($form, $form_state) {
 function diff_admin_global_entity_settings($form, $form_state, $entity_type) {
   $entity_info = entity_get_info($entity_type);
   drupal_set_title(t('Diff settings for %entity_label entities', array('%entity_label' => $entity_info['label'])), PASS_THROUGH);
+
+  if ($options = module_invoke_all('entity_diff_options', $entity_type)) {
+    $form['diff_additional_options_' . $entity_type] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Property options'),
+      '#default_value' => variable_get('diff_additional_options_' . $entity_type, array()),
+      '#options' => $options,
+    );
+  }
+  else {
+    $form['diff_additional_options_' . $entity_type] = array(
+      '#type' => 'value',
+      '#value' => array(),
+    );
+  }
+
   $form['diff_show_header_' . $entity_type] = array(
     '#type' => 'checkbox',
-    '#title' => t('Show entity label header'),
+    '#title' => t('Show entity label row header'),
     '#default_value' => variable_get('diff_show_header_' . $entity_type, 1),
   );
   $form['diff_admin_path_' . $entity_type] = array(
@@ -79,6 +95,7 @@ function diff_admin_global_entity_settings($form, $form_state, $entity_type) {
     '#description' => t('Diff pages are treated as administrative pages by default, although it is up to each module to enforce this and to implement this optional setting.'),
     '#default_value' => variable_get('diff_admin_path_' . $entity_type, 1),
   );
+
   return system_settings_form($form);
 }
 

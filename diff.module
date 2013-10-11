@@ -152,7 +152,8 @@ function diff_menu() {
   );
 
   $items['admin/config/content/diff/entities/node'] = array(
-    'title' => 'Node',
+    'title' => 'Nodes',
+    'description' => 'Node comparison settings.',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
@@ -621,3 +622,44 @@ function diff_build_attachments($jscript = FALSE) {
   }
   return $attachments;
 }
+
+/**
+ * Implements hook_entity_diff() on behalf of the Node module.
+ */
+function node_entity_diff($old_node, $new_node, $context) {
+  $result = array();
+  if ($context['entity_type'] == 'node') {
+    module_load_include('inc', 'diff', 'includes/node');
+    $options = variable_get('diff_additional_options_node', array('title' => 'title'));
+    foreach (node_entity_diff_options('node') as $key => $option_label) {
+      if (!empty($options[$key])) {
+        $func = '_node_entity_diff_additional_options_' . $key;
+        $result[$key] = $func($old_node, $new_node, $context);
+      }
+    }
+  }
+  return $result;
+}
+
+/**
+ * Implements hook_entity_diff_options() on behalf of the Node module.
+ */
+function node_entity_diff_options($entity_type) {
+  if ($entity_type == 'node') {
+    $options = array(
+      'title' => t('Title field'),
+      // Author field is either the owner or revision creator, neither capture
+      // a change in the author field.
+      // 'author' => t('Author'),
+      // There is no tracking of this field.
+      // 'type' => t('Node type'),
+      'publishing_flags' => t('Publishing Options'),
+      // More fields that currently can not be tracked.
+      // 'created' => t('Created date'),
+      // 'changed' => t('Updated date'),
+      'revision_timestamp' => t('Revision timestamp'),
+    );
+    return $options;
+  }
+}
+

@@ -16,6 +16,7 @@ function diff_uninstall() {
     'diff_view_mode_',
     'diff_admin_path_',
     'diff_default_state_',
+    'diff_additional_options_'
   );
   foreach ($prefixes as $prefix) {
     db_delete('variable')
@@ -121,4 +122,12 @@ function diff_update_7305() {
   db_delete('variable')
       ->condition('name', db_like('diff_view_mode_inline_') . '%', 'LIKE')
       ->execute();
+}
+
+/**
+ * Sets the optional additional node properties to render so that the title
+ * still shows by default when doing node comparisons.
+ */
+function diff_update_7306() {
+  variable_set('diff_additional_options_node', array('title' => 'title'));
 }

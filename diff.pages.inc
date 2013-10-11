@@ -400,7 +400,6 @@ function diff_entity_body_rows($entity_type, $left_entity, $right_entity, $conte
  *   The state to render for the diff.
  */
 function _diff_body_rows($old_node, $new_node, $state = 'raw') {
-  module_load_include('inc', 'diff', 'includes/node');
   $context = array(
     'states' => array($state),
     'view_mode' => 'diff_standard',
