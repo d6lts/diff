@@ -291,33 +291,33 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
 }
 
 /**
- * Creates an array of rows which represent the difference between nodes.
+ * Creates an array of rows which represent the difference between two entities.
  *
- * @param object $old_node
- *   Node for comparison which will be displayed on the left side.
- * @param object $new_node
- *   Node for comparison which will be displayed on the right side.
- * @param boolean $state
- *   The state to render for the diff.
+ * @param object $left_entity
+ *   Entity for comparison which will be displayed on the left side.
+ * @param object $right_entity
+ *   Entity for comparison which will be displayed on the right side.
+ * @param array $context
+ *   The context used to render the diff.
  */
-function _diff_body_rows($old_node, $new_node, $state = 'raw') {
+function diff_entity_body_rows($entity_type, $left_entity, $right_entity, $context = array()) {
   // This is an unique index only, so no need for drupal_static().
   static $table_row_counter = 0;
 
   if ($theme = variable_get('diff_theme', 'default')) {
     drupal_add_css(drupal_get_path('module', 'diff') . "/css/diff.{$theme}.css");
   }
-  module_load_include('inc', 'diff', 'includes/node');
 
   $rows = array();
   $any_visible_change = FALSE;
-  $context = array(
-    'entity_type' => 'node',
-    'states' => array($state),
+  $context += array(
+    'entity_type' => $entity_type,
+    'states' => array('raw'),
     'view_mode' => 'diff_standard',
   );
+  $state = current($context['states']);
 
-  $node_diffs = diff_compare_entities($old_node, $new_node, $context);
+  $entity_diffs = diff_compare_entities($left_entity, $right_entity, $context);
 
   // Track line numbers between multiple diffs.
   $line_stats = array(
@@ -326,19 +326,19 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
   );
 
   // Render diffs for each.
-  foreach ($node_diffs as $node_diff) {
-    $show_header = !empty($node_diff['#name']);
+  foreach ($entity_diffs as $entity_diff) {
+    $show_header = !empty($entity_diff['#name']);
     // These are field level settings.
-    if ($show_header && isset($node_diff['#settings']['show_header'])) {
-      $show_header = $show_header && $node_diff['#settings']['show_header'];
+    if ($show_header && isset($entity_diff['#settings']['show_header'])) {
+      $show_header = $show_header && $entity_diff['#settings']['show_header'];
     }
 
     // Line counting and line header options.
-    if (empty($node_diff['#settings']['line_counter'])) {
+    if (empty($entity_diff['#settings']['line_counter'])) {
       $line_counter = FALSE;
     }
     else {
-      $line_counter = $node_diff['#settings']['line_counter'];
+      $line_counter = $entity_diff['#settings']['line_counter'];
     }
     // Every call to 'line' resets the counters.
     if ($line_counter) {
@@ -354,8 +354,8 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
       $line_stats_ref = NULL;
     }
 
-    list($old, $new) = diff_extract_state($node_diff, $state);
-    if ($node_diff_rows = diff_get_rows($old, $new, $line_counter && $line_counter != 'hidden', $line_stats_ref)) {
+    list($left, $right) = diff_extract_state($entity_diff, $state);
+    if ($entity_diff_rows = diff_get_rows($left, $right, $line_counter && $line_counter != 'hidden', $line_stats_ref)) {
       if ($line_counter && $line_counter != 'line') {
         $line_stats['offset']['x'] += $line_stats_ref['counter']['x'];
         $line_stats['offset']['y'] += $line_stats_ref['counter']['y'];
@@ -363,7 +363,7 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
       if ($show_header) {
         $rows['diff-header-' . $table_row_counter++] = array(
           array(
-            'data' => t('Changes to %name', array('%name' => $node_diff['#name'])),
+            'data' => t('Changes to %name', array('%name' => $entity_diff['#name'])),
             'class' => 'diff-section-title',
             'colspan' => 4,
           ),
@@ -371,7 +371,7 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
       }
       // To avoid passing counter to the Diff engine, index rows manually here
       // to allow modules to interact with the table. i.e. no array_merge().
-      foreach ($node_diff_rows as $row) {
+      foreach ($entity_diff_rows as $row) {
         $rows['diff-row-' . $table_row_counter++] = $row;
       }
       $any_visible_change = TRUE;
@@ -386,8 +386,26 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
       ),
     );
   }
-
   return $rows;
+}
+
+/**
+ * Creates an array of rows which represent the difference between nodes.
+ *
+ * @param object $old_node
+ *   Node for comparison which will be displayed on the left side.
+ * @param object $new_node
+ *   Node for comparison which will be displayed on the right side.
+ * @param boolean $state
+ *   The state to render for the diff.
+ */
+function _diff_body_rows($old_node, $new_node, $state = 'raw') {
+  module_load_include('inc', 'diff', 'includes/node');
+  $context = array(
+    'states' => array($state),
+    'view_mode' => 'diff_standard',
+  );
+  return diff_entity_body_rows('node', $old_node, $new_node, $context);
 }
 
 /**
