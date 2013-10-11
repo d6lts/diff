@@ -430,7 +430,7 @@ function diff_node_form_build_preview_changes($form, &$form_state) {
   $changes = theme('table__diff__preview', array(
     'header' => $header,
     'rows' => $rows,
-    'attributes' => array('class' => 'diff'),
+    'attributes' => array('class' => array('diff')),
     'colgroups' => _diff_default_cols(),
     'sticky' => FALSE,
   ));
