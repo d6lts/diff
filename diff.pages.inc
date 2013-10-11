@@ -385,14 +385,6 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
         'colspan' => 4,
       ),
     );
-    // @todo: revise this.
-    // Needed to keep safari happy.
-    $rows['diff-empty-' . $table_row_counter++] = array(
-      array('data' => ''),
-      array('data' => ''),
-      array('data' => ''),
-      array('data' => ''),
-    );
   }
 
   return $rows;
