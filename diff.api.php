@@ -57,7 +57,7 @@ function hook_entity_diff($old_entity, $new_entity, $context) {
  *
  * @see hook_entity_diff()
  */
-function hook_entity_diff_alter($entity_diffs, $context) {
+function hook_entity_diff_alter(&$entity_diffs, $context) {
 }
 
 /**
