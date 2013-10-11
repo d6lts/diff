@@ -1,5 +1,6 @@
 name = Diff
 description = Show differences between content revisions.
 core = 7.x
+configure = admin/config/content/diff
 
 files[] = DiffEngine.php
