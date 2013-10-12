@@ -104,8 +104,7 @@ function diff_menu() {
     'page callback' => 'diff_latest',
     'page arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
-    'access callback' => 'diff_node_revision_access',
-    'access arguments' => array(1),
+    'access arguments' => array('access content'),
     'tab_parent' => 'node/%/revisions/view',
     'file' => 'diff.pages.inc',
   );

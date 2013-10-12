@@ -10,6 +10,9 @@
  */
 function diff_latest($node) {
   $revisions = node_revision_list($node);
+  if (count($revisions) < 2 || !diff_node_revision_access($node, 'view')) {
+    drupal_goto('node/' . $node->nid);
+  }
   $new = array_shift($revisions);
   $old = array_shift($revisions);
   drupal_goto("node/{$node->nid}/revisions/view/{$old->vid}/{$new->vid}");
