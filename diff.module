@@ -98,6 +98,7 @@ function diff_menu() {
     'tab_parent' => 'node/%/revisions/list',
     'file' => 'diff.pages.inc',
   );
+
   $items['node/%node/revisions/view/latest'] = array(
     'title' => 'Show latest difference',
     'page callback' => 'diff_latest',
@@ -139,6 +140,7 @@ function diff_menu() {
     'type' => MENU_VISIBLE_IN_BREADCRUMB,
     'file' => 'diff.admin.inc',
   );
+
   $items['admin/config/content/diff/entities'] = array(
     'title' => 'Entities',
     'description' => 'Entity settings.',
@@ -148,6 +150,7 @@ function diff_menu() {
     'access arguments' => array('administer site configuration'),
     'type' => MENU_LOCAL_TASK,
   );
+
   $items['admin/config/content/diff/entities/node'] = array(
     'title' => 'Nodes',
     'description' => 'Node comparison settings.',
@@ -656,15 +659,18 @@ function node_entity_diff_options($entity_type) {
       'title' => t('Title field'),
       // Author field is either the owner or revision creator, neither capture
       // a change in the author field.
-      // 'author' => t('Author'),
-      // There is no tracking of this field.
-      // 'type' => t('Node type'),
-      'publishing_flags' => t('Publishing Options'),
+      'author' => t('Author'),
+      'revision_author' => t('Revision author'),
+      'type' => t('Node type'),
+      'publishing_flags' => t('Publishing options'),
       // More fields that currently can not be tracked.
-      // 'created' => t('Created date'),
-      // 'changed' => t('Updated date'),
+      'created' => t('Created date'),
+      'changed' => t('Updated date'),
       'revision_timestamp' => t('Revision timestamp'),
     );
+    if (module_exists('comment')) {
+      $options['comment'] = t('Comment setting');
+    }
     return $options;
   }
 }
