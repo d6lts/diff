@@ -161,7 +161,7 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
 
   $default_state = variable_get('diff_default_state_node', 'raw');
   if (empty($state)) {
-  	$state = $default_state;
+    $state = $default_state;
   }
   $state = str_replace('-', '_', $state);
   if (!array_key_exists($state, diff_available_states())) {
