@@ -49,13 +49,13 @@ function theme_diff_node_revisions($vars) {
           'class' => array('revision-current'),
         );
         $row[] = array(
-          'data' => t('current revision'),
+          'data' => '<strong>' . t('This is the published revision.') . '</strong>',
           'class' => array('revision-current'),
           'colspan' => '2',
         );
         $rows[] = array(
           'data' => $row,
-          'class' => array('error diff-revision'),
+          'class' => array('revision-published diff-revision'),
         );
       }
     }

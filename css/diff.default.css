@@ -84,3 +84,7 @@ table.diff td div {
 table.diff td {
   padding: 0.1ex 0.4em;
 }
+
+table.diff-revisions tr.revision-published td {
+  background-color: #aaffaa;
+}
