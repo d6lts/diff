@@ -98,7 +98,6 @@ function diff_menu() {
     'tab_parent' => 'node/%/revisions/list',
     'file' => 'diff.pages.inc',
   );
-
   $items['node/%node/revisions/view/latest'] = array(
     'title' => 'Show latest difference',
     'page callback' => 'diff_latest',
@@ -140,7 +139,6 @@ function diff_menu() {
     'type' => MENU_VISIBLE_IN_BREADCRUMB,
     'file' => 'diff.admin.inc',
   );
-
   $items['admin/config/content/diff/entities'] = array(
     'title' => 'Entities',
     'description' => 'Entity settings.',
@@ -150,12 +148,20 @@ function diff_menu() {
     'access arguments' => array('administer site configuration'),
     'type' => MENU_LOCAL_TASK,
   );
-
   $items['admin/config/content/diff/entities/node'] = array(
     'title' => 'Nodes',
     'description' => 'Node comparison settings.',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
+  );
+  $items['admin/config/content/diff/entities/user'] = array(
+    'title' => 'Users',
+    'description' => 'User diff settings.',
+    'file' => 'diff.admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('diff_admin_global_entity_settings', 'user'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;
@@ -663,3 +669,37 @@ function node_entity_diff_options($entity_type) {
   }
 }
 
+/**
+ * Implements hook_entity_diff() on behalf of the User module.
+ */
+function user_entity_diff($old_user, $new_user, $context) {
+  $result = array();
+  if ($context['entity_type'] == 'user') {
+    module_load_include('inc', 'diff', 'includes/user');
+    $options = variable_get('diff_additional_options_user', array('name' => 'name', 'mail' => 'mail', 'status' => 'status'));
+    foreach (user_entity_diff_options('user') as $key => $option_label) {
+      if (!empty($options[$key])) {
+        $func = '_user_entity_diff_additional_options_' . $key;
+        $result[$key] = $func($old_user, $new_user, $context);
+      }
+    }
+  }
+  return $result;
+}
+
+/**
+ * Implements hook_entity_diff_options() on behalf of the User module.
+ */
+function user_entity_diff_options($entity_type) {
+  if ($entity_type == 'user') {
+    $options = array(
+      'name' => t('Username'),
+      'mail' => t('E-mail address'),
+      'roles' => t('Roles'),
+      'status' => t('Status'),
+      'timezone' => t('Time zone'),
+      'password' => t('Password Hash'),
+    );
+    return $options;
+  }
+}
