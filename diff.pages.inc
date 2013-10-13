@@ -521,20 +521,26 @@ function diff_markdown_state(&$diff, $state) {
   }
 
   if (!isset($plain_old) && isset($old)) {
-    if (is_array($old)) {
-      $diff['#states'][$state . '_plain']['#old'] = $markdown ? array_map($markdown, $old) : $old;
-    }
-    else {
-      $diff['#states'][$state . '_plain']['#old'] = $markdown ? $markdown($old) : $old;
-    }
+    $diff['#states'][$state . '_plain']['#old'] = _diff_apply_markdown($markdown, $old);
   }
   if (!isset($plain_new) && isset($new)) {
-    if (is_array($new)) {
-      $diff['#states'][$state . '_plain']['#new'] = $markdown ? array_map($markdown, $new) : $new;
+    $diff['#states'][$state . '_plain']['#new'] = _diff_apply_markdown($markdown, $new);
+  }
+}
+
+function _diff_apply_markdown($markdown, $items) {
+  if (!$markdown) {
+    return $items;
+  }
+  if (is_array($items)) {
+    $items = array_map($markdown, $items);
+    foreach($items as &$item) {
+      $item = trim($item, "\n");
     }
-    else {
-      $diff['#states'][$state . '_plain']['#new'] = $markdown ? $markdown($new) : $new;
-    }
+    return $items;
+  }
+  else {
+    return trim($markdown($items), "\n");
   }
 }
 
