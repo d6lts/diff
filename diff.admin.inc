@@ -78,10 +78,16 @@ function diff_admin_global_entity_settings($form, $form_state, $entity_type) {
     '#title' => t('Show entity label row header'),
     '#default_value' => variable_get('diff_show_header_' . $entity_type, 1),
   );
+  if (user_access('administer permissions')) {
+    $admin_link = l(t('View the administration theme'), 'admin/people/permissions', array('fragment' => 'edit-view-the-administration-theme'));
+  }
+  else {
+    $admin_link = t('View the administration theme');
+  }
   $form['diff_admin_path_' . $entity_type] = array(
     '#type' => 'checkbox',
-    '#title' => t('Treat diff pages as administrative'),
-    '#description' => t('Diff pages are treated as administrative pages by default, although it is up to each module to enforce this and to implement this optional setting.'),
+    '#title' => t('Use administration theme'),
+    '#description' => t('This option will enable users with the <em>!link</em> permission to use the admin theme when doing comparisons.', array('!link' => $admin_link)),
     '#default_value' => variable_get('diff_admin_path_' . $entity_type, 1),
   );
   $form['diff_default_state_' . $entity_type] = array(
