@@ -68,7 +68,7 @@ function diff_node_revisions($form, $form_state, $node) {
 
   foreach ($revisions as $revision) {
     $operations = array();
-    $revision_ids[$revision->vid] = $revision->vid;
+    $revision_ids[$revision->vid] = '';
 
     $revision_log = ($revision->log != '') ? '<p class="revision-log">' . filter_xss($revision->log) . '</p>' : '';
     if ($revision->current_vid > 0) {
