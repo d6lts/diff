@@ -1,0 +1,4 @@
+name: Diff
+description: Shows differences between content revisions.
+type: module
+core: 8.x
