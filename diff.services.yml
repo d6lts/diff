@@ -1,0 +1,5 @@
+services:
+  diff.route_subscriber:
+    class: Drupal\diff\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
