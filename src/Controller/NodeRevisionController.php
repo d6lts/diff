@@ -7,13 +7,12 @@
 
 namespace Drupal\diff\Controller;
 
-use Drupal\Core\Controller\ControllerBase;
 use Drupal\node\NodeInterface;
 
 /**
  * Returns responses for Node Revision routes.
  */
-class RevisionController extends ControllerBase {
+class NodeRevisionController extends EntityComparisonBase {
 
   /**
    * @param NodeInterface $node The node whose revisions are inspected.
