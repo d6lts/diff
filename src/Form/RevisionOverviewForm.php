@@ -10,9 +10,10 @@ use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Datetime\Date;
 use Drupal\Component\Utility\String;
+use \Drupal\Core\Utility\LinkGenerator;
 
 /**
- * Provides a test form object.
+ * Provides a form for revision overview page.
  */
 class RevisionOverviewForm extends FormBase implements ContainerInjectionInterface {
 
@@ -37,6 +38,13 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
    */
   protected $date;
 
+  /**
+   * The link generator service.
+   *
+   * @var \Drupal\Core\Utility\LinkGenerator
+   */
+  protected $link_generator;
+
 
   /**
    * Constructs a RevisionOverviewForm object.
@@ -48,10 +56,11 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
    * @param \Drupal\Core\Datetime\Date $date
    *   The date service.
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, Date $date) {
+  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser,Date $date, LinkGenerator $link_generator) {
     $this->entityManager = $entityManager;
     $this->currentUser = $currentUser;
     $this->date = $date;
+    $this->link_generator = $link_generator;
   }
 
   /**
@@ -61,7 +70,8 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
     return new static(
       $container->get('entity.manager'),
       $container->get('current_user'),
-      $container->get('date')
+      $container->get('date'),
+      $container->get('link_generator')
     );
   }
 
@@ -95,11 +105,13 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
         $account->hasPermission("delete $type revisions") ||
         $account->hasPermission('delete all revisions') ||
         $account->hasPermission('administer nodes')) &&
-      $node->access('delete'));
+      $node->access('delete')
+    );
 
     $rows = array();
 
     $vids = $node_storage->revisionIds($node);
+    // @todo We should take care of pagination in the future.
     foreach (array_reverse($vids) as $vid) {
       if ($revision = $node_storage->loadRevision($vid)) {
         $row = array();
@@ -116,26 +128,33 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
 
         // Current revision.
         if ($vid == $node->getRevisionId()) {
-          // @todo make sure it's ok to use l() function like this.
           $row[] = array(
             'data' => $this->t('!date by !username', array(
-                '!date' => l($revision_date, 'node.view', array('node' => $node->id())),
+                '!date' => $this->link_generator->generate($revision_date, 'node.view',array('node' => $node->id())),
                 '!username' => drupal_render($username),
               )) . $revision_log,
             'class' => array('revision-current'),
           );
-          // @todo add #default_value for radio buttons.
+          // @todo If #value key is not provided a notice of undefined key appears
+          // @todo check if there are better ways to do this (without #value).
           $row[] = array(
             'data' => array(
               '#type' => 'radio',
               '#title_display' => 'invisible',
               '#name' => 'radios_left',
+              '#return_value' => $vid,
+              '#default_value' => FALSE,
+              '#value' => FALSE,
             ),
           );
           $row[] = array(
             'data' => array(
               '#type' => 'radio',
+              '#title_display' => 'invisible',
               '#name' => 'radios_right',
+              '#default_value' => $vid,
+              '#return_value' => $vid,
+              '#value' => $vid,
             ),
           );
           $row[] = array(
@@ -145,7 +164,7 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
         }
         else {
           $row[] = $this->t('!date by !username', array(
-              '!date' => l($revision_date, 'node.revision_show', array(
+              '!date' => $this->link_generator->generate($revision_date, 'node.revision_show', array(
                 'node' => $node->id(),
                 'node_revision' => $vid
               )),
@@ -177,13 +196,21 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
           $row[] = array(
             'data' => array(
               '#type' => 'radio',
+              '#title_display' => 'invisible',
               '#name' => 'radios_left',
+              '#return_value' => $vid,
+              '#default_value' => TRUE,
+              '#value' => ($vid == $node->getRevisionId() - 1) ? TRUE : FALSE,
             ),
           );
           $row[] = array(
             'data' => array(
               '#type' => 'radio',
+              '#title_display' => 'invisible',
               '#name' => 'radios_right',
+              '#return_value' => $vid,
+              '#default_value' => FALSE,
+              '#value' => FALSE,
             ),
           );
           $row[] = array(
@@ -215,7 +242,11 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
    * {@inheritdoc}
    */
   public function validateForm(array &$form, array &$form_state) {
-
+    $vid_left = $form_state['input']['radios_left'];
+    $vid_right = $form_state['input']['radios_right'];
+    if ($vid_left == $vid_right || !$vid_left || !$vid_right) {
+      $this->setFormError('node_revisions_table', $form_state, $message = 'Select different revisions to compare.');
+    }
   }
 
   /**

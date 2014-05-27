@@ -4,6 +4,7 @@ namespace Drupal\diff\Controller;
 
 use \Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Controller\ControllerBase;
+use \Drupal\diff\Controller\RevisionsNotSupportedException;
 
 
 abstract class EntityComparisonBase extends ControllerBase {
@@ -11,11 +12,11 @@ abstract class EntityComparisonBase extends ControllerBase {
   /**
    * @param RevisionableInterface $left
    * @param RevisionableInterface $right
-   * @throws Exception
+   * @throws RevisionsNotSupportedException
    */
   public function revisionsSupported(RevisionableInterface $left, RevisionableInterface $right) {
     if (!($left instanceof RevisionableInterface) || !($right instanceof RevisionableInterface)) {
-      throw new Exception('Both entities must implement RevisionableInterface.');
+      throw new RevisionsNotSupportedException('Both entities must implement RevisionableInterface.');
     }
   }
 
