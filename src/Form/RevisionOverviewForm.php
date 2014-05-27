@@ -11,10 +11,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Datetime\Date;
 use Drupal\Component\Utility\String;
 
-
-// @todo is it ok ?
-const REVISION_LIST_SIZE = 50;
-
 /**
  * Provides a test form object.
  */
@@ -87,10 +83,19 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
     $build = array();
     $build['#title'] = $this->t('Revisions for %title', array('%title' => $node->label()));
 
-    $header = array($this->t('Revision'), $this->t('Operations'));
+    $header = array($this->t('Revision'), '', '', $this->t('Operations'));
 
-    $revert_permission = (($account->hasPermission("revert $type revisions") || $account->hasPermission('revert all revisions') || $account->hasPermission('administer nodes')) && $node->access('update'));
-    $delete_permission =  (($account->hasPermission("delete $type revisions") || $account->hasPermission('delete all revisions') || $account->hasPermission('administer nodes')) && $node->access('delete'));
+    $revert_permission = ((
+        $account->hasPermission("revert $type revisions") ||
+        $account->hasPermission('revert all revisions') ||
+        $account->hasPermission('administer nodes')) &&
+      $node->access('update')
+    );
+    $delete_permission = ((
+        $account->hasPermission("delete $type revisions") ||
+        $account->hasPermission('delete all revisions') ||
+        $account->hasPermission('administer nodes')) &&
+      $node->access('delete'));
 
     $rows = array();
 
@@ -99,35 +104,62 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
       if ($revision = $node_storage->loadRevision($vid)) {
         $row = array();
 
-        $revision_author = $revision->uid->entity;
-        $revision_log = ($revision->log->value != '') ? '<p class="revision-log">' . Xss::filter($revision->log->value) . '</p>' : '';
+        $revision_log = '';
+        if ($revision->log->value != '') {
+          $revision_log = '<p class="revision-log">' . Xss::filter($revision->log->value) . '</p>';
+        }
+        $username = array(
+          '#theme' => 'username',
+          '#account' => $revision->uid->entity,
+        );
+        $revision_date = $this->date->format($revision->revision_timestamp->value, 'short');
 
+        // Current revision.
         if ($vid == $node->getRevisionId()) {
-          $username = array(
-            '#theme' => 'username',
-            '#account' => $revision_author,
-          );
-          // @todo is ok to use l() function like this ?
+          // @todo make sure it's ok to use l() function like this.
           $row[] = array(
             'data' => $this->t('!date by !username', array(
-              '!date' => l($this->date->format($revision->revision_timestamp->value, 'short'), 'node.view', array('node' => $node->id())),
-              '!username' => drupal_render($username))) . $revision_log,
-            'class' => array('revision-current'));
-          $row[] = array('data' => String::placeholder($this->t('current revision')), 'class' => array('revision-current'));
+                '!date' => l($revision_date, 'node.view', array('node' => $node->id())),
+                '!username' => drupal_render($username),
+              )) . $revision_log,
+            'class' => array('revision-current'),
+          );
+          // @todo add #default_value for radio buttons.
+          $row[] = array(
+            'data' => array(
+              '#type' => 'radio',
+              '#title_display' => 'invisible',
+              '#name' => 'radios_left',
+            ),
+          );
+          $row[] = array(
+            'data' => array(
+              '#type' => 'radio',
+              '#name' => 'radios_right',
+            ),
+          );
+          $row[] = array(
+            'data' => String::placeholder($this->t('current revision')),
+            'class' => array('revision-current')
+          );
         }
         else {
-          $username = array(
-            '#theme' => 'username',
-            '#account' => $revision_author,
-          );
-          $row[] = $this->t('!date by !username', array('!date' => l($this->date->format($revision->revision_timestamp->value, 'short'), 'node.revision_show', array('node' => $node->id(), 'node_revision' => $vid)), '!username' => drupal_render($username)))
-            . (($revision->log->value != '') ? '<p class="revision-log">' . Xss::filter($revision->log->value) . '</p>' : '');
+          $row[] = $this->t('!date by !username', array(
+              '!date' => l($revision_date, 'node.revision_show', array(
+                'node' => $node->id(),
+                'node_revision' => $vid
+              )),
+              '!username' => drupal_render($username)
+            )) . $revision_log;
 
           if ($revert_permission) {
             $links['revert'] = array(
               'title' => $this->t('Revert'),
               'route_name' => 'node.revision_revert_confirm',
-              'route_parameters' => array('node' => $node->id(), 'node_revision' => $vid),
+              'route_parameters' => array(
+                'node' => $node->id(),
+                'node_revision' => $vid
+              ),
             );
           }
 
@@ -135,10 +167,25 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
             $links['delete'] = array(
               'title' => $this->t('Delete'),
               'route_name' => 'node.revision_delete_confirm',
-              'route_parameters' => array('node' => $node->id(), 'node_revision' => $vid),
+              'route_parameters' => array(
+                'node' => $node->id(),
+                'node_revision' => $vid
+              ),
             );
           }
 
+          $row[] = array(
+            'data' => array(
+              '#type' => 'radio',
+              '#name' => 'radios_left',
+            ),
+          );
+          $row[] = array(
+            'data' => array(
+              '#type' => 'radio',
+              '#name' => 'radios_right',
+            ),
+          );
           $row[] = array(
             'data' => array(
               '#type' => 'operations',
@@ -155,14 +202,14 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
       '#theme' => 'table',
       '#rows' => $rows,
       '#header' => $header,
-      '#attached' => array(
-        'library' => array('node/drupal.node.admin'),
-      ),
+    );
+    $build['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Compare'),
     );
 
     return $build;
-
-}
+  }
 
   /**
    * {@inheritdoc}
@@ -170,6 +217,7 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
   public function validateForm(array &$form, array &$form_state) {
 
   }
+
   /**
    * {@inheritdoc}
    */
