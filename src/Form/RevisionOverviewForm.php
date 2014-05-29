@@ -10,7 +10,7 @@ use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Datetime\Date;
 use Drupal\Component\Utility\String;
-use \Drupal\Core\Utility\LinkGenerator;
+use Drupal\Core\Utility\LinkGenerator;
 
 /**
  * Provides a form for revision overview page.
@@ -55,6 +55,8 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
    *   The current user.
    * @param \Drupal\Core\Datetime\Date $date
    *   The date service.
+   * @param \Drupal\Core\Utility\LinkGenerator
+   *   The link generator service.
    */
   public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser,Date $date, LinkGenerator $link_generator) {
     $this->entityManager = $entityManager;
@@ -92,6 +94,10 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
 
     $build = array();
     $build['#title'] = $this->t('Revisions for %title', array('%title' => $node->label()));
+    $build['nid'] = array(
+      '#type' => 'hidden',
+      '#value' => $node->nid->value,
+    );
 
     $header = array($this->t('Revision'), '', '', $this->t('Operations'));
 
@@ -127,7 +133,7 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
         $revision_date = $this->date->format($revision->revision_timestamp->value, 'short');
 
         // Current revision.
-        if ($vid == $node->getRevisionId()) {
+        if ($revision->isDefaultRevision()) {
           $row[] = array(
             'data' => $this->t('!date by !username', array(
                 '!date' => $this->link_generator->generate($revision_date, 'node.view',array('node' => $node->id())),
@@ -135,8 +141,10 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
               )) . $revision_log,
             'class' => array('revision-current'),
           );
-          // @todo If #value key is not provided a notice of undefined key appears
-          // @todo check if there are better ways to do this (without #value).
+          // @TODO If #value key is not provided a notice of undefined key appears
+          // @TODO check if there are better ways to do this (without #value).
+          // @TODO I created issue https://drupal.org/node/2275837 for this bug
+          // @TODO When resolved refactor this.
           $row[] = array(
             'data' => array(
               '#type' => 'radio',
@@ -165,9 +173,9 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
         else {
           $row[] = $this->t('!date by !username', array(
               '!date' => $this->link_generator->generate($revision_date, 'node.revision_show', array(
-                'node' => $node->id(),
-                'node_revision' => $vid
-              )),
+                  'node' => $node->id(),
+                  'node_revision' => $vid
+                )),
               '!username' => drupal_render($username)
             )) . $revision_log;
 
@@ -245,7 +253,7 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
     $vid_left = $form_state['input']['radios_left'];
     $vid_right = $form_state['input']['radios_right'];
     if ($vid_left == $vid_right || !$vid_left || !$vid_right) {
-      $this->setFormError('node_revisions_table', $form_state, $message = 'Select different revisions to compare.');
+      $this->setFormError('node_revisions_table', $form_state, 'Select different revisions to compare.');
     }
   }
 
@@ -253,6 +261,18 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
    * {@inheritdoc}
    */
   public function submitForm(array &$form, array &$form_state) {
+    $vid_left = $form_state['input']['radios_left'];
+    $vid_right = $form_state['input']['radios_right'];
+    $nid = $form_state['input']['nid'];
 
+    // Always place the older revision on the left side of the comparison
+    // and the newer revision on the right side.
+    if ($vid_left > $vid_right) {
+      $aux = $vid_left;
+      $vid_left = $vid_right;
+      $vid_right = $aux;
+    }
+
+    $form_state['redirect'] = 'node/' . $nid . '/revisions/view/' . $vid_left . '/' . $vid_right;
   }
 }
