@@ -2,49 +2,63 @@
 
 namespace Drupal\diff\Controller;
 
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Field\FieldItemList;
 use Drupal\diff\TextFieldDiff;
+use Drupal\diff\Diff\FieldDiffManager;
 
-abstract class EntityComparisonBase extends ControllerBase {
+
+abstract class EntityComparisonBase extends ControllerBase implements  ContainerInjectionInterface{
+
+  protected $fieldDiffManager;
 
   /**
-   * This is a factory method used for creating an object which implements the
-   * interface FieldDiffInterface.
+   * Constructs an EntityComparisonBase object.
    *
-   * @param FieldItemList $field_items A field of the entity to be compared.
-   * @return TextFieldDiff|null If there is a class which implements the
-   *   interface FieldDiffInterface for this field provider the return an object
-   *   of that class. Else return null.
+   * @param FieldDiffManager $fieldDiffManager
+   *   Field diff manager negotiated service.
    */
-  private function fieldDiffFactory(FieldItemList $field_items) {
-    $field_plugin_definition = $field_items->getIterator()->current()->getPluginDefinition();
-
-    // @TODO Here we need to find a better solution for finding the right class
-    // to be returned rather hard-coding the returned object (since I suppose
-    // that in OOP we cannot rely on naming conventions to load the classes, I
-    // added a method getFieldProvider to the interface which should return the
-    // provider for that field e.g. text, image, entity_reference, core, etc.)
-    // Maybe we can use that to find and return the object of the right class.
-    if ($field_plugin_definition['provider'] == 'text') {
-      return new TextFieldDiff($field_items);
-    }
-
-    return NULL;
+  public function __construct(FieldDiffManager $fieldDiffManager) {
+    $this->fieldDiffManager = $fieldDiffManager;
   }
 
-  private function parseEntity(RevisionableInterface $entity) {
-    foreach ($entity as $field_items) {
-      $field_diff = $this->fieldDiffFactory($field_items);
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container->get('diff.manager'));
+  }
 
-      // A class providing diff for this type of field has been found.
-      if($field_diff != NULL) {
-        return $field_diff->view($field_items, array());
+  /**
+   * @param RevisionableInterface $entity
+   * @return array
+   */
+  private function parseEntity(RevisionableInterface $entity) {
+    $result = array();
+
+    // @TODO These values should be taken from the diff settings page.
+    $settings = array(
+      'summary' => TRUE,
+      'format' => TRUE,
+      'value' => TRUE,
+    );
+
+    foreach ($entity as $field_items) {
+      $context = array(
+        'field_type' => $field_items->getIterator()->current()->getFieldDefinition()->getType(),
+        'settings' => $settings,
+      );
+      $build = $this->fieldDiffManager->build($field_items, $context);
+
+      if (!empty($build)) {
+        $result[] = $build;
       }
     }
 
-    return NULL;
+    return $result;
   }
 
   /**
@@ -85,12 +99,17 @@ abstract class EntityComparisonBase extends ControllerBase {
     // field across bundle but can't share fields across entity types; e.g. a user
     // cannot have a field from a node or vice-versa).
     // But again I don't think there are any real use cases for the two cases
-    // described above. Examine them and maybe just abandon them.
+    // described above.
     if ($right_entity instanceof $entity_type_class) {
       $left_values = $this->parseEntity($left_entity);
       $right_values = $this->parseEntity($right_entity);
 
-      return array($left_values, $right_values);
+      // @TODO These should be further processed to get to the form from the
+      // function comment. For the moment send them as they are for testing purposes.
+      return array(
+        'left' => $left_values,
+        'right' => $right_values,
+      );
     }
 
   }
