@@ -2,12 +2,13 @@
 
 /**
  * @file
- * Contains \Drupal\diff\Controller\RevisionController.
+ * Contains \Drupal\diff\Controller\NodeRevisionController.
  */
 
 namespace Drupal\diff\Controller;
 
 use Drupal\node\NodeInterface;
+use Drupal\diff\EntityComparisonBase;
 
 /**
  * Returns responses for Node Revision routes.
@@ -29,14 +30,14 @@ class NodeRevisionController extends EntityComparisonBase {
    */
   public function compareNodeRevisions(NodeInterface $node, $left_vid, $right_vid) {
     $entity_type = 'node';
-    $left_node = $this->entityManager()->getStorage($entity_type)->loadRevision($left_vid);
-    $right_node = $this->entityManager()->getStorage($entity_type)->loadRevision($right_vid);
+    $left_revision = $this->entityManager()->getStorage($entity_type)->loadRevision($left_vid);
+    $right_revision = $this->entityManager()->getStorage($entity_type)->loadRevision($right_vid);
 
     // Only perform comparison if both node revisions loaded successfully.
-    if ($left_node != FALSE && $right_node != FALSE) {
-      $builds = $this->compareRevisions($left_node, $right_node);
-      // @TODO This data should be passes to the Diff Core Component and generate
-      // a nice output. For now just display it using Devel Kint (also nice output).
+    if ($left_revision != FALSE && $right_revision != FALSE) {
+      $builds = $this->compareRevisions($left_revision, $right_revision);
+      // @todo This data should be passes through the Diff Core Component.
+      // For now just display it using Devel Kint (for a nice output).
       dsm($builds);
     }
     else {

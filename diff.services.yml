@@ -9,6 +9,6 @@ services:
     tags:
       - { name: service_collector, tag: diff.field_builder, call: addBuilder }
   diff.text_field_builder:
-    class: Drupal\diff\TextFieldParser
+    class: Drupal\diff\TextFieldDiffBuilder
     tags:
       - { name: diff.field_builder, priority: 10 }

@@ -74,6 +74,9 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
   }
 
   /**
+   * @todo make sure here that the service with greater priority is picked
+   * instead of the service with lower priority (theoretically this should
+   * happen but now it seems like it's the other way around.)
    * {@inheritdoc}
    */
   public function build(FieldItemList $field_items, array $context) {

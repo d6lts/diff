@@ -1,12 +1,17 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\diff\TextFieldDiffBuilder.
+ */
+
 namespace Drupal\diff;
 
 use Drupal\diff\Diff\FieldDiffBuilderInterface;
 use Drupal\Core\Field\FieldItemList;
 
 
-class TextFieldParser implements FieldDiffBuilderInterface {
+class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
 
   /**
    * {@inheritdoc}

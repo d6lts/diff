@@ -1,18 +1,30 @@
 <?php
 
-namespace Drupal\diff\Controller;
+/**
+ * @file
+ * Contains \Drupal\diff\EntityComparisonBase.
+ */
+
+namespace Drupal\diff;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Field\FieldItemList;
-use Drupal\diff\TextFieldDiff;
 use Drupal\diff\Diff\FieldDiffManager;
 
+/**
+ * Class EntityComparisonBase
+ *   Builds an array of data to be passed through the Diff component and
+ * displayed on the UI representing the differences between entity fields.
+ */
+class EntityComparisonBase extends ControllerBase implements  ContainerInjectionInterface {
 
-abstract class EntityComparisonBase extends ControllerBase implements  ContainerInjectionInterface{
-
+  /**
+   * Field diff manager negotiated service.
+   *
+   * @var \Drupal\diff\Diff\FieldDiffManager
+   */
   protected $fieldDiffManager;
 
   /**
@@ -34,12 +46,14 @@ abstract class EntityComparisonBase extends ControllerBase implements  Container
 
   /**
    * @param RevisionableInterface $entity
+   * @todo Document this properly.
    * @return array
    */
   private function parseEntity(RevisionableInterface $entity) {
     $result = array();
 
-    // @TODO These values should be taken from the diff settings page.
+    // @todo These values should be taken from the diff module settings page.
+    // They are hard-coded here for testing purposes only.
     $settings = array(
       'summary' => TRUE,
       'format' => TRUE,
@@ -86,7 +100,7 @@ abstract class EntityComparisonBase extends ControllerBase implements  Container
    * @param RevisionableInterface $left_entity The left entity
    * @param RevisionableInterface $right_entity The right entity
    *
-   * @return array of items ready to be compared
+   * @return array of items ready to be compared by the Diff component.
    */
   public function compareRevisions(RevisionableInterface $left_entity, RevisionableInterface $right_entity) {
     $entity_type_class = $left_entity->getEntityType()->getClass();
@@ -104,8 +118,8 @@ abstract class EntityComparisonBase extends ControllerBase implements  Container
       $left_values = $this->parseEntity($left_entity);
       $right_values = $this->parseEntity($right_entity);
 
-      // @TODO These should be further processed to get to the form from the
-      // function comment. For the moment send them as they are for testing purposes.
+      // @todo These should be further processed to get to form from docblock comment of this function.
+      // For the moment send them as they are for testing purposes.
       return array(
         'left' => $left_values,
         'right' => $right_values,

@@ -8,8 +8,8 @@
 namespace Drupal\diff\Diff;
 
 /**
- * Defines an interface, a chained service that builds the array of strings
- * to be compared for a certain field.
+ * Defines an interface, a chained service that decides which field properties
+ * should be compared and provides field type specific diff settings form.
  */
 interface ChainFieldDiffBuilderInterface extends FieldDiffBuilderInterface {
 

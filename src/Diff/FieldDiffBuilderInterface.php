@@ -10,7 +10,7 @@ namespace Drupal\diff\Diff;
 use Drupal\Core\Field\FieldItemList;
 
 /**
- * Defines an interface for classes that compare fields.
+ * Defines an interface for classes that handle field comparisons.
  */
 interface FieldDiffBuilderInterface {
 
@@ -29,14 +29,14 @@ interface FieldDiffBuilderInterface {
   /**
    * Builds the field data to be compared based on the context.
    *
-   * Example: this function may include or not the summary in the comparison
-   * (for fields of type text_with_summary) based on the current context.
+   * Example: this function may or may not include the summary of a
+   * text_with_summary field in the comparison based on the given context.
    *
    * @param FieldItemList $field_items
    *   Represents an entity field; that is, a list of field item objects.
    *
    * @param array $context
-   *   An array of containing information about what properties of an field
+   *   An array of containing information about what properties of a field
    *   item to be included into comparison.
    *
    * @return mixed
@@ -48,22 +48,22 @@ interface FieldDiffBuilderInterface {
 
   /**
    * @param $context
-   *   An array containing information about the current context
-   *   E.g. the field type for which to return default options.
-   *
-   * @return mixed
-   *  Array containing default options for field specific settings form.
-   */
-  public function defaultOptions($context);
-
-  /**
-   * @param $context
    *  An array containing information about the current context
-   *  E.g. the field type for which to return the options form.
+   *  E.g. field type for which to build the diff settings form.
    *
    * @return mixed
-   *   A settings form for a field.
+   *   A settings form for a field type.
    */
   public function optionsForm($context);
 
-  }
+  /**
+   * @param $context
+   *   An array containing information about the current context
+   *   E.g. the field type for which to return diff default options.
+   *
+   * @return mixed
+   *  Array containing default options for field type settings form.
+   */
+  public function defaultOptions($context);
+
+}
