@@ -253,7 +253,8 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
     $vid_left = $form_state['input']['radios_left'];
     $vid_right = $form_state['input']['radios_right'];
     if ($vid_left == $vid_right || !$vid_left || !$vid_right) {
-      $this->setFormError('node_revisions_table', $form_state, 'Select different revisions to compare.');
+      // @todo See why radio-boxes reset if there are errors.
+      $this->setFormError('submit', $form_state, $this->t('Select different revisions to compare.'));
     }
   }
 

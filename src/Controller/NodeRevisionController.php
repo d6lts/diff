@@ -16,6 +16,11 @@ use Drupal\diff\EntityComparisonBase;
 class NodeRevisionController extends EntityComparisonBase {
 
   /**
+   * Returns a form for revision overview page.
+   *
+   * @todo This might be changed to a view when the issue at this link is
+   * resolved: https://drupal.org/node/1863906
+   *
    * @param NodeInterface $node The node whose revisions are inspected.
    * @return array Render array containing the revisions table for $node.
    */
