@@ -10,5 +10,6 @@ services:
       - { name: service_collector, tag: diff.field_builder, call: addBuilder }
   diff.text_field_builder:
     class: Drupal\diff\TextFieldDiffBuilder
+    arguments: ['@entity.manager']
     tags:
       - { name: diff.field_builder, priority: 10 }

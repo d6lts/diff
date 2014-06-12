@@ -7,7 +7,7 @@
 
 namespace Drupal\diff\Diff;
 
-use Drupal\Core\Field\FieldItemList;
+use Drupal\Core\Field\FieldItemListInterface;
 
 /**
  * Defines an interface for classes that handle field comparisons.
@@ -32,7 +32,7 @@ interface FieldDiffBuilderInterface {
    * Example: this function may or may not include the summary of a
    * text_with_summary field in the comparison based on the given context.
    *
-   * @param FieldItemList $field_items
+   * @param FieldItemListInterface $field_items
    *   Represents an entity field; that is, a list of field item objects.
    *
    * @param array $context
@@ -44,7 +44,7 @@ interface FieldDiffBuilderInterface {
    *   that a field is either empty or no properties need to be compared for
    *   that field.
    */
-  public function build(FieldItemList $field_items, array $context);
+  public function build(FieldItemListInterface $field_items, array $context);
 
   /**
    * @param $context

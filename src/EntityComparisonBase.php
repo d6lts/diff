@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\diff\Diff\FieldDiffManager;
+use Drupal\Core\Render\Element;
 
 /**
  * Class EntityComparisonBase
@@ -65,10 +66,13 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
         'field_type' => $field_items->getIterator()->current()->getFieldDefinition()->getType(),
         'settings' => $settings,
       );
+      // For every field of the entity we call build method on the negotiated
+      // service FieldDiffManager and this service will search for the services
+      // that manage this type of field and call the right service.
       $build = $this->fieldDiffManager->build($field_items, $context);
 
       if (!empty($build)) {
-        $result[] = $build;
+        $result[$field_items->getName()] = $build;
       }
     }
 
@@ -103,6 +107,7 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
    * @return array of items ready to be compared by the Diff component.
    */
   public function compareRevisions(RevisionableInterface $left_entity, RevisionableInterface $right_entity) {
+    $result = array();
     $entity_type_class = $left_entity->getEntityType()->getClass();
 
     // Compare entities only if the entity type class of both entities is the same.
@@ -118,15 +123,60 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
       $left_values = $this->parseEntity($left_entity);
       $right_values = $this->parseEntity($right_entity);
 
-      // @todo These should be further processed to get to form from docblock comment of this function.
-      // For the moment send them as they are for testing purposes.
-      return array(
-        'left' => $left_values,
-        'right' => $right_values,
-      );
+      // @todo These should be further processed to get to form from doc-block comment of this function.
+
+      // Parse all the fields from the left entity and build an array with field
+      // label, left and right values, field settings and weight.
+      foreach ($left_values as $field_name => $values) {
+        // @todo Consider refactoring this to an object.
+        $result[$field_name] = array(
+          '#name' => $left_entity->getFieldDefinition($field_name)->label(),
+          '#left' => array(),
+          '#right' => array(),
+          '#settings' => array(),
+        );
+
+        if (isset($right_values[$field_name])) {
+          $max = max(array(count($left_values[$field_name]), count($right_values[$field_name])));
+          for ($delta = 0; $delta < $max; $delta++) {
+            if (isset($left_values[$field_name][$delta])) {
+              $value = $left_values[$field_name][$delta];
+              $result[$field_name]['#left'][] = is_array($value) ? implode("\n", $value) : $value;
+            }
+            if (isset($right_values[$field_name][$delta])) {
+              $value = $right_values[$field_name][$delta];
+              $result[$field_name]['#right'][] = is_array($value) ? implode("\n", $value) : $value;
+            }
+          }
+
+          $result[$field_name]['#left'] = implode("\n", $result[$field_name]['#left']);
+          $result[$field_name]['#right'] = implode("\n", $result[$field_name]['#right']);
+
+        }
+      }
+
+      // We start off assuming all form elements are in the correct order.
+      $result['#sorted'] = TRUE;
+
+      // Field rows. Recurse through all child elements.
+      $count = 0;
+      foreach (Element::children($result) as $key) {
+        $result[$key]['#states'] = array();
+
+        // Ensure that the element follows the new #states format.
+        if (isset($result[$key]['#left'])) {
+          $result[$key]['#states']['raw']['#left'] = $result[$key]['#left'];
+          unset($result[$key]['#left']);
+        }
+        if (isset($result[$key]['#right'])) {
+          $result[$key]['#states']['raw']['#right'] = $result[$key]['#right'];
+          unset($result[$key]['#right']);
+        }
+      }
+
+      return $result;
     }
 
   }
-
 
 } 

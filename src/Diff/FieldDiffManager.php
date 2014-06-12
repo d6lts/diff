@@ -8,7 +8,7 @@
 namespace Drupal\diff\Diff;
 
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Field\FieldItemList;
+use Drupal\Core\Field\FieldItemListInterface;
 
 
 /**
@@ -79,7 +79,7 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
    * happen but now it seems like it's the other way around.)
    * {@inheritdoc}
    */
-  public function build(FieldItemList $field_items, array $context) {
+  public function build(FieldItemListInterface $field_items, array $context) {
     $build = array();
     // Call the build method of registered field builders,
     // until one of them returns an array.
