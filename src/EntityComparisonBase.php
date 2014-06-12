@@ -13,6 +13,8 @@ use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\diff\Diff\FieldDiffManager;
 use Drupal\Core\Render\Element;
+use Drupal\Component\Diff\DiffFormatter;
+use Drupal\Component\Diff\Diff;
 
 /**
  * Class EntityComparisonBase
@@ -156,7 +158,7 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
       }
 
       // We start off assuming all form elements are in the correct order.
-      $result['#sorted'] = TRUE;
+//      $result['#sorted'] = TRUE;
 
       // Field rows. Recurse through all child elements.
       $count = 0;
@@ -173,10 +175,75 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
           unset($result[$key]['#right']);
         }
       }
-
-      return $result;
     }
 
+    // Process the array and get line counts per field.
+    array_walk($result, array($this, 'processStateLine'));
+    return $result;
+  }
+
+  /**
+   * Render the table rows for theme('table').
+   *
+   * @param string $a
+   *   The source string to compare from.
+   * @param string $b
+   *   The target string to compare to.
+   * @param boolean $show_header
+   *   Display diff context headers. For example, "Line x".
+   * @param array $line_stats
+   *   This structure tracks line numbers across multiple calls to DiffFormatter.
+   *
+   * @return array
+   *   Array of rows usable with theme('table').
+   */
+  public function getRows($a, $b, $show_header = FALSE, &$line_stats = NULL) {
+    $a = is_array($a) ? $a : explode("\n", $a);
+    $b = is_array($b) ? $b : explode("\n", $b);
+
+    if (!isset($line_stats)) {
+      $line_stats = array(
+        'counter' => array('x' => 0, 'y' => 0),
+        'offset' => array('x' => 0, 'y' => 0),
+      );
+    }
+
+    $formatter = new DiffFormatter();
+    // Header is the line counter.
+    $formatter->show_header = $show_header;
+    $formatter->line_stats = &$line_stats;
+
+    $diff = new Diff($a, $b);
+
+    // @todo This doesn't seem to work.
+    return $formatter->format($diff);
+  }
+
+  /**
+   * @param $diff
+   * @param $key
+   */
+  function processStateLine(&$diff, $key) {
+    foreach ($diff['#states'] as $state => $data) {
+      if (isset($data['#left'])) {
+        if (is_string($data['#left'])) {
+          $diff['#states'][$state]['#left'] = explode("\n", $data['#left']);
+        }
+        $diff['#states'][$state]['#count_left'] = count($diff['#states'][$state]['#left']);
+      }
+      else {
+        $diff['#states'][$state]['#count_left'] = 0;
+      }
+      if (isset($data['#right'])) {
+        if (is_string($data['#right'])) {
+          $diff['#states'][$state]['#right'] = explode("\n", $data['#right']);
+        }
+        $diff['#states'][$state]['#count_right'] = count($diff['#states'][$state]['#right']);
+      }
+      else {
+        $diff['#states'][$state]['#count_right'] = 0;
+      }
+    }
   }
 
 } 

@@ -40,10 +40,14 @@ class NodeRevisionController extends EntityComparisonBase {
 
     // Only perform comparison if both node revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
-      $builds = $this->compareRevisions($left_revision, $right_revision);
+      $build = $this->compareRevisions($left_revision, $right_revision);
       // @todo This data should be passes through the Diff Core Component.
       // For now just display it using Devel Kint (for a nice output).
-      dsm($builds);
+      $diff_rows = $this->getRows(
+        $build['body']['#states']['raw']['#left'],
+        $build['body']['#states']['raw']['#right']
+      );
+
     }
     else {
       drupal_set_message($this->t('Selected node revisions could not be loaded.'), 'error');

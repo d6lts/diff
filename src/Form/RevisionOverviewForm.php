@@ -123,8 +123,9 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
         $row = array();
 
         $revision_log = '';
-        if ($revision->log->value != '') {
-          $revision_log = '<p class="revision-log">' . Xss::filter($revision->log->value) . '</p>';
+
+        if ($revision->revision_log->value != '') {
+          $revision_log = '<p class="revision-log">' . Xss::filter($revision->revision_log->value) . '</p>';
         }
         $username = array(
           '#theme' => 'username',
@@ -141,10 +142,9 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
               )) . $revision_log,
             'class' => array('revision-current'),
           );
-          // @TODO If #value key is not provided a notice of undefined key appears
-          // @TODO check if there are better ways to do this (without #value).
-          // @TODO I created issue https://drupal.org/node/2275837 for this bug
-          // @TODO When resolved refactor this.
+          // @todo If #value key is not provided a notice of undefined key appears.
+          // I created issue https://drupal.org/node/2275837 for this bug
+          // When resolved refactor this.
           $row[] = array(
             'data' => array(
               '#type' => 'radio',
