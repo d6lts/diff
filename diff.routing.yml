@@ -3,4 +3,6 @@ diff.revisions_overview:
   defaults:
     _content: '\Drupal\diff\Controller\NodeRevisionController::compareNodeRevisions'
   requirements:
-    _access: 'TRUE'
+    _access_node_revision: 'view'
+  options:
+    _admin_route: TRUE

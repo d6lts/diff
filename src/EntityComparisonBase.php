@@ -13,7 +13,7 @@ use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\diff\Diff\FieldDiffManager;
 use Drupal\Core\Render\Element;
-use Drupal\Component\Diff\DiffFormatter;
+use Drupal\Core\Diff\DiffFormatter;
 use Drupal\Component\Diff\Diff;
 
 /**
@@ -31,20 +31,33 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
   protected $fieldDiffManager;
 
   /**
+   * DiffFormatter service.
+   *
+   * @var \Drupal\Core\Diff\DiffFormatter
+   */
+  protected $diffFormatter;
+
+  /**
    * Constructs an EntityComparisonBase object.
    *
-   * @param FieldDiffManager $fieldDiffManager
+   * @param FieldDiffManager $field_diff_manager
    *   Field diff manager negotiated service.
+   * @param DiffFormatter $diff_formatter
+   *   Diff formatter service.
    */
-  public function __construct(FieldDiffManager $fieldDiffManager) {
-    $this->fieldDiffManager = $fieldDiffManager;
+  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter) {
+    $this->fieldDiffManager = $field_diff_manager;
+    $this->diffFormatter = $diff_formatter;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('diff.manager'));
+    return new static(
+      $container->get('diff.manager'),
+      $container->get('diff.formatter')
+    );
   }
 
   /**
@@ -161,7 +174,6 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
 //      $result['#sorted'] = TRUE;
 
       // Field rows. Recurse through all child elements.
-      $count = 0;
       foreach (Element::children($result) as $key) {
         $result[$key]['#states'] = array();
 
@@ -208,15 +220,12 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
       );
     }
 
-    $formatter = new DiffFormatter();
     // Header is the line counter.
-    $formatter->show_header = $show_header;
-    $formatter->line_stats = &$line_stats;
-
+    $this->diffFormatter->show_header = $show_header;
+    // @todo Should Diff object be a service/should it be injected ?
     $diff = new Diff($a, $b);
 
-    // @todo This doesn't seem to work.
-    return $formatter->format($diff);
+    return $this->diffFormatter->format($diff);
   }
 
   /**
