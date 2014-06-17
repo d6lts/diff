@@ -15,6 +15,8 @@ use Drupal\diff\Diff\FieldDiffManager;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Diff\DiffFormatter;
 use Drupal\Component\Diff\Diff;
+use Drupal\Core\Datetime\Date;
+
 
 /**
  * Class EntityComparisonBase
@@ -38,16 +40,26 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
   protected $diffFormatter;
 
   /**
+   * The date service.
+   *
+   * @var \Drupal\Core\Datetime\Date
+   */
+  protected $date;
+
+  /**
    * Constructs an EntityComparisonBase object.
    *
    * @param FieldDiffManager $field_diff_manager
    *   Field diff manager negotiated service.
    * @param DiffFormatter $diff_formatter
    *   Diff formatter service.
+   * @param Date $date
+   *   Date service.
    */
-  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter) {
+  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, Date $date) {
     $this->fieldDiffManager = $field_diff_manager;
     $this->diffFormatter = $diff_formatter;
+    $this->date = $date;
   }
 
   /**
@@ -56,7 +68,8 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('diff.manager'),
-      $container->get('diff.formatter')
+      $container->get('diff.formatter'),
+      $container->get('date')
     );
   }
 

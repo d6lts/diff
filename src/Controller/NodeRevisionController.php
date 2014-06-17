@@ -9,6 +9,8 @@ namespace Drupal\diff\Controller;
 
 use Drupal\node\NodeInterface;
 use Drupal\diff\EntityComparisonBase;
+use Drupal\Component\Utility\Xss;
+
 
 /**
  * Returns responses for Node Revision routes.
@@ -30,49 +32,52 @@ class NodeRevisionController extends EntityComparisonBase {
 
   /**
    * @param NodeInterface $node The node whose revisions are compared.
-   * @param $left_vid vid of the node revision.
-   * @param $right_vid vid of the node revision.
+   * @param $left_vid vid of the node revision from the left.
+   * @param $right_vid vid of the node revision from the right.
    *
    * @return array Table with the diff between the two revisions.
    */
   public function compareNodeRevisions(NodeInterface $node, $left_vid, $right_vid) {
-    $entity_type = 'node';
-    $left_revision = $this->entityManager()->getStorage($entity_type)->loadRevision($left_vid);
-    $right_revision = $this->entityManager()->getStorage($entity_type)->loadRevision($right_vid);
+    $storage = $this->entityManager()->getStorage('node');
+    $left_revision = $storage->loadRevision($left_vid);
+    $right_revision = $storage->loadRevision($right_vid);
+
+    $diff_rows = array();
+    $vids = $storage->revisionIds($node);
+    $diff_rows[] = $this->buildRevisionsNavigation($node->id(), $vids, $left_vid, $right_vid);
+    $diff_header = $this->buildTableHeader($left_revision, $right_revision);
+    $build = array();
 
     // Perform comparison only if both node revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
-      $diff_rows = array();
 
-      $content = $this->compareRevisions($left_revision, $right_revision);
+      $fields = $this->compareRevisions($left_revision, $right_revision);
 
-      foreach ($content as $value) {
-        // Show field name.
-        // @todo Add field name only of there are changes.
-        $diff_rows[] = array(
-          array(
-            'data' => $this->t('Changes to %name', array('%name' => $value['#name'])),
-            'colspan' => 4
-          ),
+      // Build the diff rows for each field and append the field rows to the table rows.
+      foreach ($fields as $field) {
+        $field_label_row = array(
+          'data' => $this->t('Changes to %name', array('%name' => $field['#name'])),
+          'colspan' => 4,
         );
-        $diff_rows = array_merge($diff_rows, $this->getRows(
-          $value['#states']['raw']['#left'],
-          $value['#states']['raw']['#right']
-        ));
+        $field_diff_rows = $this->getRows(
+          $field['#states']['raw']['#left'],
+          $field['#states']['raw']['#right']
+        );
+        // Add the field label to the table only if there are changes to that field.
+        if (!empty($field_diff_rows)) {
+          $diff_rows[] = array($field_label_row);
+        }
+
+        // Add field diff rows to the table rows.
+        $diff_rows = array_merge($diff_rows, $field_diff_rows);
       }
 
-      $build = array();
-
-      // Add the CSS for the inline diff.
+      // Add the CSS for the diff.
       $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.default.css';
 
-      // @todo #header will be replaced with revision logs and navigation between revisions.
       $build['diff'] = array(
         '#type' => 'table',
-        '#header' => array(
-          array('data' => t('Old'), 'colspan' => '2'),
-          array('data' => t('New'), 'colspan' => '2'),
-        ),
+        '#header' => $diff_header,
         '#rows' => $diff_rows,
         '#empty' => $this->t('No visible changes'),
       );
@@ -93,7 +98,107 @@ class NodeRevisionController extends EntityComparisonBase {
     else {
       drupal_set_message($this->t('Selected node revisions could not be loaded.'), 'error');
     }
+  }
 
+  /**
+   * Build the header for the diff table.
+   *
+   * @param $left_revision Revision from the left hand side.
+   * @param $right_revision Revision from the right hand side.
+   * @return array Header for Diff table
+   */
+  protected function buildTableHeader($left_revision, $right_revision) {
+    $header = array();
+    $revisions = array($left_revision, $right_revision);
+
+    foreach ($revisions as $revision) {
+      $revision_log = '&nbsp';
+
+      if ($revision->revision_log->value != '') {
+        $revision_log = Xss::filter($revision->revision_log->value);
+      }
+      $username = array(
+        '#theme' => 'username',
+        '#account' => $revision->uid->entity,
+      );
+      $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
+      $revision_link = $this->t($revision_log . '!date', array(
+        '!date' => $this->l($revision_date, 'node.view', array('node' => $revision->id())),
+      ));
+      $header[] = array(
+        'data' => $this->t('by' . '!username', array('!username' => drupal_render($username))),
+        'colspan' => 1,
+      );
+      $header[] = array(
+        'data' => $revision_link,
+        'colspan' => 1,
+      );
+    }
+
+    return $header;
+  }
+
+  /**
+   * Returns the navigation row for diff table.
+   */
+  protected function buildRevisionsNavigation($nid, $vids, $left_vid, $right_vid) {
+    $i = 0;
+    $revisions_count = count($vids);
+
+    $row = array();
+    // First column.
+    $row[] = '&nbsp';
+    // Find the previous revision.
+    while ($left_vid > $vids[$i]) {
+      $i += 1;
+    }
+    if ($i != 0) {
+      // Second column.
+      $row[] = array(
+        'data' => $this->l(
+            $this->t('< Previous difference'),
+            'diff.revisions_diff',
+            array(
+              'node' => $nid,
+              'left_vid' => $vids[$i - 1],
+              'right_vid' => $left_vid
+            )
+          ),
+        'colspan' => 1,
+      );
+    }
+    else {
+      // Second column.
+      $row[] = '&nbsp';
+    }
+    // Third column.
+    $row[] = '&nbsp';
+    // Find the next revision.
+    $i = 0;
+    while ($i < $revisions_count && $right_vid >= $vids[$i]) {
+      $i += 1;
+    }
+    if ($revisions_count != $i && $vids[$i - 1] != $vids[$revisions_count - 1]) {
+      // Forth column.
+      $row[] = array(
+        'data' => $this->l(
+            $this->t('Next difference >'),
+            'diff.revisions_diff',
+            array(
+              'node' => $nid,
+              'left_vid' => $right_vid,
+              'right_vid' => $vids[$i],
+            )
+          ),
+        'colspan' => 1,
+      );
+    }
+    else {
+      // Forth column
+      $row[] = '&nbsp';
+    }
+
+    return $row;
   }
 
 }

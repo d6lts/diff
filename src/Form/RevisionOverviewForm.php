@@ -58,7 +58,7 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
    * @param \Drupal\Core\Utility\LinkGenerator
    *   The link generator service.
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser,Date $date, LinkGenerator $link_generator) {
+  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, Date $date, LinkGenerator $link_generator) {
     $this->entityManager = $entityManager;
     $this->currentUser = $currentUser;
     $this->date = $date;
@@ -131,7 +131,7 @@ class RevisionOverviewForm extends FormBase implements ContainerInjectionInterfa
           '#theme' => 'username',
           '#account' => $revision->uid->entity,
         );
-        $revision_date = $this->date->format($revision->revision_timestamp->value, 'short');
+        $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
 
         // Current revision.
         if ($revision->isDefaultRevision()) {
