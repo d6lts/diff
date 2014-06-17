@@ -8,7 +8,7 @@
 namespace Drupal\diff\Controller;
 
 use Drupal\node\NodeInterface;
-use Drupal\diff\EntityComparisonBase;
+use Drupal\diff\Diff\Entity\EntityComparisonBase;
 use Drupal\Component\Utility\Xss;
 
 
@@ -123,7 +123,10 @@ class NodeRevisionController extends EntityComparisonBase {
       );
       $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
       $revision_link = $this->t($revision_log . '!date', array(
-        '!date' => $this->l($revision_date, 'node.view', array('node' => $revision->id())),
+        '!date' => $this->l($revision_date, 'node.revision_show', array(
+            'node' => $revision->id(),
+            'node_revision' => $revision->getRevisionId()
+          )),
       ));
       $header[] = array(
         'data' => $this->t('by' . '!username', array('!username' => drupal_render($username))),

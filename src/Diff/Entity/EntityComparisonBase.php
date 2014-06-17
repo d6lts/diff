@@ -5,7 +5,7 @@
  * Contains \Drupal\diff\EntityComparisonBase.
  */
 
-namespace Drupal\diff;
+namespace Drupal\diff\Diff\Entity;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;

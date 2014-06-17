@@ -5,7 +5,7 @@
  * Contains \Drupal\diff\TextFieldDiffBuilder.
  */
 
-namespace Drupal\diff;
+namespace Drupal\diff\Diff\Entity;
 
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\diff\Diff\FieldDiffBuilderInterface;
@@ -103,7 +103,7 @@ class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
         }
       }
     }
-
+    
     return $result;
   }
 
