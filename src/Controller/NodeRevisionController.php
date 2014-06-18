@@ -38,19 +38,18 @@ class NodeRevisionController extends EntityComparisonBase {
    * @return array Table with the diff between the two revisions.
    */
   public function compareNodeRevisions(NodeInterface $node, $left_vid, $right_vid) {
+    $diff_rows = array();
+    $build = array();
+
     $storage = $this->entityManager()->getStorage('node');
     $left_revision = $storage->loadRevision($left_vid);
     $right_revision = $storage->loadRevision($right_vid);
-
-    $diff_rows = array();
     $vids = $storage->revisionIds($node);
     $diff_rows[] = $this->buildRevisionsNavigation($node->id(), $vids, $left_vid, $right_vid);
     $diff_header = $this->buildTableHeader($left_revision, $right_revision);
-    $build = array();
 
     // Perform comparison only if both node revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
-
       $fields = $this->compareRevisions($left_revision, $right_revision);
 
       // Build the diff rows for each field and append the field rows to the table rows.
@@ -201,7 +200,13 @@ class NodeRevisionController extends EntityComparisonBase {
       $row[] = '&nbsp';
     }
 
-    return $row;
+    // If there are only 2 revision return an empty row.
+    if ($revisions_count == 2) {
+      return array();
+    }
+    else {
+      return $row;
+    }
   }
 
 }

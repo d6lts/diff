@@ -103,7 +103,7 @@ class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
         }
       }
     }
-    
+
     return $result;
   }
 
