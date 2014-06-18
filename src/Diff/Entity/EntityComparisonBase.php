@@ -83,16 +83,14 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
 
     // @todo These values should be taken from the diff module settings page.
     // They are hard-coded here for testing purposes only.
-    $settings = array(
-      'summary' => TRUE,
-      'format' => TRUE,
-      'value' => TRUE,
-    );
+    $compare = array('format', 'summary', 'value');
 
     foreach ($entity as $field_items) {
       $context = array(
         'field_type' => $field_items->getIterator()->current()->getFieldDefinition()->getType(),
-        'settings' => $settings,
+        'settings' => array(
+          'compare' => $compare,
+        ),
       );
       // For every field of the entity we call build method on the negotiated
       // service FieldDiffManager and this service will search for the services
@@ -151,36 +149,33 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
       $left_values = $this->parseEntity($left_entity);
       $right_values = $this->parseEntity($right_entity);
 
-      // @todo These should be further processed to get to form from doc-block comment of this function.
-
-      // Parse all the fields from the left entity and build an array with field
-      // label, left and right values, field settings and weight.
       foreach ($left_values as $field_name => $values) {
         // @todo Consider refactoring this to an object.
         $result[$field_name] = array(
           '#name' => $left_entity->getFieldDefinition($field_name)->label(),
-          '#left' => array(),
-          '#right' => array(),
           '#settings' => array(),
         );
 
+        // The field exists on the right entity also.
         if (isset($right_values[$field_name])) {
-          $max = max(array(count($left_values[$field_name]), count($right_values[$field_name])));
-          for ($delta = 0; $delta < $max; $delta++) {
-            if (isset($left_values[$field_name][$delta])) {
-              $value = $left_values[$field_name][$delta];
-              $result[$field_name]['#left'][] = is_array($value) ? implode("\n", $value) : $value;
-            }
-            if (isset($right_values[$field_name][$delta])) {
-              $value = $right_values[$field_name][$delta];
-              $result[$field_name]['#right'][] = is_array($value) ? implode("\n", $value) : $value;
-            }
-          }
-
-          $result[$field_name]['#left'] = implode("\n", $result[$field_name]['#left']);
-          $result[$field_name]['#right'] = implode("\n", $result[$field_name]['#right']);
-
+          $result[$field_name] += $this->combineFields($left_values[$field_name], $right_values[$field_name]);
+          // Unset the field from the right entity so that we know if the right
+          // entity has extra fields compared to left entity.
+          unset($right_values[$field_name]);
         }
+        // This field exists only on the left entity.
+        else {
+          $result[$field_name] += $this->combineFields($left_values[$field_name], array());
+        }
+      }
+
+      // Fields which exist only on the right entity.
+      foreach ($right_values as $field_name => $values) {
+        $result[$field_name] = array(
+          '#name' => $left_entity->getFieldDefinition($field_name)->label(),
+          '#settings' => array(),
+        );
+        $result[$field_name] += $this->combineFields(array(), $right_values[$field_name]);
       }
 
       // We start off assuming all form elements are in the correct order.
@@ -208,6 +203,33 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
   }
 
   /**
+   * Combine two fields into an array with keys '#left' and '#right'.
+   */
+  protected function combineFields($left_values, $right_values) {
+    $result = array(
+      '#left' => array(),
+      '#right' => array(),
+    );
+    $max = max(array(count($left_values), count($right_values)));
+    for ($delta = 0; $delta < $max; $delta++) {
+      if (isset($left_values[$delta])) {
+        $value = $left_values[$delta];
+        $result['#left'][] = is_array($value) ? implode("\n", $value) : $value;
+      }
+      if (isset($right_values[$delta])) {
+        $value = $right_values[$delta];
+        $result['#right'][] = is_array($value) ? implode("\n", $value) : $value;
+      }
+    }
+
+    // If a field has multiple values combine them into one single string.
+    $result['#left'] = implode("\n", $result['#left']);
+    $result['#right'] = implode("\n", $result['#right']);
+
+    return $result;
+  }
+
+  /**
    * Render the table rows for theme('table').
    *
    * @param string $a
@@ -222,7 +244,7 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
    * @return array
    *   Array of rows usable with theme('table').
    */
-  public function getRows($a, $b, $show_header = FALSE, &$line_stats = NULL) {
+  protected function getRows($a, $b, $show_header = FALSE, &$line_stats = NULL) {
     $a = is_array($a) ? $a : explode("\n", $a);
     $b = is_array($b) ? $b : explode("\n", $b);
 

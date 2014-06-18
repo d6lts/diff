@@ -52,52 +52,51 @@ class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
    */
   public function build(FieldItemListInterface $field_items, array $context) {
     $result = array();
-    $settings = $context['settings'];
+    $compare = $context['settings']['compare'];
 
     // Every item from $field_items is of type FieldItemInterface.
     foreach ($field_items as $field_key => $field_item) {
       $values = $field_item->getValue();
-      foreach ($values as $value_key => $value) {
-        if (isset($settings[$value_key]) && $settings[$value_key] == TRUE) {
-          // Handle the text filter format.
+      foreach ($compare as $value_key) {
+        if (isset($values[$value_key])) {
           if ($value_key == 'format') {
             $controller = $this->entityManager->getStorage('filter_format');
-            $format = $controller->load($value);
+            $format = $controller->load($values[$value_key]);
             // The format loaded successfully.
+            $label = $this->t(ucfirst($value_key));
             if ($format != null) {
-              $result[$field_key][] = $value_key . ": " . $format->name;
+              $result[$field_key][] = $label . ": " . $format->name;
             }
             else {
-              $result[$field_key][] = $value_key . ": " . $this->t('Missing format !format', array('!format' => $value));
+              $result[$field_key][] = $label . ": " . $this->t('Missing format !format', array('!format' => $values[$value_key]));
             }
           }
           // Handle the text summary.
           else if ($value_key == 'summary') {
-            if ($value == '') {
-              $result[$field_key][] = $value_key . ": " . $this->t('Empty');
+            $label = $this->t(ucfirst($value_key));
+            if ($values[$value_key] == '') {
+              $result[$field_key][] = $label . ":\n" . $this->t('Empty');
             }
             else {
-              $result[$field_key][] = $value_key . ": " . $value;
+              $result[$field_key][] = $label . ":\n" . $values[$value_key];
             }
           }
           // Value of the text field.
-          else {
-            $value_only = TRUE;
+          else if ($value_key == 'value') {
+            $value_only = FALSE;
 
             // Check if summary or text format are included in the diff.
-            foreach ($settings as $setting => $val) {
-              if ($setting != 'value' && $val == TRUE) {
-                $value_only = FALSE;
-                break;
-              }
+            if (count($compare) == 1) {
+              $value_only = TRUE;
             }
 
+            $label = $this->t(ucfirst($value_key));
             if ($value_only) {
               // Don't display 'value' label.
-              $result[$field_key][] = $value;
+              $result[$field_key][] = $values[$value_key];
             }
             else {
-              $result[$field_key][] = $value_key . ": " . $value;
+              $result[$field_key][] = $label . ":\n" . $values[$value_key];
             }
           }
         }
