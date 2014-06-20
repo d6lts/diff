@@ -260,6 +260,7 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
     // @todo Should Diff object be a service/should it be injected ?
     $diff = new Diff($a, $b);
 
+    // @todo we need our custom settings for this service.
     return $this->diffFormatter->format($diff);
   }
 
