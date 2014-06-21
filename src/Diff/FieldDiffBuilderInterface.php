@@ -47,14 +47,15 @@ interface FieldDiffBuilderInterface {
   public function build(FieldItemListInterface $field_items, array $context);
 
   /**
-   * @param $context
-   *  An array containing information about the current context
-   *  E.g. field type for which to build the diff settings form.
+   * @param $field_type
+   *   Field type for which to build the settings form.
    *
-   * @return mixed
-   *   A settings form for a field type.
+   * @return string
+   *   The fully qualified name of the class which builds the settings form.
+   *
+   * @todo See if returning a fully qualified name of a form class is the best option.
    */
-  public function optionsForm($context);
+  public function getSettingsForm($field_type);
 
   /**
    * @param $context

@@ -7,7 +7,6 @@
 
 namespace Drupal\diff\Diff\Entity;
 
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Controller\ControllerBase;
@@ -23,7 +22,7 @@ use Drupal\Core\Datetime\Date;
  *   Builds an array of data to be passed through the Diff component and
  * displayed on the UI representing the differences between entity fields.
  */
-class EntityComparisonBase extends ControllerBase implements  ContainerInjectionInterface {
+class EntityComparisonBase extends ControllerBase {
 
   /**
    * Field diff manager negotiated service.
@@ -93,13 +92,14 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
         ),
       );
       // For every field of the entity we call build method on the negotiated
-      // service FieldDiffManager and this service will search for the services
-      // that manage this type of field and call the right service.
+      // service FieldDiffManager and this service will search for the service
+      // that applies to this type of field and call the method on that service.
       $build = $this->fieldDiffManager->build($field_items, $context);
 
       if (!empty($build)) {
         $result[$field_items->getName()] = $build;
       }
+
     }
 
     return $result;
@@ -130,7 +130,7 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
    * @param RevisionableInterface $left_entity The left entity
    * @param RevisionableInterface $right_entity The right entity
    *
-   * @return array of items ready to be compared by the Diff component.
+   * @return array Items ready to be compared by the Diff component.
    */
   public function compareRevisions(RevisionableInterface $left_entity, RevisionableInterface $right_entity) {
     $result = array();
@@ -182,6 +182,7 @@ class EntityComparisonBase extends ControllerBase implements  ContainerInjection
 //      $result['#sorted'] = TRUE;
 
       // Field rows. Recurse through all child elements.
+      // @todo Should this be injected ?
       foreach (Element::children($result) as $key) {
         $result[$key]['#states'] = array();
 

@@ -128,8 +128,21 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function optionsForm($context) {
+  public function getSettingsForm($field_type) {
+    $form = 'Drupal\diff\Form\DiffBaseSettingsForm';
+    // Call the getSettingsForm method of registered builders,
+    // until one of them returns an a form id.
+    foreach ($this->getSortedBuilders() as $builder) {
+      if (!$builder->applies(array('field_type' => $field_type))) {
+        // The builder does not apply, so we continue with the other builders.
+        continue;
+      }
 
+      $form = $builder->getSettingsForm($field_type);
+    }
+
+    // Fall back to the global settings form.
+    return $form;
   }
 
 }

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\diff\DiffBaseSettingsForm.
+ * Contains \Drupal\diff\Form\DiffBaseSettingsForm.
  */
 
 namespace Drupal\diff\Form;

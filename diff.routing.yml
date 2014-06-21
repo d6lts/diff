@@ -6,4 +6,9 @@ diff.revisions_diff:
     _access_node_revision: 'view'
   options:
     _admin_route: TRUE
-
+diff.field_settings:
+  path: '/admin/config/content/diff/fields/{field_type}'
+  defaults:
+    _content: '\Drupal\diff\Controller\FieldSettingsController::settingsForm'
+  requirements:
+    _permission: 'administer site configuration'

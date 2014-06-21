@@ -2,12 +2,11 @@
 
 namespace Drupal\diff\Form;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Component\Utility\Xss;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Session\AccountInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Datetime\Date;
 use Drupal\Component\Utility\String;
 use Drupal\Core\Utility\LinkGenerator;
@@ -15,7 +14,7 @@ use Drupal\Core\Utility\LinkGenerator;
 /**
  * Provides a form for revision overview page.
  */
-class RevisionOverviewForm extends FormBase implements ContainerInjectionInterface {
+class RevisionOverviewForm extends FormBase {
 
   /**
    * The entity manager.
