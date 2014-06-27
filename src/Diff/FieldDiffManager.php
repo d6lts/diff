@@ -9,6 +9,7 @@ namespace Drupal\diff\Diff;
 
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Form\FormBuilderInterface;
 
 
 /**
@@ -32,6 +33,13 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
   protected $moduleHandler;
 
   /**
+   * Form builder service.
+   *
+   * @var \Drupal\Core\Form\FormBuilderInterface
+   */
+  protected $formBuilder;
+
+  /**
    * Holds arrays of field diff builders, keyed by priority.
    *
    * @var array
@@ -52,9 +60,12 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
    *
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
+   * @param FormBuilderInterface $form_builder
+   *   Form builder service.
    */
-  public function __construct(ModuleHandlerInterface $module_handler) {
+  public function __construct(ModuleHandlerInterface $module_handler, FormBuilderInterface $form_builder) {
     $this->moduleHandler = $module_handler;
+    $this->formBuilder = $form_builder;
   }
 
   /**
@@ -121,17 +132,10 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function defaultOptions($context) {
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getSettingsForm($field_type) {
-    $form = 'Drupal\diff\Form\DiffBaseSettingsForm';
+    $form = NULL;
     // Call the getSettingsForm method of registered builders,
-    // until one of them returns an a form id.
+    // until one of them returns a renderable form array.
     foreach ($this->getSortedBuilders() as $builder) {
       if (!$builder->applies(array('field_type' => $field_type))) {
         // The builder does not apply, so we continue with the other builders.
@@ -141,8 +145,21 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
       $form = $builder->getSettingsForm($field_type);
     }
 
-    // Fall back to the global settings form.
-    return $form;
+    // @todo make sure that for field types that doesn't exist we don't return the base settings form but 404.
+    // If no service applies return the default settings form.
+    if ($form == NULL) {
+      return $this->formBuilder->getForm('Drupal\diff\Form\DiffBaseSettingsForm');
+    }
+    else {
+      return $form;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultOptions($context) {
+
   }
 
 }

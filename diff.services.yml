@@ -5,11 +5,11 @@ services:
       - { name: event_subscriber }
   diff.manager:
     class: Drupal\diff\Diff\FieldDiffManager
-    arguments: ['@module_handler']
+    arguments: ['@module_handler', '@form_builder']
     tags:
       - { name: service_collector, tag: diff.field_builder, call: addBuilder }
   diff.text_field_builder:
     class: Drupal\diff\Diff\Entity\TextFieldDiffBuilder
-    arguments: ['@entity.manager']
+    arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 10 }

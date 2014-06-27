@@ -11,6 +11,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\diff\Diff\FieldDiffBuilderInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Form\FormBuilderInterface;
 
 
 class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
@@ -24,13 +25,24 @@ class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
   protected $entityManager;
 
   /**
+   * Form builder service.
+   *
+   * @var \Drupal\Core\Form\FormBuilderInterface
+   */
+  protected $formBuilder;
+
+
+  /**
    * Constructs a TextFieldDiffBuilder object.
    *
    * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
    *   The entity manager.
+   * @param FormBuilderInterface $form_builder
+   *   Form builder service.
    */
-  public function __construct(EntityManagerInterface $entityManager) {
+  public function __construct(EntityManagerInterface $entityManager, FormBuilderInterface $form_builder) {
     $this->entityManager = $entityManager;
+    $this->formBuilder = $form_builder;
   }
 
   /**
@@ -110,7 +122,7 @@ class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
    * {@inheritdoc}
    */
   public function getSettingsForm($field_type) {
-    return 'Drupal\diff\Form\TextFieldsSettingsForm';
+    return $this->formBuilder->getForm('Drupal\diff\Form\TextFieldsSettingsForm', $field_type);
   }
 
   /**

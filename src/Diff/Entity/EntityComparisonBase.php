@@ -108,6 +108,7 @@ class EntityComparisonBase extends ControllerBase {
   /**
    * This method should return an array of items ready to be compared.
    *
+   * @todo change this to code annotations
    * E.g.
    * array(
    *   [field1_machine_name] => array(

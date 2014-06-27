@@ -50,10 +50,13 @@ interface FieldDiffBuilderInterface {
    * @param $field_type
    *   Field type for which to build the settings form.
    *
-   * @return string
-   *   The fully qualified name of the class which builds the settings form.
-   *
-   * @todo See if returning a fully qualified name of a form class is the best option.
+   * @return array
+   *   A render form array with the settings form for this particular field type.
+   *   If no additional settings are needed it is recommended to return the
+   *   base settings form:
+   * @code
+   * $this->formBuilder->getForm('Drupal\diff\Form\DiffBaseSettingsForm');
+   * @endcode
    */
   public function getSettingsForm($field_type);
 

@@ -15,13 +15,6 @@ use Drupal\diff\Diff\FieldDiffManager;
 class FieldSettingsController implements ContainerInjectionInterface {
 
   /**
-   * Form builder service.
-   *
-   * @var \Drupal\Core\Form\FormBuilderInterface
-   */
-  protected $formBuilder;
-
-  /**
    * Field diff manager negotiated service.
    *
    * @var \Drupal\diff\Diff\FieldDiffManager
@@ -31,14 +24,11 @@ class FieldSettingsController implements ContainerInjectionInterface {
 
   /**
    * Constructs a new FieldSettingsController
-   *
-   * @param FormBuilderInterface $form_builder
-   *   Form builder service.
+
    * @param FieldDiffManager $field_diff_manager
    *   Field diff manager negotiated service.
    */
-  public function __construct(FormBuilderInterface $form_builder, FieldDiffManager $field_diff_manager) {
-    $this->formBuilder = $form_builder;
+  public function __construct(FieldDiffManager $field_diff_manager) {
     $this->fieldDiffManager = $field_diff_manager;
   }
 
@@ -47,22 +37,20 @@ class FieldSettingsController implements ContainerInjectionInterface {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('form_builder'),
       $container->get('diff.manager')
     );
   }
 
   /**
-   * Returns a diff settings form for fields types.
+   * Returns a diff settings form for the field type received as argument.
    *
-   * @param $field_type Field type for which to return a settings form.
-   *
-   * @return array Settings form for field type in the argument list.
+   * @param $field_type
+   *   Field type for which to return a settings form.
+   * @return array
+   *   Settings form for field type in the argument list.
    */
   public function settingsForm($field_type) {
-    $form_name = $this->fieldDiffManager->getSettingsForm($field_type);
-
-    return $this->formBuilder->getForm($form_name, $field_type);
+    return $this->fieldDiffManager->getSettingsForm($field_type);
   }
 
 }
