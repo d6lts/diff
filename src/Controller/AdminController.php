@@ -2,15 +2,44 @@
 
 /**
  * @file
- * Contains \Drupal\diff\Controller\SettingsController.
+ * Contains \Drupal\diff\Controller\AdminController.
  */
 
 namespace Drupal\diff\Controller;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\Core\Controller\ControllerBase;
 
-class AdminController {
-  use StringTranslationTrait;
+
+class AdminController extends ControllerBase {
+
+  /**
+   * The field type plugin manager manager service.
+   *
+   * @var \Drupal\Component\Plugin\PluginManagerInterface
+   */
+  protected $fieldTypePluginManager;
+
+  /**
+   * Constructs a new AdminController object.
+   *
+   * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
+   *   The Plugin manager service.
+   */
+  public function __construct(PluginManagerInterface $plugin_manager) {
+    $this->fieldTypePluginManager = $plugin_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('plugin.manager.field.field_type')
+    );
+  }
 
   /**
    * General settings for Diff.
@@ -22,24 +51,36 @@ class AdminController {
   }
 
   /**
-   * Lists all the field types from the system.
+   * Lists all the field types found on the system.
    */
   public function fieldTypesList() {
-    // @todo This content will be replaced. Only testing purposes.
-    $build['help'] = array(
-      '#type' => 'markup',
-      '#markup' => $this->t('This page will list all the fields types found on the system.<br />')
+    $build['info'] = array(
+      '#markup' => '<p>' . $this->t('This table provides a summary of the field type support found on the system. It is recommended that you use global settings whenever possible to configure field comparison settings.') . '</p>',
     );
 
-    $build['links'] = array(
-      '#type' => 'markup',
-      '#markup' => t('<a href="@url1">text</a><br /><a href="@url2">text_long</a><br /><a href="@url3">text_with_summary</a><br />',
-        array(
-          '@url1' => url('admin/config/content/diff/fields/text'),
-          '@url2' => url('admin/config/content/diff/fields/text_long'),
-          '@url3' => url('admin/config/content/diff/fields/text_with_summary')
-        )
-      )
+    $header = array($this->t('Type'), $this->t('Provider'), $this->t('Operations'));
+    $rows = array();
+    $field_types = $this->fieldTypePluginManager->getDefinitions();
+    foreach ($field_types as $field_name => $field_type) {
+      // Skip field types which have no UI.
+      if ($field_type['no_ui'] == FALSE) {
+        $row = array();
+        $row[] = $this->t('@field_label (%field_type)', array(
+          '@field_label' => $field_type['label'],
+          '%field_type' => $field_name,
+          )
+        );
+        $row[] = $field_type['provider'];
+        $row[] = $this->l($this->t('Global settings'), 'diff.field_type_settings', array('field_type' => $field_name));
+        $rows[] = $row;
+      }
+    }
+
+    $build['category_table'] = array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows,
+      '#empty' => $this->t('The system has no configurable fields.'),
     );
 
     return $build;
