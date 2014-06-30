@@ -55,7 +55,7 @@ interface FieldDiffBuilderInterface {
    *   If no additional settings are needed it is recommended to return the
    *   base settings form:
    * @code
-   * $this->formBuilder->getForm('Drupal\diff\Form\DiffBaseSettingsForm');
+   * $this->formBuilder->getForm('Drupal\diff\Form\DiffBaseSettingsForm', $field_type);
    * @endcode
    */
   public function getSettingsForm($field_type);

@@ -148,7 +148,7 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
     // @todo make sure that for field types that doesn't exist we don't return the base settings form but 404.
     // If no service applies return the default settings form.
     if ($form == NULL) {
-      return $this->formBuilder->getForm('Drupal\diff\Form\DiffBaseSettingsForm');
+      return $this->formBuilder->getForm('Drupal\diff\Form\DiffBaseSettingsForm', $field_type);
     }
     else {
       return $form;
