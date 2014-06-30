@@ -8,6 +8,7 @@
 namespace Drupal\diff\Diff\Entity;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\diff\Diff\FieldDiffManager;
@@ -46,6 +47,13 @@ class EntityComparisonBase extends ControllerBase {
   protected $date;
 
   /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
    * Constructs an EntityComparisonBase object.
    *
    * @param FieldDiffManager $field_diff_manager
@@ -54,11 +62,14 @@ class EntityComparisonBase extends ControllerBase {
    *   Diff formatter service.
    * @param Date $date
    *   Date service.
+   * @param ConfigFactoryInterface $config_factory
+   *   Config Factory service
    */
-  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, Date $date) {
+  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, Date $date, ConfigFactoryInterface $config_factory) {
     $this->fieldDiffManager = $field_diff_manager;
     $this->diffFormatter = $diff_formatter;
     $this->date = $date;
+    $this->configFactory = $config_factory;
   }
 
   /**
@@ -68,7 +79,8 @@ class EntityComparisonBase extends ControllerBase {
     return new static(
       $container->get('diff.manager'),
       $container->get('diff.formatter'),
-      $container->get('date')
+      $container->get('date'),
+      $container->get('config.factory')
     );
   }
 
@@ -80,16 +92,16 @@ class EntityComparisonBase extends ControllerBase {
   private function parseEntity(RevisionableInterface $entity) {
     $result = array();
 
-    // @todo These values should be taken from the diff module settings page.
-    // They are hard-coded here for testing purposes only.
-    $compare = array('format', 'summary', 'value');
+//    // @todo These values should be taken from the diff module settings page.
+//    // They are hard-coded here for testing purposes only.
+//    $compare = array('format', 'summary', 'value');
+    $config = $this->configFactory->get('diff.settings');
 
     foreach ($entity as $field_items) {
+      $field_type = $field_items->getIterator()->current()->getFieldDefinition()->getType();
       $context = array(
-        'field_type' => $field_items->getIterator()->current()->getFieldDefinition()->getType(),
-        'settings' => array(
-          'compare' => $compare,
-        ),
+        'field_type' => $field_type,
+        'settings' => $config->get($field_type),
       );
       // For every field of the entity we call build method on the negotiated
       // service FieldDiffManager and this service will search for the service
