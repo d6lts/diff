@@ -15,7 +15,7 @@ class DiffBaseSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'diff_global_settings';
+    return 'diff_field_base_settings';
   }
 
   /**
@@ -34,6 +34,18 @@ class DiffBaseSettingsForm extends ConfigFormBase {
       '#weight' => -5,
       '#default_value' => $config->get($field_type . '.' . 'show_header'),
     );
+    $form['settings']['markdown'] = array(
+      '#type' => 'select',
+      '#title' => $this->t('Markdown callback'),
+      '#default_value' => $config->get($field_type . '.' . 'markdown'),
+      '#options' => array(
+        'drupal_html_to_text' => $this->t('Drupal HTML to Text'),
+        'filter_xss' => $this->t('Filter XSS (some tags)'),
+        'diff_filter_xss' => $this->t('Filter XSS (all tags)'),
+      ),
+      '#description' => $this->t('These provide ways to clean markup tags to make comparisons easier to read.'),
+      '#empty_option' => $this->t('- Do not process -'),
+    );
 
     return parent::buildForm($form, $form_state);
   }
@@ -46,6 +58,7 @@ class DiffBaseSettingsForm extends ConfigFormBase {
     $field_type = $form_state['values']['field_type'];
 
     $config->set($field_type . '.' . 'show_header', $form_state['values']['show_header']);
+    $config->set($field_type . '.' . 'markdown', $form_state['values']['markdown']);
     $config->save();
 
     return parent::submitForm($form, $form_state);
