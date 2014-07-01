@@ -92,16 +92,17 @@ class EntityComparisonBase extends ControllerBase {
   private function parseEntity(RevisionableInterface $entity) {
     $result = array();
 
-//    // @todo These values should be taken from the diff module settings page.
-//    // They are hard-coded here for testing purposes only.
-//    $compare = array('format', 'summary', 'value');
+    // @todo provide default values for fields which don't have this set.
+    // @todo don't compare all the fields from an entity (those without UI).
     $config = $this->configFactory->get('diff.settings');
 
     foreach ($entity as $field_items) {
       $field_type = $field_items->getIterator()->current()->getFieldDefinition()->getType();
       $context = array(
         'field_type' => $field_type,
-        'settings' => $config->get($field_type),
+        'settings' => array(
+          'compare' => $config->get($field_type),
+        ),
       );
       // For every field of the entity we call build method on the negotiated
       // service FieldDiffManager and this service will search for the service
@@ -148,6 +149,7 @@ class EntityComparisonBase extends ControllerBase {
   public function compareRevisions(RevisionableInterface $left_entity, RevisionableInterface $right_entity) {
     $result = array();
     $entity_type_class = $left_entity->getEntityType()->getClass();
+    $config = $this->configFactory->get('diff.settings');
 
     // Compare entities only if the entity type class of both entities is the same.
     // For now suppose that the entities provided here are revisions of the same
@@ -164,8 +166,10 @@ class EntityComparisonBase extends ControllerBase {
 
       foreach ($left_values as $field_name => $values) {
         // @todo Consider refactoring this to an object.
+        $field_definition = $left_entity->getFieldDefinition($field_name);
+        $compare_settings = $config->get($field_definition->getField()->type);
         $result[$field_name] = array(
-          '#name' => $left_entity->getFieldDefinition($field_name)->label(),
+          '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->label() : '',
           '#settings' => array(),
         );
 
@@ -182,10 +186,12 @@ class EntityComparisonBase extends ControllerBase {
         }
       }
 
-      // Fields which exist only on the right entity.
+      // Fields which exist only in the right entity.
       foreach ($right_values as $field_name => $values) {
+        $field_definition = $right_entity->getFieldDefinition($field_name);
+        $compare_settings = $config->get($field_definition->getField()->type);
         $result[$field_name] = array(
-          '#name' => $left_entity->getFieldDefinition($field_name)->label(),
+          '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->label() : '',
           '#settings' => array(),
         );
         $result[$field_name] += $this->combineFields(array(), $right_values[$field_name]);

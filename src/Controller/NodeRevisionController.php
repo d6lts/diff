@@ -54,16 +54,19 @@ class NodeRevisionController extends EntityComparisonBase {
 
       // Build the diff rows for each field and append the field rows to the table rows.
       foreach ($fields as $field) {
-        $field_label_row = array(
-          'data' => $this->t('Changes to %name', array('%name' => $field['#name'])),
-          'colspan' => 4,
-        );
+        $field_label_row = '';
+        if (!empty($field['#name'])) {
+          $field_label_row = array(
+            'data' => $this->t('Changes to %name', array('%name' => $field['#name'])),
+            'colspan' => 4,
+          );
+        }
         $field_diff_rows = $this->getRows(
           $field['#states']['raw']['#left'],
           $field['#states']['raw']['#right']
         );
         // Add the field label to the table only if there are changes to that field.
-        if (!empty($field_diff_rows)) {
+        if (!empty($field_diff_rows) && !empty($field_label_row)) {
           $diff_rows[] = array($field_label_row);
         }
 
