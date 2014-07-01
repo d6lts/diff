@@ -42,16 +42,8 @@ class AdminController extends ControllerBase {
   }
 
   /**
-   * General settings for Diff.
-   */
-  public function generalSettings() {
-    return array(
-      '#markup' => $this->t('Here are the general settings for Diff module'),
-    );
-  }
-
-  /**
    * Lists all the field types found on the system.
+   * @todo maybe just build a form instead of this controller.
    */
   public function fieldTypesList() {
     $build['info'] = array(

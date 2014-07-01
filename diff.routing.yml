@@ -15,7 +15,8 @@ diff.field_type_settings:
 diff.general_settings:
   path: '/admin/config/content/diff/general'
   defaults:
-    _content: '\Drupal\diff\Controller\AdminController::generalSettings'
+    _form: '\Drupal\diff\Form\GeneralSettingsForm'
+    _title: Diff General Settings
   requirements:
     _permission: 'administer site configuration'
 diff.field_types_list:
