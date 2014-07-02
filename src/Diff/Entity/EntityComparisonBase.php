@@ -16,6 +16,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Diff\DiffFormatter;
 use Drupal\Component\Diff\Diff;
 use Drupal\Core\Datetime\Date;
+use Drupal\Component\Utility\Xss;
 
 
 /**
@@ -214,6 +215,15 @@ class EntityComparisonBase extends ControllerBase {
           $result[$key]['#states']['raw']['#right'] = $result[$key]['#right'];
           unset($result[$key]['#right']);
         }
+
+        // Check if we need to pass the field values through a markdown function.
+//        $field_definition = $right_entity->getFieldDefinition($key);
+//        $compare_settings = $config->get($field_definition->getField()->type);
+//
+//        if (isset($compare_settings['markdown']) && !empty($compare_settings['markdown'])) {
+//          $result[$key]['#states']['raw_plain']['#left'] = $this->apply_markdown($compare_settings['markdown'], $result[$key]['#states']['raw']['#left']);
+//          $result[$key]['#states']['raw_plain']['#right'] = $this->apply_markdown($compare_settings['markdown'], $result[$key]['#states']['raw']['#right']);
+//        }
       }
     }
 
@@ -308,6 +318,33 @@ class EntityComparisonBase extends ControllerBase {
       else {
         $diff['#states'][$state]['#count_right'] = 0;
       }
+    }
+  }
+
+  /**
+   * Applies a markdown function to a string or to an array.
+   *
+   * @param $markdown
+   *   Key of the markdown function to be applied to the items.
+   *   One of drupal_html_to_text, filter_xss, filter_xss_all.
+   * @param $items
+   *   String to be processed.
+   * @return array|string
+   *   Result after markdown was applied on $items.
+   */
+  function apply_markdown($markdown, $items) {
+    if (!$markdown) {
+      return $items;
+    }
+
+    if ($markdown == 'drupal_html_to_text') {
+      return trim($markdown($items), "\n");
+    }
+    else if ($markdown == 'filter_xss') {
+      return trim(Xss::filter($items));
+    }
+    else if ($markdown == 'filter_xss_all') {
+      return trim(Xss::filter($items, array()));
     }
   }
 

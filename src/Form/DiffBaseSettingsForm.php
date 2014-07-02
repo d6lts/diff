@@ -41,7 +41,7 @@ class DiffBaseSettingsForm extends ConfigFormBase {
       '#options' => array(
         'drupal_html_to_text' => $this->t('Drupal HTML to Text'),
         'filter_xss' => $this->t('Filter XSS (some tags)'),
-        'diff_filter_xss' => $this->t('Filter XSS (all tags)'),
+        'filter_xss_all' => $this->t('Filter XSS (all tags)'),
       ),
       '#description' => $this->t('These provide ways to clean markup tags to make comparisons easier to read.'),
       '#empty_option' => $this->t('- Do not process -'),
