@@ -49,21 +49,22 @@ class NodeRevisionController extends EntityComparisonBase {
   public function compareNodeRevisions(NodeInterface $node, $left_vid, $right_vid, $filter) {
     $diff_rows = array();
     $build = array();
-    // Node storage service.
-    $storage = $this->entityManager()->getStorage('node');
-    $left_revision = $storage->loadRevision($left_vid);
-    $right_revision = $storage->loadRevision($right_vid);
-    $vids = $storage->revisionIds($node);
-    $diff_rows[] = $this->buildRevisionsNavigation($node->id(), $vids, $left_vid, $right_vid);
-    $diff_rows[] = $this->buildMarkdownNavigation($node->id(), $left_vid, $right_vid);
-    $diff_header = $this->buildTableHeader($left_revision, $right_revision);
-
     if (!in_array($filter, array('raw', 'raw-plain'))) {
       $filter = 'raw';
     }
     else if ($filter == 'raw-plain') {
       $filter = 'raw_plain';
     }
+    // Node storage service.
+    $storage = $this->entityManager()->getStorage('node');
+    $left_revision = $storage->loadRevision($left_vid);
+    $right_revision = $storage->loadRevision($right_vid);
+    $vids = $storage->revisionIds($node);
+    $diff_rows[] = $this->buildRevisionsNavigation($node->id(), $vids, $left_vid, $right_vid);
+    $diff_rows[] = $this->buildMarkdownNavigation($node->id(), $left_vid, $right_vid, $filter);
+    $diff_header = $this->buildTableHeader($left_revision, $right_revision);
+
+
 
     // Perform comparison only if both node revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
@@ -238,7 +239,7 @@ class NodeRevisionController extends EntityComparisonBase {
   /**
    * Builds a table row with navigation between raw and raw-plain formats.
    */
-  protected function buildMarkdownNavigation($nid, $left_vid, $right_vid) {
+  protected function buildMarkdownNavigation($nid, $left_vid, $right_vid, $active_filter) {
     $links['raw'] = array(
       'title' => $this->t('Standard'),
       'route_name' => 'diff.revisions_diff',
@@ -258,6 +259,12 @@ class NodeRevisionController extends EntityComparisonBase {
         'filter' => 'raw-plain',
       ),
     );
+
+    // Set as the first element the current filter.
+    $filter = $links[$active_filter];
+    unset($links[$active_filter]);
+    array_unshift($links, $filter);
+
     $row[] = '&nbsp';
     $row[] = array(
       'data' => array(
