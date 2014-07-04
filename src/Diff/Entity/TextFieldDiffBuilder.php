@@ -124,10 +124,4 @@ class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
     return $this->formBuilder->getForm('Drupal\diff\Form\TextFieldsSettingsForm', $field_type);
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function defaultOptions($context) {
-
-  }
 }

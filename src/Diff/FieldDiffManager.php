@@ -155,11 +155,4 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
     }
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function defaultOptions($context) {
-
-  }
-
 }

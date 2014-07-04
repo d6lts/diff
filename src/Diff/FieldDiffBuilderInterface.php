@@ -60,14 +60,4 @@ interface FieldDiffBuilderInterface {
    */
   public function getSettingsForm($field_type);
 
-  /**
-   * @param $context
-   *   An array containing information about the current context
-   *   E.g. the field type for which to return diff default options.
-   *
-   * @return mixed
-   *  Array containing default options for field type settings form.
-   */
-  public function defaultOptions($context);
-
 }
