@@ -48,11 +48,9 @@ class EntityComparisonBase extends ControllerBase {
   protected $date;
 
   /**
-   * The config factory.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   * Wrapper object for writing/reading simple configuration from diff.settings.yml
    */
-  protected $configFactory;
+  protected $config;
 
   /**
    * Constructs an EntityComparisonBase object.
@@ -70,7 +68,7 @@ class EntityComparisonBase extends ControllerBase {
     $this->fieldDiffManager = $field_diff_manager;
     $this->diffFormatter = $diff_formatter;
     $this->date = $date;
-    $this->configFactory = $config_factory;
+    $this->config = $config_factory->get('diff.settings');
   }
 
   /**
@@ -99,10 +97,7 @@ class EntityComparisonBase extends ControllerBase {
   private function parseEntity(RevisionableInterface $entity) {
     $result = array();
 
-    // @todo provide default values for fields which don't have this set.
     // @todo don't compare all the fields from an entity (those without UI).
-    $config = $this->configFactory->get('diff.settings');
-
     // Loop through entity fields and transform every FieldItemList object
     // into an array of strings according to field type specific settings.
     foreach ($entity as $field_items) {
@@ -110,7 +105,7 @@ class EntityComparisonBase extends ControllerBase {
       $context = array(
         'field_type' => $field_type,
         'settings' => array(
-          'compare' => $config->get($field_type),
+          'compare' => $this->config->get($field_type),
         ),
       );
       // For every field of the entity we call build method on the negotiated
@@ -140,8 +135,6 @@ class EntityComparisonBase extends ControllerBase {
    */
   public function compareRevisions(RevisionableInterface $left_entity, RevisionableInterface $right_entity) {
     $result = array();
-    // Wrapper object for writing and reading simple configuration from files.
-    $config = $this->configFactory->get('diff.settings');
 
     $left_values = $this->parseEntity($left_entity);
     $right_values = $this->parseEntity($right_entity);
@@ -150,7 +143,7 @@ class EntityComparisonBase extends ControllerBase {
       // @todo Consider refactoring this to an object.
       $field_definition = $left_entity->getFieldDefinition($field_name);
       // Get the compare settings for this field type.
-      $compare_settings = $config->get($field_definition->getType());
+      $compare_settings = $this->config->get($field_definition->getType());
       $result[$field_name] = array(
         '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->getLabel() : '',
         '#settings' => $compare_settings,
@@ -172,7 +165,7 @@ class EntityComparisonBase extends ControllerBase {
     // Fields which exist only on the right entity.
     foreach ($right_values as $field_name => $values) {
       $field_definition = $right_entity->getFieldDefinition($field_name);
-      $compare_settings = $config->get($field_definition->getType());
+      $compare_settings = $this->config->get($field_definition->getType());
       $result[$field_name] = array(
         '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->getLabel() : '',
         '#settings' => $compare_settings,

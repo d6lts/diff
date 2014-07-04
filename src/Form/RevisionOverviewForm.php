@@ -275,4 +275,5 @@ class RevisionOverviewForm extends FormBase {
 
     $form_state['redirect'] = 'node/' . $nid . '/revisions/view/' . $vid_left . '/' . $vid_right;
   }
+
 }
