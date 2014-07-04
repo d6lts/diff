@@ -196,6 +196,7 @@ class EntityComparisonBase extends ControllerBase {
       }
 
       $field_settings = $result[$key]['#settings'];
+
       if (!empty($field_settings['markdown'])) {
         $result[$key]['#states']['raw_plain']['#left'] = $this->apply_markdown($field_settings['markdown'], $result[$key]['#states']['raw']['#left']);
         $result[$key]['#states']['raw_plain']['#right'] = $this->apply_markdown($field_settings['markdown'], $result[$key]['#states']['raw']['#right']);
@@ -325,13 +326,13 @@ class EntityComparisonBase extends ControllerBase {
     }
 
     if ($markdown == 'drupal_html_to_text') {
-      return trim($markdown($items), "\n");
+      return trim(drupal_html_to_text($items), "\n");
     }
     else if ($markdown == 'filter_xss') {
-      return trim(Xss::filter($items));
+      return trim(Xss::filter($items), "\n");
     }
     else if ($markdown == 'filter_xss_all') {
-      return trim(Xss::filter($items, array()));
+      return trim(Xss::filter($items, array()), "\n");
     }
   }
 

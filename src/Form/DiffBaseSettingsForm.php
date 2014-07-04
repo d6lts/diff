@@ -44,7 +44,6 @@ class DiffBaseSettingsForm extends ConfigFormBase {
         'filter_xss_all' => $this->t('Filter XSS (all tags)'),
       ),
       '#description' => $this->t('These provide ways to clean markup tags to make comparisons easier to read.'),
-      '#empty_option' => $this->t('- Do not process -'),
     );
 
     return parent::buildForm($form, $form_state);

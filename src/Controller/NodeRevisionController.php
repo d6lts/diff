@@ -64,8 +64,6 @@ class NodeRevisionController extends EntityComparisonBase {
     $diff_rows[] = $this->buildMarkdownNavigation($node->id(), $left_vid, $right_vid, $filter);
     $diff_header = $this->buildTableHeader($left_revision, $right_revision);
 
-
-
     // Perform comparison only if both node revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
       $fields = $this->compareRevisions($left_revision, $right_revision);
@@ -107,10 +105,10 @@ class NodeRevisionController extends EntityComparisonBase {
         '#type' => 'link',
         '#attributes' => array(
           'class' => array(
-            'back',
+            'button',
           ),
         ),
-        '#title' => "Back to 'Revision overview' page.",
+        '#title' => $this->t('Back to Revision Overview'),
         '#href' => 'node/' . $node->id() . '/revisions',
       );
 
