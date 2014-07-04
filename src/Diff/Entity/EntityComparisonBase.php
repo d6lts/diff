@@ -196,7 +196,6 @@ class EntityComparisonBase extends ControllerBase {
       }
 
       $field_settings = $result[$key]['#settings'];
-
       if (!empty($field_settings['markdown'])) {
         $result[$key]['#states']['raw_plain']['#left'] = $this->apply_markdown($field_settings['markdown'], $result[$key]['#states']['raw']['#left']);
         $result[$key]['#states']['raw_plain']['#right'] = $this->apply_markdown($field_settings['markdown'], $result[$key]['#states']['raw']['#right']);

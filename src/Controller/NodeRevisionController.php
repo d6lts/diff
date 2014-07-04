@@ -31,22 +31,39 @@ class NodeRevisionController extends EntityComparisonBase {
   }
 
   /**
-   * @param NodeInterface $node The node whose revisions are compared.
-   * @param $left_vid vid of the node revision from the left.
-   * @param $right_vid vid of the node revision from the right.
+   * Returns a table which shows the differences between two node revisions.
    *
-   * @return array Table with the diff between the two revisions.
+   * @param NodeInterface $node
+   *   The node whose revisions are compared.
+   * @param $left_vid
+   *   Vid of the node revision from the left.
+   * @param $right_vid
+   *   Vid of the node revision from the right.
+   * @param $filter
+   *   If $filter == 'raw' raw text is compared (including html tags)
+   *   If filter == 'raw-plain' markdown function is applied to the text before comparison.
+   *
+   * @return array
+   *   Table showing the diff between the two node revisions.
    */
-  public function compareNodeRevisions(NodeInterface $node, $left_vid, $right_vid) {
+  public function compareNodeRevisions(NodeInterface $node, $left_vid, $right_vid, $filter) {
     $diff_rows = array();
     $build = array();
-
+    // Node storage service.
     $storage = $this->entityManager()->getStorage('node');
     $left_revision = $storage->loadRevision($left_vid);
     $right_revision = $storage->loadRevision($right_vid);
     $vids = $storage->revisionIds($node);
     $diff_rows[] = $this->buildRevisionsNavigation($node->id(), $vids, $left_vid, $right_vid);
+    $diff_rows[] = $this->buildMarkdownNavigation($node->id(), $left_vid, $right_vid);
     $diff_header = $this->buildTableHeader($left_revision, $right_revision);
+
+    if (!in_array($filter, array('raw', 'raw-plain'))) {
+      $filter = 'raw';
+    }
+    else if ($filter == 'raw-plain') {
+      $filter = 'raw_plain';
+    }
 
     // Perform comparison only if both node revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
@@ -61,9 +78,10 @@ class NodeRevisionController extends EntityComparisonBase {
             'colspan' => 4,
           );
         }
+        // @todo We need to make sure that the diff is not passed through check_plain
         $field_diff_rows = $this->getRows(
-          $field['#states']['raw']['#left'],
-          $field['#states']['raw']['#right']
+          $field['#states'][$filter]['#left'],
+          $field['#states'][$filter]['#right']
         );
         // Add the field label to the table only if there are changes to that field.
         if (!empty($field_diff_rows) && !empty($field_label_row)) {
@@ -210,6 +228,40 @@ class NodeRevisionController extends EntityComparisonBase {
     else {
       return $row;
     }
+  }
+
+  /**
+   * Builds a table row with navigation between raw and raw-plain formats.
+   */
+  protected function buildMarkdownNavigation($nid, $left_vid, $right_vid) {
+    $row = array();
+    $raw_link = array(
+      'data' => $this->l(
+          $this->t('Standard'),
+          'diff.revisions_diff',
+          array(
+            'node' => $nid,
+            'left_vid' => $left_vid,
+            'right_vid' => $right_vid,
+          )
+        ),
+    );
+    $raw_plain_link = array(
+      'data' => $this->l(
+          $this->t('Markdown'),
+          'diff.revisions_diff',
+          array(
+            'node' => $nid,
+            'left_vid' => $left_vid,
+            'right_vid' => $right_vid,
+            'filter' => 'raw-plain',
+          )
+        ),
+    );
+    $row[] = $raw_link;
+    $row[] = $raw_plain_link;
+
+    return $row;
   }
 
 }
