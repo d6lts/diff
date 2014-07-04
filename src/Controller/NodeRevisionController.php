@@ -239,27 +239,33 @@ class NodeRevisionController extends EntityComparisonBase {
    * Builds a table row with navigation between raw and raw-plain formats.
    */
   protected function buildMarkdownNavigation($nid, $left_vid, $right_vid) {
-    $row = array();
-    $raw_link = $this->l(
-      $this->t('Standard'),
-      'diff.revisions_diff',
-      array(
+    $links['raw'] = array(
+      'title' => $this->t('Standard'),
+      'route_name' => 'diff.revisions_diff',
+      'route_parameters' => array(
         'node' => $nid,
         'left_vid' => $left_vid,
         'right_vid' => $right_vid,
-      )
+      ),
     );
-    $raw_plain_link = $this->l(
-      $this->t('Markdown'),
-      'diff.revisions_diff',
-      array(
+    $links['raw_plain'] = array(
+      'title' => $this->t('Markdown'),
+      'route_name' => 'diff.revisions_diff',
+      'route_parameters' => array(
         'node' => $nid,
         'left_vid' => $left_vid,
         'right_vid' => $right_vid,
         'filter' => 'raw-plain',
-      )
+      ),
     );
-    $row = array(array('data' => $raw_link . " " . $raw_plain_link, 'colspan' => 4));
+    $row[] = '&nbsp';
+    $row[] = array(
+      'data' => array(
+        '#type' => 'operations',
+        '#links' => $links,
+      ),
+      'colspan' => 3,
+    );
 
     return $row;
   }
