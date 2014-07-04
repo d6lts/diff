@@ -148,8 +148,13 @@ class NodeRevisionController extends EntityComparisonBase {
             'node_revision' => $revision->getRevisionId()
           )),
       ));
+      // @todo This needs to be fixed.
+//      $header[] = array(
+//        'data' => $this->t('by' . '!username', array('!username' => drupal_render($username))),
+//        'colspan' => 1,
+//      );
       $header[] = array(
-        'data' => $this->t('by' . '!username', array('!username' => drupal_render($username))),
+        'data' => '&nbsp',
         'colspan' => 1,
       );
       $header[] = array(
@@ -235,31 +240,26 @@ class NodeRevisionController extends EntityComparisonBase {
    */
   protected function buildMarkdownNavigation($nid, $left_vid, $right_vid) {
     $row = array();
-    $raw_link = array(
-      'data' => $this->l(
-          $this->t('Standard'),
-          'diff.revisions_diff',
-          array(
-            'node' => $nid,
-            'left_vid' => $left_vid,
-            'right_vid' => $right_vid,
-          )
-        ),
+    $raw_link = $this->l(
+      $this->t('Standard'),
+      'diff.revisions_diff',
+      array(
+        'node' => $nid,
+        'left_vid' => $left_vid,
+        'right_vid' => $right_vid,
+      )
     );
-    $raw_plain_link = array(
-      'data' => $this->l(
-          $this->t('Markdown'),
-          'diff.revisions_diff',
-          array(
-            'node' => $nid,
-            'left_vid' => $left_vid,
-            'right_vid' => $right_vid,
-            'filter' => 'raw-plain',
-          )
-        ),
+    $raw_plain_link = $this->l(
+      $this->t('Markdown'),
+      'diff.revisions_diff',
+      array(
+        'node' => $nid,
+        'left_vid' => $left_vid,
+        'right_vid' => $right_vid,
+        'filter' => 'raw-plain',
+      )
     );
-    $row[] = $raw_link;
-    $row[] = $raw_plain_link;
+    $row = array(array('data' => $raw_link . " " . $raw_plain_link, 'colspan' => 4));
 
     return $row;
   }
