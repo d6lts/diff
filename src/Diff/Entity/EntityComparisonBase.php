@@ -22,7 +22,7 @@ use Drupal\Component\Utility\Xss;
 /**
  * Class EntityComparisonBase
  *   Builds an array of data to be passed through the Diff component and
- * displayed on the UI representing the differences between entity fields.
+ *   displayed on the UI representing the differences between two entities.
  */
 class EntityComparisonBase extends ControllerBase {
 
@@ -86,9 +86,15 @@ class EntityComparisonBase extends ControllerBase {
   }
 
   /**
+   * Parses an entity's fields and for every field it builds an array of string
+   * to be compared. Basically this function transforms and entity into an array
+   * of strings.
+   *
    * @param RevisionableInterface $entity
-   * @todo Document this properly.
+   *   An entity containing fields.
    * @return array
+   *   Array of strings resulted by parsing the entity.
+   *   @todo Insert here some code as example here.
    */
   private function parseEntity(RevisionableInterface $entity) {
     $result = array();
@@ -97,6 +103,8 @@ class EntityComparisonBase extends ControllerBase {
     // @todo don't compare all the fields from an entity (those without UI).
     $config = $this->configFactory->get('diff.settings');
 
+    // Loop through entity fields and transform every FieldItemList object
+    // into an array of strings according to field type specific settings.
     foreach ($entity as $field_items) {
       $field_type = $field_items->getIterator()->current()->getFieldDefinition()->getType();
       $context = array(
@@ -113,7 +121,6 @@ class EntityComparisonBase extends ControllerBase {
       if (!empty($build)) {
         $result[$field_items->getName()] = $build;
       }
-
     }
 
     return $result;
@@ -122,118 +129,96 @@ class EntityComparisonBase extends ControllerBase {
   /**
    * This method should return an array of items ready to be compared.
    *
-   * @todo change this to code annotations
-   * E.g.
-   * array(
-   *   [field1_machine_name] => array(
-   *     '#name' => ['field_name],
-   *     '#old' => [old_value]
-   *     '#new' => [new_value]
-   *     '#settings' => array(...),
-   *     '#weight' => ...,
-   *   ),
-   *   [field2_machine_name] => array(
-   *     '#name' => ['field_name],
-   *     '#old' => [old_value]
-   *     '#new' => [new_value]
-   *     '#settings' => array(...),
-   *     '#weight' => ...,
-   *   ),
-   *   ...
-   * );
+   * @todo Insert here some code as example.
    *
-   * @param RevisionableInterface $left_entity The left entity
-   * @param RevisionableInterface $right_entity The right entity
+   * @param RevisionableInterface $left_entity
+   *   The left entity
+   * @param RevisionableInterface $right_entity
+   *   The right entity
    *
    * @return array Items ready to be compared by the Diff component.
    */
   public function compareRevisions(RevisionableInterface $left_entity, RevisionableInterface $right_entity) {
     $result = array();
-    $entity_type_class = $left_entity->getEntityType()->getClass();
+    // Wrapper object for writing and reading simple configuration from files.
     $config = $this->configFactory->get('diff.settings');
 
-    // Compare entities only if the entity type class of both entities is the same.
-    // For now suppose that the entities provided here are revisions of the same
-    // entity.
-    // Maybe later provide support for comparing two entities of different types
-    // or two entities of the same type but different bundles (entities can share
-    // field across bundle but can't share fields across entity types; e.g. a user
-    // cannot have a field from a node or vice-versa).
-    // But again I don't think there are any real use cases for the two cases
-    // described above.
-    if ($right_entity instanceof $entity_type_class) {
-      $left_values = $this->parseEntity($left_entity);
-      $right_values = $this->parseEntity($right_entity);
+    $left_values = $this->parseEntity($left_entity);
+    $right_values = $this->parseEntity($right_entity);
 
-      foreach ($left_values as $field_name => $values) {
-        // @todo Consider refactoring this to an object.
-        $field_definition = $left_entity->getFieldDefinition($field_name);
-        $compare_settings = $config->get($field_definition->getField()->type);
-        $result[$field_name] = array(
-          '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->label() : '',
-          '#settings' => array(),
-        );
+    foreach ($left_values as $field_name => $values) {
+      // @todo Consider refactoring this to an object.
+      $field_definition = $left_entity->getFieldDefinition($field_name);
+      // Get the compare settings for this field type.
+      $compare_settings = $config->get($field_definition->getType());
+      $result[$field_name] = array(
+        '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->getLabel() : '',
+        '#settings' => $compare_settings,
+      );
 
-        // The field exists on the right entity also.
-        if (isset($right_values[$field_name])) {
-          $result[$field_name] += $this->combineFields($left_values[$field_name], $right_values[$field_name]);
-          // Unset the field from the right entity so that we know if the right
-          // entity has extra fields compared to left entity.
-          unset($right_values[$field_name]);
-        }
-        // This field exists only on the left entity.
-        else {
-          $result[$field_name] += $this->combineFields($left_values[$field_name], array());
-        }
+      // Fields which exist on the right entity also.
+      if (isset($right_values[$field_name])) {
+        $result[$field_name] += $this->combineFields($left_values[$field_name], $right_values[$field_name]);
+        // Unset the field from the right entity so that we know if the right
+        // entity has any fields that left entity doesn't have.
+        unset($right_values[$field_name]);
       }
-
-      // Fields which exist only in the right entity.
-      foreach ($right_values as $field_name => $values) {
-        $field_definition = $right_entity->getFieldDefinition($field_name);
-        $compare_settings = $config->get($field_definition->getField()->type);
-        $result[$field_name] = array(
-          '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->label() : '',
-          '#settings' => array(),
-        );
-        $result[$field_name] += $this->combineFields(array(), $right_values[$field_name]);
-      }
-
-      // We start off assuming all form elements are in the correct order.
-//      $result['#sorted'] = TRUE;
-
-      // Field rows. Recurse through all child elements.
-      // @todo Should this be injected ?
-      foreach (Element::children($result) as $key) {
-        $result[$key]['#states'] = array();
-
-        // Ensure that the element follows the new #states format.
-        if (isset($result[$key]['#left'])) {
-          $result[$key]['#states']['raw']['#left'] = $result[$key]['#left'];
-          unset($result[$key]['#left']);
-        }
-        if (isset($result[$key]['#right'])) {
-          $result[$key]['#states']['raw']['#right'] = $result[$key]['#right'];
-          unset($result[$key]['#right']);
-        }
-
-        // Check if we need to pass the field values through a markdown function.
-//        $field_definition = $right_entity->getFieldDefinition($key);
-//        $compare_settings = $config->get($field_definition->getField()->type);
-//
-//        if (isset($compare_settings['markdown']) && !empty($compare_settings['markdown'])) {
-//          $result[$key]['#states']['raw_plain']['#left'] = $this->apply_markdown($compare_settings['markdown'], $result[$key]['#states']['raw']['#left']);
-//          $result[$key]['#states']['raw_plain']['#right'] = $this->apply_markdown($compare_settings['markdown'], $result[$key]['#states']['raw']['#right']);
-//        }
+      // This field exists only on the left entity.
+      else {
+        $result[$field_name] += $this->combineFields($left_values[$field_name], array());
       }
     }
 
-    // Process the array and get line counts per field.
+    // Fields which exist only on the right entity.
+    foreach ($right_values as $field_name => $values) {
+      $field_definition = $right_entity->getFieldDefinition($field_name);
+      $compare_settings = $config->get($field_definition->getType());
+      $result[$field_name] = array(
+        '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->getLabel() : '',
+        '#settings' => $compare_settings,
+      );
+      $result[$field_name] += $this->combineFields(array(), $right_values[$field_name]);
+    }
+
+    // Field rows. Recurse through all child elements.
+    // @todo Should this be injected ?
+    foreach (Element::children($result) as $key) {
+      $result[$key]['#states'] = array();
+
+      // Ensure that the element follows the #states format.
+      if (isset($result[$key]['#left'])) {
+        $result[$key]['#states']['raw']['#left'] = $result[$key]['#left'];
+        unset($result[$key]['#left']);
+      }
+      if (isset($result[$key]['#right'])) {
+        $result[$key]['#states']['raw']['#right'] = $result[$key]['#right'];
+        unset($result[$key]['#right']);
+      }
+
+      $field_settings = $result[$key]['#settings'];
+
+      if (!empty($field_settings['markdown'])) {
+        $result[$key]['#states']['raw_plain']['#left'] = $this->apply_markdown($field_settings['markdown'], $result[$key]['#states']['raw']['#left']);
+        $result[$key]['#states']['raw_plain']['#right'] = $this->apply_markdown($field_settings['markdown'], $result[$key]['#states']['raw']['#right']);
+      }
+    }
+
+    // Process the array (split the strings into single line strings)
+    // and get line counts per field.
     array_walk($result, array($this, 'processStateLine'));
+
     return $result;
   }
 
   /**
    * Combine two fields into an array with keys '#left' and '#right'.
+   *
+   * @param $left_values
+   *   Entity field formatted into an array of strings.
+   * @param $right_values
+   *   Entity field formatted into an array of strings.
+   * @return array
+   *   Array resulted after combining the left and right values.
    */
   protected function combineFields($left_values, $right_values) {
     $result = array(
@@ -295,10 +280,13 @@ class EntityComparisonBase extends ControllerBase {
   }
 
   /**
+   * Processes all the states by splitting strings into lines and counting
+   * the resulted number of lines.
+   *
    * @param $diff
-   * @param $key
+   *   Array of strings.
    */
-  function processStateLine(&$diff, $key) {
+  function processStateLine(&$diff) {
     foreach ($diff['#states'] as $state => $data) {
       if (isset($data['#left'])) {
         if (is_string($data['#left'])) {
@@ -322,7 +310,7 @@ class EntityComparisonBase extends ControllerBase {
   }
 
   /**
-   * Applies a markdown function to a string or to an array.
+   * Applies a markdown function to a string.
    *
    * @param $markdown
    *   Key of the markdown function to be applied to the items.
