@@ -106,6 +106,7 @@ class NodeRevisionController extends EntityComparisonBase {
         '#attributes' => array(
           'class' => array(
             'button',
+            'diff-button',
           ),
         ),
         '#title' => $this->t('Back to Revision Overview'),

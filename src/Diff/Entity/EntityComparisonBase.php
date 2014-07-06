@@ -174,7 +174,6 @@ class EntityComparisonBase extends ControllerBase {
     }
 
     // Field rows. Recurse through all child elements.
-    // @todo Should this be injected ?
     foreach (Element::children($result) as $key) {
       $result[$key]['#states'] = array();
 
@@ -238,7 +237,7 @@ class EntityComparisonBase extends ControllerBase {
   }
 
   /**
-   * Render the table rows for theme('table').
+   * Prepare the table rows for theme 'table'.
    *
    * @param string $a
    *   The source string to compare from.
