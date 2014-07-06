@@ -3,6 +3,7 @@
 namespace Drupal\diff\Form;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Component\Utility\Xss;
@@ -44,6 +45,11 @@ class RevisionOverviewForm extends FormBase {
    */
   protected $link_generator;
 
+  /**
+   * Wrapper object for writing/reading simple configuration from diff.settings.yml
+   */
+  protected $config;
+
 
   /**
    * Constructs a RevisionOverviewForm object.
@@ -56,12 +62,15 @@ class RevisionOverviewForm extends FormBase {
    *   The date service.
    * @param \Drupal\Core\Utility\LinkGenerator
    *   The link generator service.
+   * @param ConfigFactoryInterface $config_factory
+   *   Config Factory service
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, Date $date, LinkGenerator $link_generator) {
+  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, Date $date, LinkGenerator $link_generator, ConfigFactoryInterface $config_factory) {
     $this->entityManager = $entityManager;
     $this->currentUser = $currentUser;
     $this->date = $date;
     $this->link_generator = $link_generator;
+    $this->config = $config_factory->get('diff.settings');
   }
 
   /**
@@ -72,7 +81,8 @@ class RevisionOverviewForm extends FormBase {
       $container->get('entity.manager'),
       $container->get('current_user'),
       $container->get('date'),
-      $container->get('link_generator')
+      $container->get('link_generator'),
+      $container->get('config.factory')
     );
   }
 
@@ -115,9 +125,9 @@ class RevisionOverviewForm extends FormBase {
 
     $rows = array();
 
-    $vids = $node_storage->revisionIds($node);
+    $vids = array_reverse($node_storage->revisionIds($node));
     // @todo We should take care of pagination in the future.
-    foreach (array_reverse($vids) as $vid) {
+    foreach ($vids as $vid) {
       if ($revision = $node_storage->loadRevision($vid)) {
         $row = array();
 
@@ -151,7 +161,6 @@ class RevisionOverviewForm extends FormBase {
               '#name' => 'radios_left',
               '#return_value' => $vid,
               '#default_value' => FALSE,
-              '#value' => FALSE,
             ),
           );
           $row[] = array(
@@ -161,7 +170,6 @@ class RevisionOverviewForm extends FormBase {
               '#name' => 'radios_right',
               '#default_value' => $vid,
               '#return_value' => $vid,
-              '#value' => $vid,
             ),
           );
           $row[] = array(
@@ -206,8 +214,7 @@ class RevisionOverviewForm extends FormBase {
               '#title_display' => 'invisible',
               '#name' => 'radios_left',
               '#return_value' => $vid,
-              '#default_value' => TRUE,
-              '#value' => ($vid == $node->getRevisionId() - 1) ? TRUE : FALSE,
+              '#default_value' => isset ($vids[1]) ? $vids[1] : FALSE,
             ),
           );
           $row[] = array(
@@ -217,7 +224,6 @@ class RevisionOverviewForm extends FormBase {
               '#name' => 'radios_right',
               '#return_value' => $vid,
               '#default_value' => FALSE,
-              '#value' => FALSE,
             ),
           );
           $row[] = array(
@@ -236,10 +242,29 @@ class RevisionOverviewForm extends FormBase {
       '#theme' => 'table',
       '#rows' => $rows,
       '#header' => $header,
+      '#attributes' => array('class' => array('diff-revisions')),
+      '#attached' => array(
+        'js' => array(
+          drupal_get_path('module', 'diff') . '/js/diff.js',
+          array (
+            'data' => array('diffRevisionRadios' => $this->config->get('general_settings.radio_behavior')),
+            'type' => 'setting',
+          ),
+        ),
+        'css' => array(
+          drupal_get_path('module', 'diff') . '/css/diff.default.css',
+        ),
+      ),
     );
+
     $build['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Compare'),
+      '#attributes' => array(
+        'class' => array(
+          'diff-button',
+        ),
+      ),
     );
 
     return $build;
