@@ -13,3 +13,6 @@ services:
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 10 }
+  diff.diff.formatter:
+    class: Drupal\diff\Diff\DiffFormatter
+    arguments: ['@config.factory']

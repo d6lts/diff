@@ -77,7 +77,7 @@ class EntityComparisonBase extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('diff.manager'),
-      $container->get('diff.formatter'),
+      $container->get('diff.diff.formatter'),
       $container->get('date'),
       $container->get('config.factory')
     );
@@ -266,7 +266,6 @@ class EntityComparisonBase extends ControllerBase {
     $this->diffFormatter->show_header = $show_header;
     // @todo Should Diff object be a service/should it be injected ?
     $diff = new Diff($a, $b);
-
     // @todo we need our custom settings for this service.
     return $this->diffFormatter->format($diff);
   }
