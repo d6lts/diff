@@ -8,11 +8,16 @@ services:
     arguments: ['@module_handler', '@form_builder']
     tags:
       - { name: service_collector, tag: diff.field_builder, call: addBuilder }
+  diff.diff.formatter:
+    class: Drupal\diff\Diff\DiffFormatter
+    arguments: ['@config.factory']
   diff.text_field_builder:
     class: Drupal\diff\Diff\Entity\TextFieldDiffBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 10 }
-  diff.diff.formatter:
-    class: Drupal\diff\Diff\DiffFormatter
-    arguments: ['@config.factory']
+  diff.image_field_builder:
+    class: Drupal\diff\Diff\Entity\ImageFieldDiffBuilder
+    arguments: ['@entity.manager', '@form_builder']
+    tags:
+      - { name: diff.field_builder, priority: 10 }
