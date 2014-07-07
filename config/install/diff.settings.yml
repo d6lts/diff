@@ -16,3 +16,10 @@ text_long:
   compare_format: 0
   show_header: 1
   markdown: drupal_html_to_text
+image:
+  show_id: 0
+  compare_alt_field: 0
+  compare_title_field: 0
+  property_separator: ', '
+  show_header: 1
+  markdown: drupal_html_to_text
