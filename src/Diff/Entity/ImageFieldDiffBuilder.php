@@ -64,7 +64,6 @@ class ImageFieldDiffBuilder implements FieldDiffBuilderInterface {
     $result = array();
     $compare = $context['settings']['compare'];
     $fileManager = $this->entityManager->getStorage('file');
-    dsm($compare);
     // Every item from $field_items is of type FieldItemInterface.
     foreach ($field_items as $field_key => $field_item) {
       $values = $field_item->getValue();
