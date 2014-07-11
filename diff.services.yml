@@ -28,6 +28,11 @@ services:
       - { name: diff.field_builder, priority: 10 }
   diff.core_field_builder:
     class: Drupal\diff\Diff\Entity\CoreFieldDiffBuilder
-    arguments: ['@entity.manager', '@form_builder']
+    arguments: ['@form_builder']
+    tags:
+      - { name: diff.field_builder, priority: 10 }
+  diff.list_field_builder:
+    class: Drupal\diff\Diff\Entity\ListDiffBuilder
+    arguments: ['@form_builder']
     tags:
       - { name: diff.field_builder, priority: 10 }

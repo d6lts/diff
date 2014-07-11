@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\diff\Form\TextFieldsSettingsForm.
+ * Contains \Drupal\diff\Form\ImageFieldSettingsForm.
  */
 
 namespace Drupal\diff\Form;
