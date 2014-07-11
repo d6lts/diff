@@ -7,7 +7,7 @@
 
 namespace Drupal\diff\Form;
 
-class TextFieldsSettingsForm extends DiffBaseSettingsForm {
+class TextFieldsSettingsForm extends DiffFieldBaseSettingsForm {
 
   /**
    * {@inheritdoc}
@@ -23,15 +23,14 @@ class TextFieldsSettingsForm extends DiffBaseSettingsForm {
     $config = $this->config('diff.settings');
 
     $form = array();
-    // @todo
-    $form['settings']['compare_format'] = array(
+    $form['compare_format'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Compare format'),
       '#default_value' => $config->get($field_type . '.' . 'compare_format'),
       '#description' => $this->t('This is only used if the "Text processing" instance settings are set to <em>Filtered text (user selects text format)</em>.'),
     );
     if ($field_type == 'text_with_summary') {
-      $form['settings']['compare_summary'] = array(
+      $form['compare_summary'] = array(
         '#type' => 'checkbox',
         '#title' => $this->t('Compare summary separately'),
         '#default_value' => $config->get($field_type . '.' . 'compare_summary'),

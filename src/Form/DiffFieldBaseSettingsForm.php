@@ -2,14 +2,14 @@
 
 /**
  * @file
- * Contains \Drupal\diff\Form\DiffBaseSettingsForm.
+ * Contains \Drupal\diff\Form\DiffFieldBaseSettingsForm.
  */
 
 namespace Drupal\diff\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 
-class DiffBaseSettingsForm extends ConfigFormBase {
+class DiffFieldBaseSettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
@@ -28,13 +28,13 @@ class DiffBaseSettingsForm extends ConfigFormBase {
       '#type' => 'hidden',
       '#value' => $field_type,
     );
-    $form['settings']['show_header'] = array(
+    $form['show_header'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Show field title'),
       '#weight' => -5,
       '#default_value' => $config->get($field_type . '.' . 'show_header'),
     );
-    $form['settings']['markdown'] = array(
+    $form['markdown'] = array(
       '#type' => 'select',
       '#title' => $this->t('Markdown callback'),
       '#default_value' => $config->get($field_type . '.' . 'markdown'),

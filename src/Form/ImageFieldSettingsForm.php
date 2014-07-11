@@ -7,7 +7,7 @@
 
 namespace Drupal\diff\Form;
 
-class ImageFieldSettingsForm extends DiffBaseSettingsForm {
+class ImageFieldSettingsForm extends DiffFieldBaseSettingsForm {
 
   /**
    * {@inheritdoc}

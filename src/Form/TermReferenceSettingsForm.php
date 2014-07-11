@@ -7,7 +7,7 @@
 
 namespace Drupal\diff\Form;
 
-class TermReferenceSettingsForm extends DiffBaseSettingsForm {
+class TermReferenceSettingsForm extends DiffFieldBaseSettingsForm {
 
   /**
    * {@inheritdoc}

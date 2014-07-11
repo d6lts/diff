@@ -23,3 +23,8 @@ image:
   property_separator: ', '
   show_header: 1
   markdown: drupal_html_to_text
+taxonomy_term_reference:
+  show_id: 0
+  show_header: 1
+  markdown: drupal_html_to_text
+  show_name: 1
