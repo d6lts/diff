@@ -1,8 +1,8 @@
 general_settings:
   theme: default
   radio_behavior: simple
-  context_lines_leading: '2'
-  context_lines_trailing: '2'
+  context_lines_leading: '1'
+  context_lines_trailing: '1'
 text_with_summary:
   compare_format: 0
   compare_summary: 0
@@ -20,11 +20,12 @@ image:
   show_id: 0
   compare_alt_field: 0
   compare_title_field: 0
-  property_separator: ', '
+  property_separator: nl
   show_header: 1
   markdown: drupal_html_to_text
 taxonomy_term_reference:
   show_id: 0
+  sort: '0'
   show_header: 1
   markdown: drupal_html_to_text
   show_name: 1
@@ -39,4 +40,27 @@ float:
   markdown: drupal_html_to_text
 email:
   show_header: 1
+  markdown: drupal_html_to_text
+list_boolean:
+  compare: both
+  show_header: 1
+  markdown: drupal_html_to_text
+list_float:
+  compare: both
+  show_header: 0
+  markdown: drupal_html_to_text
+list_text:
+  compare: both
+  show_header: 1
+  markdown: drupal_html_to_text
+file:
+  show_id: 0
+  compare_description_field: 0
+  compare_display_field: 0
+  property_separator: '; '
+  show_header: 1
+  markdown: drupal_html_to_text
+list_integer:
+  compare: both
+  show_header: 0
   markdown: drupal_html_to_text
