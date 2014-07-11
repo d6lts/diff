@@ -76,7 +76,7 @@ class ListDiffBuilder implements FieldDiffBuilderInterface {
         }
       }
     }
-    dsm($result);
+
     return $result;
   }
 
