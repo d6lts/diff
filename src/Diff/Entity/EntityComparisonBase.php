@@ -102,6 +102,7 @@ class EntityComparisonBase extends ControllerBase {
     // into an array of strings according to field type specific settings.
     foreach ($entity as $field_items) {
       $field_type = $field_items->getIterator()->current()->getFieldDefinition()->getType();
+
       $context = array(
         'field_type' => $field_type,
         'settings' => array(
@@ -112,7 +113,6 @@ class EntityComparisonBase extends ControllerBase {
       // service FieldDiffManager and this service will search for the service
       // that applies to this type of field and call the method on that service.
       $build = $this->fieldDiffManager->build($field_items, $context);
-
       if (!empty($build)) {
         $result[$field_items->getName()] = $build;
       }
@@ -255,6 +255,12 @@ class EntityComparisonBase extends ControllerBase {
     $a = is_array($a) ? $a : explode("\n", $a);
     $b = is_array($b) ? $b : explode("\n", $b);
 
+    // Temporary workaround: when comparing with an empty string, Diff Component
+    // returns a change OP instead of an add OP.
+    if (count($a) == 1 && $a[0] == "") {
+      $a = array();
+    }
+
     if (!isset($line_stats)) {
       $line_stats = array(
         'counter' => array('x' => 0, 'y' => 0),
@@ -266,7 +272,7 @@ class EntityComparisonBase extends ControllerBase {
     $this->diffFormatter->show_header = $show_header;
     // @todo Should Diff object be a service/should it be injected ?
     $diff = new Diff($a, $b);
-    // @todo we need our custom settings for this service.
+
     return $this->diffFormatter->format($diff);
   }
 

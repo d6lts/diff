@@ -23,10 +23,7 @@ class TextFieldsSettingsForm extends DiffBaseSettingsForm {
     $config = $this->config('diff.settings');
 
     $form = array();
-    $form['field_type'] = array(
-      '#type' => 'hidden',
-      '#value' => $field_type,
-    );
+    // @todo
     $form['settings']['compare_format'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Compare format'),
