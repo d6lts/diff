@@ -198,7 +198,7 @@ class EntityComparisonBase extends ControllerBase {
     // Process the array (split the strings into single line strings)
     // and get line counts per field.
     array_walk($result, array($this, 'processStateLine'));
-
+    
     return $result;
   }
 

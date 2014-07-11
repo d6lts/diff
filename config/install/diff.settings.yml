@@ -28,3 +28,15 @@ taxonomy_term_reference:
   show_header: 1
   markdown: drupal_html_to_text
   show_name: 1
+integer:
+  show_header: 1
+  markdown: drupal_html_to_text
+decimal:
+  show_header: 1
+  markdown: drupal_html_to_text
+float:
+  show_header: 1
+  markdown: drupal_html_to_text
+email:
+  show_header: 1
+  markdown: drupal_html_to_text

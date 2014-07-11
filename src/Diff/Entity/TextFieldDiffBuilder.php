@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\diff\TextFieldDiffBuilder.
+ * Contains \Drupal\diff\Diff\Entity\TextFieldDiffBuilder.
  */
 
 namespace Drupal\diff\Diff\Entity;

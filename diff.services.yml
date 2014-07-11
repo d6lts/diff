@@ -26,4 +26,8 @@ services:
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 10 }
-
+  diff.core_field_builder:
+    class: Drupal\diff\Diff\Entity\CoreFieldDiffBuilder
+    arguments: ['@entity.manager', '@form_builder']
+    tags:
+      - { name: diff.field_builder, priority: 10 }
