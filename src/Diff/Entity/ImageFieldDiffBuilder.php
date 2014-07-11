@@ -49,7 +49,7 @@ class ImageFieldDiffBuilder implements FieldDiffBuilderInterface {
    * {@inheritdoc}
    */
   public function applies(array $context) {
-    // Check if this class can handle diff for image fields.
+    // This class can handle diffs for image field types.
     if ($context['field_type'] == 'image') {
       return TRUE;
     }
@@ -66,34 +66,39 @@ class ImageFieldDiffBuilder implements FieldDiffBuilderInterface {
     $fileManager = $this->entityManager->getStorage('file');
     // Every item from $field_items is of type FieldItemInterface.
     foreach ($field_items as $field_key => $field_item) {
-      $values = $field_item->getValue();
-      // Compare file names.
-      if (isset($values['target_id'])) {
-        $image = $fileManager->load($values['target_id']);
-        $result[$field_key][] = $this->t('Image: !image', array('!image' => $image->getFilename()));
-      }
-      // Compare Alt fields.
-      if (isset($compare['compare_alt_field']) && $compare['compare_alt_field'] == 1) {
-        if (isset($values['alt'])) {
-          $result[$field_key][] = $this->t('Alt: !alt', array('!alt' => $values['alt']));
-        }
-      }
-      // Compare Title fields.
-      if (isset($compare['compare_title_field']) && $compare['compare_title_field'] == 1) {
-        if (isset($values['title'])) {
-          $result[$field_key][] = $this->t('Title: !title', array('!title' => $values['title']));
-        }
-      }
-      // Compare file id.
-      if (isset($compare['show_id']) && $compare['show_id'] == 1) {
-        if (isset($values['target_id'])) {
-          $result[$field_key][] = $this->t('File ID: !fid', array('!fid' => $values['target_id']));
-        }
-      }
-      // @todo Investigate why this is marked as a change rather than an addition.
-      $separator = $compare['property_separator'] == 'nl' ? "\n" : $compare['property_separator'];
-      $result[$field_key] = implode($separator, $result[$field_key]);
+      if (!$field_item->isEmpty()) {
+        $values = $field_item->getValue();
 
+        // Compare file names.
+        if (isset($values['target_id'])) {
+          $image = $fileManager->load($values['target_id']);
+          $result[$field_key][] = $this->t('Image: !image', array('!image' => $image->getFilename()));
+        }
+
+        // Compare Alt fields.
+        if (isset($compare['compare_alt_field']) && $compare['compare_alt_field'] == 1) {
+          if (isset($values['alt'])) {
+            $result[$field_key][] = $this->t('Alt: !alt', array('!alt' => $values['alt']));
+          }
+        }
+
+        // Compare Title fields.
+        if (isset($compare['compare_title_field']) && $compare['compare_title_field'] == 1) {
+          if (isset($values['title'])) {
+            $result[$field_key][] = $this->t('Title: !title', array('!title' => $values['title']));
+          }
+        }
+
+        // Compare file id.
+        if (isset($compare['show_id']) && $compare['show_id'] == 1) {
+          if (isset($values['target_id'])) {
+            $result[$field_key][] = $this->t('File ID: !fid', array('!fid' => $values['target_id']));
+          }
+        }
+        // @todo Investigate why this is marked as a change rather than an addition.
+        $separator = $compare['property_separator'] == 'nl' ? "\n" : $compare['property_separator'];
+        $result[$field_key] = implode($separator, $result[$field_key]);
+      }
     }
 
     return $result;
