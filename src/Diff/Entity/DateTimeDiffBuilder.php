@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\diff\EntityReferenceDiffBuilder.
+ * Contains \Drupal\diff\DateTimeDiffBuilder.
  */
 
 namespace Drupal\diff\Diff\Entity;
@@ -14,7 +14,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Form\FormBuilderInterface;
 
 
-class EntityReferenceDiffBuilder implements FieldDiffBuilderInterface {
+class DateTimeDiffBuilder implements FieldDiffBuilderInterface {
   use StringTranslationTrait;
 
   /**
@@ -50,7 +50,7 @@ class EntityReferenceDiffBuilder implements FieldDiffBuilderInterface {
    */
   public function applies(array $context) {
     // This class can handle diffs for image field types.
-    if ($context['field_type'] == 'entity_reference') {
+    if ($context['field_type'] == 'datetime') {
       return TRUE;
     }
 
@@ -66,9 +66,9 @@ class EntityReferenceDiffBuilder implements FieldDiffBuilderInterface {
     foreach ($field_items as $field_key => $field_item) {
       if (!$field_item->isEmpty()) {
         $values = $field_item->getValue();
-        // Compare entity ids.
-        if (isset($values['target_id'])) {
-          $result[$field_key][] = $this->t('Entity ID: ') . $values['target_id'];
+        // Compare datetime values.
+        if (isset($values['value'])) {
+          $result[$field_key][] = $values['value'];
         }
       }
     }
