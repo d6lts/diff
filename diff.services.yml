@@ -41,3 +41,9 @@ services:
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 10 }
+  diff.entity_reference_field_builder:
+    class: Drupal\diff\Diff\Entity\EntityReferenceDiffBuilder
+    arguments: ['@entity.manager', '@form_builder']
+    tags:
+      - { name: diff.field_builder, priority: 10 }
+      
