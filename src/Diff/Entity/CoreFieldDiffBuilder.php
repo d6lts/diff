@@ -39,7 +39,7 @@ class CoreFieldDiffBuilder implements FieldDiffBuilderInterface {
    */
   public function applies(array $context) {
     // List of the field types for which this class provides diff support.
-    $field_types = array('decimal', 'integer', 'float', 'email');
+    $field_types = array('decimal', 'integer', 'float', 'email', 'telephone');
     // Check if this class can handle diff for a certain field.
     if (in_array($context['field_type'], $field_types)) {
       return TRUE;

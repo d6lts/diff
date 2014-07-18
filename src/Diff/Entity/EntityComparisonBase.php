@@ -9,6 +9,7 @@ namespace Drupal\diff\Diff\Entity;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\diff\Diff\FieldDiffManager;
@@ -53,6 +54,11 @@ class EntityComparisonBase extends ControllerBase {
   protected $config;
 
   /**
+   * A list of all the field types from the system and their definitions.
+   */
+  protected $fieldTypeDefinitions;
+
+  /**
    * Constructs an EntityComparisonBase object.
    *
    * @param FieldDiffManager $field_diff_manager
@@ -63,12 +69,15 @@ class EntityComparisonBase extends ControllerBase {
    *   Date service.
    * @param ConfigFactoryInterface $config_factory
    *   Config Factory service
+   * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
+   *   The Plugin manager service.
    */
-  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, Date $date, ConfigFactoryInterface $config_factory) {
+  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, Date $date, ConfigFactoryInterface $config_factory, PluginManagerInterface $plugin_manager) {
     $this->fieldDiffManager = $field_diff_manager;
     $this->diffFormatter = $diff_formatter;
     $this->date = $date;
     $this->config = $config_factory->get('diff.settings');
+    $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
   }
 
   /**
@@ -79,7 +88,8 @@ class EntityComparisonBase extends ControllerBase {
       $container->get('diff.manager'),
       $container->get('diff.diff.formatter'),
       $container->get('date'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('plugin.manager.field.field_type')
     );
   }
 
@@ -96,25 +106,38 @@ class EntityComparisonBase extends ControllerBase {
    */
   private function parseEntity(RevisionableInterface $entity) {
     $result = array();
-
-    // @todo don't compare all the fields from an entity (those without UI).
     // Loop through entity fields and transform every FieldItemList object
     // into an array of strings according to field type specific settings.
     foreach ($entity as $field_items) {
       $field_type = $field_items->getFieldDefinition()->getType();
-
-      $context = array(
-        'field_type' => $field_type,
-        'settings' => array(
-          'compare' => $this->config->get($field_type),
-        ),
-      );
-      // For every field of the entity we call build method on the negotiated
-      // service FieldDiffManager and this service will search for the service
-      // that applies to this type of field and call the method on that service.
-      $build = $this->fieldDiffManager->build($field_items, $context);
-      if (!empty($build)) {
-        $result[$field_items->getName()] = $build;
+      /**
+       * @todo We should lift the restriction of comparing only field types which
+       *   have UI because there are field types that have no UI (i.e. cannot be
+       *   created through UI) but which can and should be compared: e.g. node title
+       *   field which is a field of type string but has no UI. However with or
+       *   without this restriction we also need to control which of the fields
+       *   are displayed when diffing because we can get into the following situation:
+       *   Revision ID node field is of type integer. Field Type integer has UI
+       *   and because of that all it will automatically be compared. But if we want
+       *   not to compare revision ID in the diff we cannot do this from manage
+       *   display because revision id does not appear as a field in manage display
+       *   form.
+       */
+      // At least for now we don't compare the fields which don't have UI.
+      if ($this->fieldTypeDefinitions[$field_type]['no_ui'] == FALSE) {
+        $context = array(
+          'field_type' => $field_type,
+          'settings' => array(
+            'compare' => $this->config->get($field_type),
+          ),
+        );
+        // For every field of the entity we call build method on the negotiated
+        // service FieldDiffManager and this service will search for the service
+        // that applies to this type of field and call the method on that service.
+        $build = $this->fieldDiffManager->build($field_items, $context);
+        if (!empty($build)) {
+          $result[$field_items->getName()] = $build;
+        }
       }
     }
 

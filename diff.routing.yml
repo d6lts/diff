@@ -20,9 +20,17 @@ diff.general_settings:
     _title: Diff General Settings
   requirements:
     _permission: 'administer site configuration'
+diff.node_settings:
+  path: '/admin/config/content/diff/entities/node'
+  defaults:
+    _form: '\Drupal\diff\Form\NodeEntitySettingsForm'
+    _title: Diff Entities Settings
+  requirements:
+    _permission: 'administer site configuration'
 diff.field_types_list:
   path: '/admin/config/content/diff/fields'
   defaults:
     _content: '\Drupal\diff\Controller\AdminController::fieldTypesList'
+    _title: Field Type Settings
   requirements:
     _permission: 'administer site configuration'
