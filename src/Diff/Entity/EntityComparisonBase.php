@@ -85,6 +85,7 @@ class EntityComparisonBase extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      // @todo Some service are available from ControllerBase. Remove duplicates.
       $container->get('diff.manager'),
       $container->get('diff.diff.formatter'),
       $container->get('date'),
@@ -95,7 +96,7 @@ class EntityComparisonBase extends ControllerBase {
 
   /**
    * Parses an entity's fields and for every field it builds an array of string
-   * to be compared. Basically this function transforms and entity into an array
+   * to be compared. Basically this function transforms an entity into an array
    * of strings.
    *
    * @param RevisionableInterface $entity
@@ -106,37 +107,55 @@ class EntityComparisonBase extends ControllerBase {
    */
   private function parseEntity(RevisionableInterface $entity) {
     $result = array();
+    // Load all entity base fields.
+    $entity_base_fields = $this->entityManager()->getBaseFieldDefinitions($entity->getEntityTypeId());
     // Loop through entity fields and transform every FieldItemList object
     // into an array of strings according to field type specific settings.
     foreach ($entity as $field_items) {
       $field_type = $field_items->getFieldDefinition()->getType();
-      /**
-       * @todo We should lift the restriction of comparing only field types which
-       *   have UI because there are field types that have no UI (i.e. cannot be
-       *   created through UI) but which can and should be compared: e.g. node title
-       *   field which is a field of type string but has no UI. However with or
-       *   without this restriction we also need to control which of the fields
-       *   are displayed when diffing because we can get into the following situation:
-       *   Revision ID node field is of type integer. Field Type integer has UI
-       *   and because of that all it will automatically be compared. But if we want
-       *   not to compare revision ID in the diff we cannot do this from manage
-       *   display because revision id does not appear as a field in manage display
-       *   form.
-       */
-      // At least for now we don't compare the fields which don't have UI.
+      $config_key = 'entity.' . $entity->getEntityTypeId() . '.' . $field_items->getName();
+      $context = array(
+        'field_type' => $field_type,
+        'settings' => array(
+          'compare' => $this->config->get($field_type),
+        ),
+      );
+
+      // A field type with UI is a field type which can be created from BO.
+      // It also means that it can be included or not in the comparison
+      // from view modes (not implemented yet).
       if ($this->fieldTypeDefinitions[$field_type]['no_ui'] == FALSE) {
-        $context = array(
-          'field_type' => $field_type,
-          'settings' => array(
-            'compare' => $this->config->get($field_type),
-          ),
-        );
-        // For every field of the entity we call build method on the negotiated
-        // service FieldDiffManager and this service will search for the service
-        // that applies to this type of field and call the method on that service.
-        $build = $this->fieldDiffManager->build($field_items, $context);
-        if (!empty($build)) {
-          $result[$field_items->getName()] = $build;
+        // Has UI but it is not a base field.
+        if (!array_key_exists($field_items->getName(), $entity_base_fields)) {
+          // For every field of the entity we call build method on the negotiated
+          // service FieldDiffManager and this service will search for the service
+          // that applies to this type of field and call the method on that service.
+          $build = $this->fieldDiffManager->build($field_items, $context);
+          if (!empty($build)) {
+            $result[$field_items->getName()] = $build;
+          }
+        }
+        // Has UI and is one of the entity base fields.
+        else {
+          // Check if needs to be compared.
+          $enabled = $this->config->get($config_key);
+          if ($enabled) {
+            $build = $this->fieldDiffManager->build($field_items, $context);
+            if (!empty($build)) {
+              $result[$field_items->getName()] = $build;
+            }
+          }
+        }
+      }
+      // Field type doesn't have UI.
+      else {
+        // Check if needs to be compared.
+        $enabled = $this->config->get($config_key);
+        if ($enabled) {
+          $build = $this->fieldDiffManager->build($field_items, $context);
+          if (!empty($build)) {
+            $result[$field_items->getName()] = $build;
+          }
         }
       }
     }

@@ -52,7 +52,7 @@ class AdminController extends ControllerBase {
     $header = array($this->t('Type'), $this->t('Provider'), $this->t('Operations'));
     $rows = array();
     // Load all field types which have UI.
-    $field_types = $this->fieldTypePluginManager->getUiDefinitions();
+    $field_types = $this->fieldTypePluginManager->getDefinitions();
     foreach ($field_types as $field_name => $field_type) {
       $row = array();
       $row[] = $this->t('@field_label (%field_type)', array(
