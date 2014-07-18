@@ -43,7 +43,6 @@ class AdminController extends ControllerBase {
 
   /**
    * Lists all the field types found on the system.
-   * @todo maybe just build a form instead of this controller.
    */
   public function fieldTypesList() {
     $build['info'] = array(
@@ -52,20 +51,18 @@ class AdminController extends ControllerBase {
 
     $header = array($this->t('Type'), $this->t('Provider'), $this->t('Operations'));
     $rows = array();
-    $field_types = $this->fieldTypePluginManager->getDefinitions();
+    // Load all field types which have UI.
+    $field_types = $this->fieldTypePluginManager->getUiDefinitions();
     foreach ($field_types as $field_name => $field_type) {
-      // Skip field types which have no UI.
-      if ($field_type['no_ui'] == FALSE) {
-        $row = array();
-        $row[] = $this->t('@field_label (%field_type)', array(
-          '@field_label' => $field_type['label'],
-          '%field_type' => $field_name,
-          )
-        );
-        $row[] = $field_type['provider'];
-        $row[] = $this->l($this->t('Global settings'), 'diff.field_type_settings', array('field_type' => $field_name));
-        $rows[] = $row;
-      }
+      $row = array();
+      $row[] = $this->t('@field_label (%field_type)', array(
+        '@field_label' => $field_type['label'],
+        '%field_type' => $field_name,
+        )
+      );
+      $row[] = $field_type['provider'];
+      $row[] = $this->l($this->t('Global settings'), 'diff.field_type_settings', array('field_type' => $field_name));
+      $rows[] = $row;
     }
 
     $build['category_table'] = array(
@@ -73,8 +70,15 @@ class AdminController extends ControllerBase {
       '#header' => $header,
       '#rows' => $rows,
       '#empty' => $this->t('The system has no configurable fields.'),
+      '#attributes' => array('id' => array('diff-field-types-list-table')),
+      '#attached' => array(
+        'css' => array(
+          drupal_get_path('module', 'diff') . '/css/diff.default.css',
+        ),
+      ),
     );
 
     return $build;
   }
+
 }

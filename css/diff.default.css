@@ -84,3 +84,6 @@ table.diff td {
 .diff-button {
   margin-bottom: 20px;
 }
+#diff-field-types-list-table {
+  margin-bottom: 40px;
+}

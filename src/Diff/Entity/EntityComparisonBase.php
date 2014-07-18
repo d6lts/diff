@@ -101,7 +101,7 @@ class EntityComparisonBase extends ControllerBase {
     // Loop through entity fields and transform every FieldItemList object
     // into an array of strings according to field type specific settings.
     foreach ($entity as $field_items) {
-      $field_type = $field_items->getIterator()->current()->getFieldDefinition()->getType();
+      $field_type = $field_items->getFieldDefinition()->getType();
 
       $context = array(
         'field_type' => $field_type,
@@ -198,7 +198,7 @@ class EntityComparisonBase extends ControllerBase {
     // Process the array (split the strings into single line strings)
     // and get line counts per field.
     array_walk($result, array($this, 'processStateLine'));
-    
+
     return $result;
   }
 
