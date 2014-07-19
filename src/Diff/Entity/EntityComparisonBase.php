@@ -8,7 +8,6 @@
 namespace Drupal\diff\Diff\Entity;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Controller\ControllerBase;
@@ -67,17 +66,15 @@ class EntityComparisonBase extends ControllerBase {
    *   Diff formatter service.
    * @param Date $date
    *   Date service.
-   * @param ConfigFactoryInterface $config_factory
-   *   Config Factory service
-   * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
+   * @param PluginManagerInterface $plugin_manager
    *   The Plugin manager service.
    */
-  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, Date $date, ConfigFactoryInterface $config_factory, PluginManagerInterface $plugin_manager) {
+  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, Date $date, PluginManagerInterface $plugin_manager) {
     $this->fieldDiffManager = $field_diff_manager;
     $this->diffFormatter = $diff_formatter;
     $this->date = $date;
-    $this->config = $config_factory->get('diff.settings');
     $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
+    $this->config = $this->config('diff.settings');
   }
 
   /**
@@ -89,7 +86,6 @@ class EntityComparisonBase extends ControllerBase {
       $container->get('diff.manager'),
       $container->get('diff.diff.formatter'),
       $container->get('date'),
-      $container->get('config.factory'),
       $container->get('plugin.manager.field.field_type')
     );
   }
