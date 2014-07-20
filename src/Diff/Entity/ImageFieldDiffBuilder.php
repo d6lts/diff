@@ -95,7 +95,7 @@ class ImageFieldDiffBuilder implements FieldDiffBuilderInterface {
             $result[$field_key][] = $this->t('File ID: !fid', array('!fid' => $values['target_id']));
           }
         }
-        // @todo Investigate why this is marked as a change rather than an addition.
+
         $separator = $compare['property_separator'] == 'nl' ? "\n" : $compare['property_separator'];
         $result[$field_key] = implode($separator, $result[$field_key]);
       }

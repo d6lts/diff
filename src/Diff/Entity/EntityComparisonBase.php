@@ -82,7 +82,6 @@ class EntityComparisonBase extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      // @todo Some service are available from ControllerBase. Remove duplicates.
       $container->get('diff.manager'),
       $container->get('diff.diff.formatter'),
       $container->get('date'),
@@ -116,34 +115,21 @@ class EntityComparisonBase extends ControllerBase {
           'compare' => $this->config->get($field_type),
         ),
       );
-
-      // A field type with UI is a field type which can be created from BO.
-      // It also means that it can be included or not in the comparison
-      // from view modes (not implemented yet).
-      if ($this->fieldTypeDefinitions[$field_type]['no_ui'] == FALSE) {
-        // Has UI but it is not a base field.
-        if (!array_key_exists($field_items->getName(), $entity_base_fields)) {
-          // For every field of the entity we call build method on the negotiated
-          // service FieldDiffManager and this service will search for the service
-          // that applies to this type of field and call the method on that service.
-          $build = $this->fieldDiffManager->build($field_items, $context);
-          if (!empty($build)) {
-            $result[$field_items->getName()] = $build;
-          }
-        }
-        // Has UI and is one of the entity base fields.
-        else {
-          // Check if needs to be compared.
-          $enabled = $this->config->get($config_key);
-          if ($enabled) {
-            $build = $this->fieldDiffManager->build($field_items, $context);
-            if (!empty($build)) {
-              $result[$field_items->getName()] = $build;
-            }
-          }
+      // If this field is not a base field for this entity it means it has UI
+      // (can be created form back-office). The visibility settings for this
+      // field are taken from content type view modes (not implemented yet).
+      if (!array_key_exists($field_items->getName(), $entity_base_fields)) {
+        // For every field of the entity we call build method on the negotiated
+        // service FieldDiffManager and this service will search for the service
+        // that applies to this type of field and call the method on that service.
+        $build = $this->fieldDiffManager->build($field_items, $context);
+        if (!empty($build)) {
+          $result[$field_items->getName()] = $build;
         }
       }
-      // Field type doesn't have UI.
+      // If field is one of the entity base fields take visibility settings from
+      // diff admin config page. This means that the visibility of these fields
+      // is controlled per entity type.
       else {
         // Check if needs to be compared.
         $enabled = $this->config->get($config_key);
@@ -178,7 +164,6 @@ class EntityComparisonBase extends ControllerBase {
     $right_values = $this->parseEntity($right_entity);
 
     foreach ($left_values as $field_name => $values) {
-      // @todo Consider refactoring this to an object.
       $field_definition = $left_entity->getFieldDefinition($field_name);
       // Get the compare settings for this field type.
       $compare_settings = $this->config->get($field_definition->getType());
@@ -309,6 +294,7 @@ class EntityComparisonBase extends ControllerBase {
     // Header is the line counter.
     $this->diffFormatter->show_header = $show_header;
     // @todo Should Diff object be a service/should it be injected ?
+    //   Config manager from core also uses it like this.
     $diff = new Diff($a, $b);
 
     return $this->diffFormatter->format($diff);

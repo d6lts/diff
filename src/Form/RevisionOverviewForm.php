@@ -10,12 +10,13 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Datetime\Date;
 use Drupal\Component\Utility\String;
-use Drupal\Core\Utility\LinkGenerator;
+use Drupal\Core\Routing\LinkGeneratorTrait;
 
 /**
  * Provides a form for revision overview page.
  */
 class RevisionOverviewForm extends FormBase {
+  use LinkGeneratorTrait;
 
   /**
    * The entity manager.
@@ -39,13 +40,6 @@ class RevisionOverviewForm extends FormBase {
   protected $date;
 
   /**
-   * The link generator service.
-   *
-   * @var \Drupal\Core\Utility\LinkGenerator
-   */
-  protected $link_generator;
-
-  /**
    * Wrapper object for writing/reading simple configuration from diff.settings.yml
    */
   protected $config;
@@ -60,16 +54,13 @@ class RevisionOverviewForm extends FormBase {
    *   The current user.
    * @param \Drupal\Core\Datetime\Date $date
    *   The date service.
-   * @param \Drupal\Core\Utility\LinkGenerator
-   *   The link generator service.
    * @param ConfigFactoryInterface $config_factory
    *   Config Factory service
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, Date $date, LinkGenerator $link_generator, ConfigFactoryInterface $config_factory) {
+  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, Date $date, ConfigFactoryInterface $config_factory) {
     $this->entityManager = $entityManager;
     $this->currentUser = $currentUser;
     $this->date = $date;
-    $this->link_generator = $link_generator;
     $this->config = $config_factory->get('diff.settings');
   }
 
@@ -81,7 +72,6 @@ class RevisionOverviewForm extends FormBase {
       $container->get('entity.manager'),
       $container->get('current_user'),
       $container->get('date'),
-      $container->get('link_generator'),
       $container->get('config.factory')
     );
   }
@@ -146,14 +136,14 @@ class RevisionOverviewForm extends FormBase {
         if ($revision->isDefaultRevision()) {
           $row[] = array(
             'data' => $this->t('!date by !username', array(
-                '!date' => $this->link_generator->generate($revision_date, 'node.view',array('node' => $node->id())),
+                '!date' => $this->l($revision_date, 'node.view', array('node' => $node->id())),
                 '!username' => drupal_render($username),
               )) . $revision_log,
             'class' => array('revision-current'),
           );
           // @todo If #value key is not provided a notice of undefined key appears.
-          // I created issue https://drupal.org/node/2275837 for this bug
-          // When resolved refactor this.
+          //   I've created issue https://drupal.org/node/2275837 for this bug.
+          //   When resolved refactor this.
           $row[] = array(
             'data' => array(
               '#type' => 'radio',
@@ -179,7 +169,7 @@ class RevisionOverviewForm extends FormBase {
         }
         else {
           $row[] = $this->t('!date by !username', array(
-              '!date' => $this->link_generator->generate($revision_date, 'node.revision_show', array(
+              '!date' => $this->l($revision_date, 'node.revision_show', array(
                   'node' => $node->id(),
                   'node_revision' => $vid
                 )),
