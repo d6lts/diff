@@ -11,6 +11,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Datetime\Date;
 use Drupal\Component\Utility\String;
 use Drupal\Core\Routing\LinkGeneratorTrait;
+use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Provides a form for revision overview page.
@@ -134,11 +135,13 @@ class RevisionOverviewForm extends FormBase {
 
         // Current revision.
         if ($revision->isDefaultRevision()) {
+          // @todo When solved in core check to see if there's a better solution
+          //   to avoid double escaping.
           $row[] = array(
-            'data' => $this->t('!date by !username', array(
+            'data' => SafeMarkup::set($this->t('!date by !username', array(
                 '!date' => $this->l($revision_date, 'node.view', array('node' => $node->id())),
                 '!username' => drupal_render($username),
-              )) . $revision_log,
+              )) . $revision_log),
             'class' => array('revision-current'),
           );
           // @todo If #value key is not provided a notice of undefined key appears.
@@ -168,13 +171,13 @@ class RevisionOverviewForm extends FormBase {
           );
         }
         else {
-          $row[] = $this->t('!date by !username', array(
+          $row[] = SafeMarkup::set($this->t('!date by !username', array(
               '!date' => $this->l($revision_date, 'node.revision_show', array(
                   'node' => $node->id(),
                   'node_revision' => $vid
                 )),
               '!username' => drupal_render($username)
-            )) . $revision_log;
+            )) . $revision_log);
 
           if ($revert_permission) {
             $links['revert'] = array(
