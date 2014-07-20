@@ -10,6 +10,7 @@ namespace Drupal\diff\Controller;
 use Drupal\node\NodeInterface;
 use Drupal\diff\Diff\Entity\EntityComparisonBase;
 use Drupal\Component\Utility\Xss;
+use Drupal\Component\Utility\SafeMarkup;
 
 
 /**
@@ -81,6 +82,20 @@ class NodeRevisionController extends EntityComparisonBase {
           $field['#states'][$filter]['#left'],
           $field['#states'][$filter]['#right']
         );
+
+        // @todo This must be removed. It is just a temporary solution for
+        //   displaying the diff data. This needs to be solved from diff formatter.
+        foreach($field_diff_rows as &$field_diff_row) {
+          foreach ($field_diff_row as &$field_diff_column) {
+            if (is_array($field_diff_column)) {
+              $field_diff_column['data'] = SafeMarkup::set($field_diff_column['data']);
+            }
+            else {
+              $field_diff_column = SafeMarkup::set($field_diff_column);
+            }
+          }
+        }
+
         // Add the field label to the table only if there are changes to that field.
         if (!empty($field_diff_rows) && !empty($field_label_row)) {
           $diff_rows[] = array($field_label_row);
@@ -129,11 +144,11 @@ class NodeRevisionController extends EntityComparisonBase {
    * @return array Header for Diff table
    */
   protected function buildTableHeader($left_revision, $right_revision) {
-    $header = array();
     $revisions = array($left_revision, $right_revision);
+    $header = array();
 
     foreach ($revisions as $revision) {
-      $revision_log = '&nbsp';
+      $revision_log = $this->non_breaking_space;
 
       if ($revision->revision_log->value != '') {
         $revision_log = Xss::filter($revision->revision_log->value);
@@ -157,7 +172,7 @@ class NodeRevisionController extends EntityComparisonBase {
 //        'colspan' => 1,
 //      );
       $header[] = array(
-        'data' => '&nbsp',
+        'data' => $this->non_breaking_space,
         'colspan' => 1,
       );
       $header[] = array(
@@ -173,12 +188,12 @@ class NodeRevisionController extends EntityComparisonBase {
    * Returns the navigation row for diff table.
    */
   protected function buildRevisionsNavigation($nid, $vids, $left_vid, $right_vid) {
-    $i = 0;
     $revisions_count = count($vids);
+    $i = 0;
 
     $row = array();
     // First column.
-    $row[] = '&nbsp';
+    $row[] = $this->non_breaking_space;
     // Find the previous revision.
     while ($left_vid > $vids[$i]) {
       $i += 1;
@@ -200,10 +215,10 @@ class NodeRevisionController extends EntityComparisonBase {
     }
     else {
       // Second column.
-      $row[] = '&nbsp';
+      $row[] = $this->non_breaking_space;
     }
     // Third column.
-    $row[] = '&nbsp';
+    $row[] = $this->non_breaking_space;
     // Find the next revision.
     $i = 0;
     while ($i < $revisions_count && $right_vid >= $vids[$i]) {
@@ -226,7 +241,7 @@ class NodeRevisionController extends EntityComparisonBase {
     }
     else {
       // Forth column
-      $row[] = '&nbsp';
+      $row[] = $this->non_breaking_space;
     }
 
     // If there are only 2 revision return an empty row.
@@ -242,6 +257,7 @@ class NodeRevisionController extends EntityComparisonBase {
    * Builds a table row with navigation between raw and raw-plain formats.
    */
   protected function buildMarkdownNavigation($nid, $left_vid, $right_vid, $active_filter) {
+
     $links['raw'] = array(
       'title' => $this->t('Standard'),
       'route_name' => 'diff.revisions_diff',
@@ -267,7 +283,7 @@ class NodeRevisionController extends EntityComparisonBase {
     unset($links[$active_filter]);
     array_unshift($links, $filter);
 
-    $row[] = '&nbsp';
+    $row[] = $this->non_breaking_space;
     $row[] = array(
       'data' => array(
         '#type' => 'operations',

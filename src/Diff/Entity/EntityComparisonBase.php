@@ -17,6 +17,7 @@ use Drupal\Core\Diff\DiffFormatter;
 use Drupal\Component\Diff\Diff;
 use Drupal\Core\Datetime\Date;
 use Drupal\Component\Utility\Xss;
+use Drupal\Component\Utility\SafeMarkup;
 
 
 /**
@@ -58,6 +59,11 @@ class EntityComparisonBase extends ControllerBase {
   protected $fieldTypeDefinitions;
 
   /**
+   * Represents non breaking space HTML character entity marked as safe markup.
+   */
+  protected $non_breaking_space;
+
+  /**
    * Constructs an EntityComparisonBase object.
    *
    * @param FieldDiffManager $field_diff_manager
@@ -75,6 +81,7 @@ class EntityComparisonBase extends ControllerBase {
     $this->date = $date;
     $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
     $this->config = $this->config('diff.settings');
+    $this->non_breaking_space = SafeMarkup::set('&nbsp');
   }
 
   /**
