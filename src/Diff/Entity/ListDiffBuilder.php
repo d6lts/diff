@@ -38,7 +38,7 @@ class ListDiffBuilder implements FieldDiffBuilderInterface {
    * {@inheritdoc}
    */
   public function applies(array $context) {
-// List of the field types for which this class provides diff support.
+    // List of the field types for which this class provides diff support.
     $field_types = array('list_boolean', 'list_text', 'list_float', 'list_integer');
     // Check if this class can handle diff for a certain field.
     if (in_array($context['field_type'], $field_types)) {

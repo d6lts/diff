@@ -278,7 +278,9 @@ class RevisionOverviewForm extends FormBase {
     $vid_right = $form_state['input']['radios_right'];
     if ($vid_left == $vid_right || !$vid_left || !$vid_right) {
       // @todo See why radio-boxes reset if there are errors.
-      $this->setFormError('submit', $form_state, $this->t('Select different revisions to compare.'));
+      // @todo Follow the task 'Convert $form_state to an object and provide
+      //   methods like setError()' (2225353).
+      $this->setFormError('node_revisions_table', $form_state, $this->t('Select different revisions to compare.'));
     }
   }
 

@@ -15,39 +15,39 @@ services:
     class: Drupal\diff\Diff\Entity\TextFieldDiffBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
-      - { name: diff.field_builder, priority: 10 }
+      - { name: diff.field_builder, priority: 0 }
   diff.image_field_builder:
     class: Drupal\diff\Diff\Entity\ImageFieldDiffBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
-      - { name: diff.field_builder, priority: 10 }
+      - { name: diff.field_builder, priority: 0 }
   diff.term_reference_field_builder:
     class: Drupal\diff\Diff\Entity\TermReferenceDiffBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
-      - { name: diff.field_builder, priority: 10 }
+      - { name: diff.field_builder, priority: 0 }
   diff.core_field_builder:
     class: Drupal\diff\Diff\Entity\CoreFieldDiffBuilder
     arguments: ['@form_builder']
     tags:
-      - { name: diff.field_builder, priority: 10 }
+      - { name: diff.field_builder, priority: 0 }
   diff.list_field_builder:
     class: Drupal\diff\Diff\Entity\ListDiffBuilder
     arguments: ['@form_builder']
     tags:
-      - { name: diff.field_builder, priority: 10 }
+      - { name: diff.field_builder, priority: 0 }
   diff.file_field_builder:
     class: Drupal\diff\Diff\Entity\FileFieldDiffBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
-      - { name: diff.field_builder, priority: 10 }
+      - { name: diff.field_builder, priority: 0 }
   diff.entity_reference_field_builder:
     class: Drupal\diff\Diff\Entity\EntityReferenceDiffBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
-      - { name: diff.field_builder, priority: 10 }
+      - { name: diff.field_builder, priority: 0 }
   diff.datetime_field_builder:
     class: Drupal\diff\Diff\Entity\DateTimeDiffBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
-      - { name: diff.field_builder, priority: 10 }
+      - { name: diff.field_builder, priority: 0 }

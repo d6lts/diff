@@ -77,7 +77,6 @@ class NodeRevisionController extends EntityComparisonBase {
             'colspan' => 4,
           );
         }
-        // @todo We need to make sure that the diff is not passed through check_plain
         $field_diff_rows = $this->getRows(
           $field['#states'][$filter]['#left'],
           $field['#states'][$filter]['#right']
@@ -116,6 +115,8 @@ class NodeRevisionController extends EntityComparisonBase {
       return $build;
     }
     else {
+      // @todo When task 'Convert drupal_set_message() to a service' (2278383)
+      //   will be merged use the corresponding service instead.
       drupal_set_message($this->t('Selected node revisions could not be loaded.'), 'error');
     }
   }
@@ -148,7 +149,9 @@ class NodeRevisionController extends EntityComparisonBase {
             'node_revision' => $revision->getRevisionId()
           )),
       ));
-      // @todo This needs to be fixed.
+      // @todo When theming think about where in the table to integrate this
+      //   link to the revision user. There is some issue about multiline headers
+      //   for theme table.
 //      $header[] = array(
 //        'data' => $this->t('by' . '!username', array('!username' => drupal_render($username))),
 //        'colspan' => 1,

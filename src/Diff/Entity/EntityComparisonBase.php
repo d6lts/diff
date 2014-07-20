@@ -363,11 +363,14 @@ class EntityComparisonBase extends ControllerBase {
     if ($markdown == 'drupal_html_to_text') {
       return trim(drupal_html_to_text($items), "\n");
     }
-    else if ($markdown == 'filter_xss') {
+    elseif ($markdown == 'filter_xss') {
       return trim(Xss::filter($items), "\n");
     }
-    else if ($markdown == 'filter_xss_all') {
+    elseif ($markdown == 'filter_xss_all') {
       return trim(Xss::filter($items, array()), "\n");
+    }
+    else {
+      return $items;
     }
   }
 

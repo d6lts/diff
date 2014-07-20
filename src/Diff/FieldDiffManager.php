@@ -85,9 +85,6 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
   }
 
   /**
-   * @todo make sure here that the service with greater priority is picked
-   * instead of the service with lower priority (theoretically this should
-   * happen but now it seems like it's the other way around.)
    * {@inheritdoc}
    */
   public function build(FieldItemListInterface $field_items, array $context) {
@@ -99,10 +96,9 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
         // The builder does not apply, so we continue with the other builders.
         continue;
       }
-
       $build = $builder->build($field_items, $context);
-
     }
+
     // Allow modules to alter the field data to be compared.
     $this->moduleHandler->alter('field_diff_view', $build, $context);
     // Fall back to an empty field diff view.
@@ -118,7 +114,7 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
   protected function getSortedBuilders() {
     if (!isset($this->sortedBuilders)) {
       // Sort the builders according to priority.
-      krsort($this->builders);
+      ksort($this->builders);
       // Merge nested builders from $this->builders into $this->sortedBuilders.
       $this->sortedBuilders = array();
       foreach ($this->builders as $builders) {
