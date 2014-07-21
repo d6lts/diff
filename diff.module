@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * @file Contains hooks.
+ */
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function diff_form_node_type_edit_form_alter(&$form, $form_state) {
+
+  if (isset($form['type'])) {
+//    $config = \Drupal::configFactory()->get('diff.settings');
+    $type = $form['type']['#default_value'];
+    $form['diff'] = array(
+      '#title' => t('Compare revisions'),
+      '#type' => 'details',
+      '#group' => 'additional_settings',
+      '#tree' => FALSE,
+    );
+    $form['diff']['diff_show_preview_changes_node'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Show <em>View changes</em> button on node edit form'),
+      '#weight' => 10,
+    );
+    $form['diff']['diff_enable_revisions_page_node'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable the <em>Revisions</em> page for this content type'),
+      '#weight' => 11,
+    );
+
+    $options = array();
+    // Get all view modes for node entity type.
+    $node_view_modes = \Drupal::entityManager()->getViewModes('node');
+    foreach ($node_view_modes as $view_mode => $view_mode_info) {
+      $options[$view_mode] = $view_mode_info['label'];
+    }
+    $form['diff']['diff_view_mode_preview_node'] = array(
+      '#type' => 'select',
+      '#title' => t('Standard comparison preview'),
+      '#description' => t('Governs the <em>Current revision</em> view mode when doing standard comparisons.'),
+      '#options' => $options,
+      '#weight' => 13,
+      '#empty_value' => '',
+      '#empty_option' => t('- Do not display -'),
+    );
+  }
+}

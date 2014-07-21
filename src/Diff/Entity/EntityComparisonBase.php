@@ -109,13 +109,14 @@ class EntityComparisonBase extends ControllerBase {
    */
   private function parseEntity(RevisionableInterface $entity) {
     $result = array();
+    $entity_type_id = $entity->getEntityTypeId();
     // Load all entity base fields.
-    $entity_base_fields = $this->entityManager()->getBaseFieldDefinitions($entity->getEntityTypeId());
+    $entity_base_fields = $this->entityManager()->getBaseFieldDefinitions($entity_type_id);
     // Loop through entity fields and transform every FieldItemList object
     // into an array of strings according to field type specific settings.
     foreach ($entity as $field_items) {
       $field_type = $field_items->getFieldDefinition()->getType();
-      $config_key = 'entity.' . $entity->getEntityTypeId() . '.' . $field_items->getName();
+      $config_key = 'entity.' . $entity_type_id . '.' . $field_items->getName();
       $context = array(
         'field_type' => $field_type,
         'settings' => array(
