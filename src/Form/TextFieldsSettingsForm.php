@@ -26,14 +26,14 @@ class TextFieldsSettingsForm extends DiffFieldBaseSettingsForm {
     $form['compare_format'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Compare format'),
-      '#default_value' => $config->get($field_type . '.' . 'compare_format'),
+      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'compare_format'),
       '#description' => $this->t('This is only used if the "Text processing" instance settings are set to <em>Filtered text (user selects text format)</em>.'),
     );
     if ($field_type == 'text_with_summary') {
       $form['compare_summary'] = array(
         '#type' => 'checkbox',
         '#title' => $this->t('Compare summary separately'),
-        '#default_value' => $config->get($field_type . '.' . 'compare_summary'),
+        '#default_value' => $config->get('field_types.' . $field_type . '.' . 'compare_summary'),
         '#description' => $this->t('This is only used if the "Summary input" option is checked in the instance settings.'),
       );
     }
@@ -47,9 +47,12 @@ class TextFieldsSettingsForm extends DiffFieldBaseSettingsForm {
     $config = $this->config('diff.settings');
     $field_type = $form_state['values']['field_type'];
 
-    $config->set($field_type . '.' . 'compare_format', $form_state['values']['compare_format']);
+    $keys = array('compare_format');
     if ($field_type == 'text_with_summary') {
-      $config->set($field_type . '.' . 'compare_summary', $form_state['values']['compare_summary']);
+      $keys[] = 'compare_summary';
+    }
+    foreach ($keys as $key) {
+      $config->set('field_types.' . $field_type . '.' . $key, $form_state['values'][$key]);
     }
     $config->save();
 

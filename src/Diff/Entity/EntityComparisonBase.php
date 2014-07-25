@@ -120,7 +120,7 @@ class EntityComparisonBase extends ControllerBase {
       $context = array(
         'field_type' => $field_type,
         'settings' => array(
-          'compare' => $this->config->get($field_type),
+          'compare' => $this->config->get('field_types.' . $field_type),
         ),
       );
       // If this field is not a base field for this entity it means it has UI
@@ -139,7 +139,7 @@ class EntityComparisonBase extends ControllerBase {
       // diff admin config page. This means that the visibility of these fields
       // is controlled per entity type.
       else {
-        // Check if needs to be compared.
+        // Check if this field needs to be compared.
         $enabled = $this->config->get($config_key);
         if ($enabled) {
           $build = $this->fieldDiffManager->build($field_items, $context);
@@ -174,7 +174,7 @@ class EntityComparisonBase extends ControllerBase {
     foreach ($left_values as $field_name => $values) {
       $field_definition = $left_entity->getFieldDefinition($field_name);
       // Get the compare settings for this field type.
-      $compare_settings = $this->config->get($field_definition->getType());
+      $compare_settings = $this->config->get('field_types.' . $field_definition->getType());
       $result[$field_name] = array(
         '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->getLabel() : '',
         '#settings' => $compare_settings,
@@ -196,7 +196,7 @@ class EntityComparisonBase extends ControllerBase {
     // Fields which exist only on the right entity.
     foreach ($right_values as $field_name => $values) {
       $field_definition = $right_entity->getFieldDefinition($field_name);
-      $compare_settings = $this->config->get($field_definition->getType());
+      $compare_settings = $this->config->get('field_types.' . $field_definition->getType());
       $result[$field_name] = array(
         '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->getLabel() : '',
         '#settings' => $compare_settings,

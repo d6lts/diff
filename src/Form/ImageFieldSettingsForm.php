@@ -26,24 +26,24 @@ class ImageFieldSettingsForm extends DiffFieldBaseSettingsForm {
     $form['show_id'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Show image ID'),
-      '#default_value' => $config->get($field_type . '.' . 'show_id'),
+      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'show_id'),
     );
     $form['compare_alt_field'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Compare <em>Alt</em> field'),
-      '#default_value' => $config->get($field_type . '.' . 'compare_alt_field'),
+      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'compare_alt_field'),
       '#description' => $this->t('This is only used if the "Enable <em>Alt</em> field" is checked in the instance settings.'),
     );
     $form['compare_title_field'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Compare <em>Title</em> field'),
-      '#default_value' => $config->get($field_type . '.' . 'compare_title_field'),
+      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'compare_title_field'),
       '#description' => $this->t('This is only used if the "Enable <em>Title</em> field" is checked in the instance settings.'),
     );
     $form['property_separator'] = array(
       '#type' => 'select',
       '#title' => $this->t('Property separator'),
-      '#default_value' => $config->get($field_type . '.' . 'property_separator'),
+      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'property_separator'),
       '#description' => $this->t('Provides the ability to show properties inline or across multiple lines.'),
       '#options' => array(
         ', ' => $this->t('Comma (,)'),
@@ -63,11 +63,10 @@ class ImageFieldSettingsForm extends DiffFieldBaseSettingsForm {
     $config = $this->config('diff.settings');
     $field_type = $form_state['values']['field_type'];
 
-    $config->set($field_type . '.' . 'show_id', $form_state['values']['show_id']);
-    $config->set($field_type . '.' . 'compare_alt_field', $form_state['values']['compare_alt_field']);
-    $config->set($field_type . '.' . 'compare_title_field', $form_state['values']['compare_title_field']);
-    $config->set($field_type . '.' . 'property_separator', $form_state['values']['property_separator']);
-
+    $keys = array('show_id', 'compare_alt_field', 'compare_title_field', 'property_separator');
+    foreach ($keys as $key) {
+      $config->set('field_types.' . $field_type . '.' . $key, $form_state['values'][$key]);
+    }
     $config->save();
 
     return parent::submitForm($form, $form_state);

@@ -32,12 +32,12 @@ class DiffFieldBaseSettingsForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Show field title'),
       '#weight' => -5,
-      '#default_value' => $config->get($field_type . '.' . 'show_header'),
+      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'show_header'),
     );
     $form['markdown'] = array(
       '#type' => 'select',
       '#title' => $this->t('Markdown callback'),
-      '#default_value' => $config->get($field_type . '.' . 'markdown'),
+      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'markdown'),
       '#options' => array(
         'drupal_html_to_text' => $this->t('Drupal HTML to Text'),
         'filter_xss' => $this->t('Filter XSS (some tags)'),
@@ -56,8 +56,10 @@ class DiffFieldBaseSettingsForm extends ConfigFormBase {
     $config = $this->config('diff.settings');
     $field_type = $form_state['values']['field_type'];
 
-    $config->set($field_type . '.' . 'show_header', $form_state['values']['show_header']);
-    $config->set($field_type . '.' . 'markdown', $form_state['values']['markdown']);
+    $keys = array('show_header', 'markdown');
+    foreach ($keys as $key) {
+      $config->set('field_types.' . $field_type . '.' . $key, $form_state['values'][$key]);
+    }
     $config->save();
 
     return parent::submitForm($form, $form_state);

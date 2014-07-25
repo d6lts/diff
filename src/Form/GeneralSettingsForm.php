@@ -24,7 +24,7 @@ class GeneralSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, array &$form_state, $field_type = NULL) {
     $config = $this->config('diff.settings');
 
-    $form['diff_theme'] = array(
+    $form['theme'] = array(
       '#type' => 'select',
       '#title' => $this->t('CSS options'),
       '#default_value' => $config->get('general_settings' . '.' . 'theme'),
@@ -35,7 +35,7 @@ class GeneralSettingsForm extends ConfigFormBase {
       '#empty_option' => $this->t('- None -'),
       '#description' => $this->t('Alter the CSS used when displaying diff results.'),
     );
-    $form['diff_radio_behavior'] = array(
+    $form['radio_behavior'] = array(
       '#type' => 'select',
       '#title' => $this->t('Diff radio behavior'),
       '#default_value' => $config->get('general_settings' . '.' . 'radio_behavior'),
@@ -49,14 +49,14 @@ class GeneralSettingsForm extends ConfigFormBase {
 
     $context_lines = array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
     $options = array_combine($context_lines, $context_lines);
-    $form['diff_context_lines_leading'] = array(
+    $form['context_lines_leading'] = array(
       '#type' => 'select',
       '#title' => $this->t('Leading context lines'),
       '#description' => $this->t('This governs the number of unchanged leading context "lines" to preserve.'),
       '#default_value' => $config->get('general_settings' . '.' . 'context_lines_leading'),
       '#options' => $options,
     );
-    $form['diff_context_lines_trailing'] = array(
+    $form['context_lines_trailing'] = array(
       '#type' => 'select',
       '#title' => $this->t('Trailing context lines'),
       '#description' => $this->t('This governs the number of unchanged trailing context "lines" to preserve.'),
@@ -72,10 +72,11 @@ class GeneralSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, array &$form_state) {
     $config = $this->config('diff.settings');
-    $config->set('general_settings' . '.' . 'theme', $form_state['values']['diff_theme']);
-    $config->set('general_settings' . '.' . 'radio_behavior', $form_state['values']['diff_radio_behavior']);
-    $config->set('general_settings' . '.' . 'context_lines_leading', $form_state['values']['diff_context_lines_leading']);
-    $config->set('general_settings' . '.' . 'context_lines_trailing', $form_state['values']['diff_context_lines_trailing']);
+
+    $keys = array('theme', 'radio_behavior', 'context_lines_leading', 'context_lines_trailing');
+    foreach ($keys as $key) {
+      $config->set('general_settings.' . $key, $form_state['values'][$key]);
+    }
     $config->save();
 
     return parent::submitForm($form, $form_state);

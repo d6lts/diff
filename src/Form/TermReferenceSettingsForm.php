@@ -25,12 +25,12 @@ class TermReferenceSettingsForm extends DiffFieldBaseSettingsForm {
     $form['show_name'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Show term name'),
-      '#default_value' => $config->get($field_type . '.' . 'show_name'),
+      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'show_name'),
     );
     $form['show_id'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Show term ID'),
-      '#default_value' => $config->get($field_type . '.' . 'show_id'),
+      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'show_id'),
     );
 
     return parent::buildForm($form, $form_state, $field_type);
@@ -43,8 +43,10 @@ class TermReferenceSettingsForm extends DiffFieldBaseSettingsForm {
     $config = $this->config('diff.settings');
     $field_type = $form_state['values']['field_type'];
 
-    $config->set($field_type . '.' . 'show_name', $form_state['values']['show_name']);
-    $config->set($field_type . '.' . 'show_id', $form_state['values']['show_id']);
+    $keys = array('show_name', 'show_id');
+    foreach ($keys as $key) {
+      $config->set('field_types.' . $field_type . '.' . $key, $form_state['values'][$key]);
+    }
     $config->save();
 
     return parent::submitForm($form, $form_state);

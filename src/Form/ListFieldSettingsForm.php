@@ -31,7 +31,7 @@ class ListFieldSettingsForm extends DiffFieldBaseSettingsForm {
         'key' => $this->t('Key'),
         'both' => $this->t('Label (key)'),
       ),
-      '#default_value' => $config->get($field_type . '.' . 'compare'),
+      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'compare'),
     );
 
     return parent::buildForm($form, $form_state, $field_type);
@@ -44,7 +44,7 @@ class ListFieldSettingsForm extends DiffFieldBaseSettingsForm {
     $config = $this->config('diff.settings');
     $field_type = $form_state['values']['field_type'];
 
-    $config->set($field_type . '.' . 'compare', $form_state['values']['compare']);
+    $config->set('field_types.' . $field_type . '.' . 'compare', $form_state['values']['compare']);
     $config->save();
 
     return parent::submitForm($form, $form_state);
