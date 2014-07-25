@@ -11,6 +11,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\diff\Diff\FieldDiffBuilderInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 
 
 class CoreFieldDiffBuilder implements FieldDiffBuilderInterface {
@@ -37,13 +38,13 @@ class CoreFieldDiffBuilder implements FieldDiffBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function applies(array $context) {
+  public function applies(FieldDefinitionInterface $field_definition) {
     // List of the field types for which this class provides diff support.
     $field_types = array('decimal', 'integer', 'float', 'email', 'telephone',
       'path', 'date', 'changed', 'uri', 'string', 'timestamp', 'created',
       'string_long', 'language', 'uuid', 'map');
     // Check if this class can handle diff for a certain field.
-    if (in_array($context['field_type'], $field_types)) {
+    if (in_array($field_definition->getType(), $field_types)) {
       return TRUE;
     }
 

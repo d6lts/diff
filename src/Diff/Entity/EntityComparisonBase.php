@@ -118,7 +118,6 @@ class EntityComparisonBase extends ControllerBase {
       $field_type = $field_items->getFieldDefinition()->getType();
       $config_key = 'entity.' . $entity_type_id . '.' . $field_items->getName();
       $context = array(
-        'field_type' => $field_type,
         'settings' => array(
           'compare' => $this->config->get('field_types.' . $field_type),
         ),
@@ -130,6 +129,9 @@ class EntityComparisonBase extends ControllerBase {
         // For every field of the entity we call build method on the negotiated
         // service FieldDiffManager and this service will search for the service
         // that applies to this type of field and call the method on that service.
+        // @todo After implementing all functionality see if it's possible to
+        //   send only $field_items to the build method (and settings for the
+        //   field will be retrieved in the field diff builder).
         $build = $this->fieldDiffManager->build($field_items, $context);
         if (!empty($build)) {
           $result[$field_items->getName()] = $build;

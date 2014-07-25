@@ -12,6 +12,7 @@ use Drupal\diff\Diff\FieldDiffBuilderInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 
 
 class FileFieldDiffBuilder implements FieldDiffBuilderInterface {
@@ -48,9 +49,9 @@ class FileFieldDiffBuilder implements FieldDiffBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function applies(array $context) {
+  public function applies(FieldDefinitionInterface $field_definition) {
     // Check if this class can handle diff for image fields.
-    if ($context['field_type'] == 'file') {
+    if ($field_definition->getType() == 'file') {
       return TRUE;
     }
 

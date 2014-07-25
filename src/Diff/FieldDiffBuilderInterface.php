@@ -8,6 +8,7 @@
 namespace Drupal\diff\Diff;
 
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 
 /**
  * Defines an interface for classes that handle field comparisons.
@@ -17,14 +18,12 @@ interface FieldDiffBuilderInterface {
   /**
    * Whether this field builder should be used to build the field diff.
    *
-   * @param array $context
-   *   Information about the field to be compared.
-   *
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    * @return bool
    *   TRUE if this builder should be used or FALSE to let other builders
    *   decide.
    */
-  public function applies(array $context);
+  public function applies(FieldDefinitionInterface $field_definition);
 
   /**
    * Builds the field data to be compared based on the context.

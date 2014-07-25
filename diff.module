@@ -8,7 +8,8 @@
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function diff_form_node_type_edit_form_alter(&$form, $form_state) {
-
+  // @todo Currently there is no possibility  saving this settings somewhere
+  //   This issue: https://www.drupal.org/node/1728788 addresses this problem.
   if (isset($form['type'])) {
 //    $config = \Drupal::configFactory()->get('diff.settings');
     $type = $form['type']['#default_value'];

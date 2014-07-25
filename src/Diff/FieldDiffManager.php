@@ -10,6 +10,7 @@ namespace Drupal\diff\Diff;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 
 
 /**
@@ -80,7 +81,7 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function applies(array $attributes) {
+  public function applies(FieldDefinitionInterface $field_definition) {
     return TRUE;
   }
 
@@ -92,7 +93,7 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
     // Call the build method of registered field builders,
     // until one of them returns an array.
     foreach ($this->getSortedBuilders() as $builder) {
-      if (!$builder->applies($context)) {
+      if (!$builder->applies($field_items->getFieldDefinition())) {
         // The builder does not apply, so we continue with the other builders.
         continue;
       }

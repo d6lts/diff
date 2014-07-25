@@ -12,6 +12,7 @@ use Drupal\diff\Diff\FieldDiffBuilderInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 
 
 class TermReferenceDiffBuilder implements FieldDiffBuilderInterface {
@@ -48,8 +49,8 @@ class TermReferenceDiffBuilder implements FieldDiffBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function applies(array $context) {
-    if ($context['field_type'] == 'taxonomy_term_reference' ) {
+  public function applies(FieldDefinitionInterface $field_definition) {
+    if ($field_definition->getType() == 'taxonomy_term_reference' ) {
       return TRUE;
     }
 

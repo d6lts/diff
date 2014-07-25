@@ -11,6 +11,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\diff\Diff\FieldDiffBuilderInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 
 
 class ListDiffBuilder implements FieldDiffBuilderInterface {
@@ -37,11 +38,11 @@ class ListDiffBuilder implements FieldDiffBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function applies(array $context) {
+  public function applies(FieldDefinitionInterface $field_definition) {
     // List of the field types for which this class provides diff support.
     $field_types = array('list_boolean', 'list_text', 'list_float', 'list_integer');
     // Check if this class can handle diff for a certain field.
-    if (in_array($context['field_type'], $field_types)) {
+    if (in_array($field_definition->getType(), $field_types)) {
       return TRUE;
     }
 

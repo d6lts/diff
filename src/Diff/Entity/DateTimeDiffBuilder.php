@@ -12,6 +12,7 @@ use Drupal\diff\Diff\FieldDiffBuilderInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 
 
 class DateTimeDiffBuilder implements FieldDiffBuilderInterface {
@@ -48,9 +49,9 @@ class DateTimeDiffBuilder implements FieldDiffBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function applies(array $context) {
+  public function applies(FieldDefinitionInterface $field_definition) {
     // This class can handle diffs for image field types.
-    if ($context['field_type'] == 'datetime') {
+    if ($field_definition->getType() == 'datetime') {
       return TRUE;
     }
 

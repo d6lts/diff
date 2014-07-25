@@ -12,6 +12,7 @@ use Drupal\diff\Diff\FieldDiffBuilderInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 
 
 class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
@@ -48,11 +49,11 @@ class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
   /**
    * {@inheritdoc}
    */
-  public function applies(array $context) {
+  public function applies(FieldDefinitionInterface $field_definition) {
     // List of the field types for which this class provides diff support.
     $field_types = array('text_with_summary', 'text_long', 'text');
     // Check if this class can handle diff for a certain field.
-    if (in_array($context['field_type'], $field_types)) {
+    if (in_array($field_definition->getType(), $field_types)) {
       return TRUE;
     }
 
