@@ -22,7 +22,7 @@ services:
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.term_reference_field_builder:
-    class: Drupal\diff\Diff\Entity\TermReferenceBuilder
+    class: Drupal\diff\Diff\Entity\TermReferenceFieldBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
@@ -32,7 +32,7 @@ services:
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.list_field_builder:
-    class: Drupal\diff\Diff\Entity\ListBuilder
+    class: Drupal\diff\Diff\Entity\ListFieldBuilder
     arguments: ['@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
@@ -42,12 +42,12 @@ services:
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.entity_reference_field_builder:
-    class: Drupal\diff\Diff\Entity\EntityReferenceBuilder
+    class: Drupal\diff\Diff\Entity\EntityReferenceFieldBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.datetime_field_builder:
-    class: Drupal\diff\Diff\Entity\DateTimeBuilder
+    class: Drupal\diff\Diff\Entity\DateTimeFieldBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
