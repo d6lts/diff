@@ -80,6 +80,7 @@ class TextFieldDiffBuilder implements FieldDiffBuilderInterface {
             $result[$field_key][] = $label . ": " . $format->name;
           }
           else {
+            // @todo Solve $value_key is undefined.
             $result[$field_key][] = $label . ": " . $this->t('Missing format !format', array('!format' => $values[$value_key]));
           }
         }
