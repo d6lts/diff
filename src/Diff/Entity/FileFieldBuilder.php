@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\diff\ImageFieldDiffBuilder.
+ * Contains \Drupal\diff\FileFieldBuilder.
  */
 
 namespace Drupal\diff\Diff\Entity;
@@ -15,7 +15,7 @@ use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 
 
-class ImageFieldDiffBuilder implements FieldDiffBuilderInterface {
+class FileFieldBuilder implements FieldDiffBuilderInterface {
   use StringTranslationTrait;
 
   /**
@@ -34,7 +34,7 @@ class ImageFieldDiffBuilder implements FieldDiffBuilderInterface {
 
 
   /**
-   * Constructs a ImageFieldDiffBuilder object.
+   * Constructs a ImageFieldBuilder object.
    *
    * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
    *   The entity manager.
@@ -50,8 +50,8 @@ class ImageFieldDiffBuilder implements FieldDiffBuilderInterface {
    * {@inheritdoc}
    */
   public function applies(FieldDefinitionInterface $field_definition) {
-    // This class can handle diffs for image field types.
-    if ($field_definition->getType() == 'image') {
+    // Check if this class can handle diff for image fields.
+    if ($field_definition->getType() == 'file') {
       return TRUE;
     }
 
@@ -70,36 +70,45 @@ class ImageFieldDiffBuilder implements FieldDiffBuilderInterface {
       if (!$field_item->isEmpty()) {
         $values = $field_item->getValue();
 
-        // Compare file names.
+        // Add file name to the comparison.
         if (isset($values['target_id'])) {
-          $image = $fileManager->load($values['target_id']);
-          $result[$field_key][] = $this->t('Image: !image', array('!image' => $image->getFilename()));
+          $file = $fileManager->load($values['target_id']);
+          $result[$field_key][] = $this->t('File: !image', array('!image' => $file->getFilename()));;
         }
 
-        // Compare Alt fields.
-        if (isset($compare['compare_alt_field']) && $compare['compare_alt_field'] == 1) {
-          if (isset($values['alt'])) {
-            $result[$field_key][] = $this->t('Alt: !alt', array('!alt' => $values['alt']));
-          }
-        }
-
-        // Compare Title fields.
-        if (isset($compare['compare_title_field']) && $compare['compare_title_field'] == 1) {
-          if (isset($values['title'])) {
-            $result[$field_key][] = $this->t('Title: !title', array('!title' => $values['title']));
-          }
-        }
-
-        // Compare file id.
+        // Add file id to the comparison.
         if (isset($compare['show_id']) && $compare['show_id'] == 1) {
           if (isset($values['target_id'])) {
-            $result[$field_key][] = $this->t('File ID: !fid', array('!fid' => $values['target_id']));
+            $result[$field_key][] = $this->t('File ID: !fid', array('!fid' => $values['target_id']));;
           }
         }
 
-        $separator = $compare['property_separator'] == 'nl' ? "\n" : $compare['property_separator'];
-        $result[$field_key] = implode($separator, $result[$field_key]);
+        // Compare file description fields.
+        if (isset($compare['compare_description_field']) && $compare['compare_description_field'] == 1) {
+          if (isset($values['description'])) {
+            $result[$field_key][] = $this->t('Description: !description', array('!description' => $values['description']));;
+          }
+        }
+
+        // Compare Enable Display property.
+        if (isset($compare['compare_display_field']) && $compare['compare_display_field'] == 1) {
+          if (isset($values['display'])) {
+            if ($values['display'] == 1) {
+              $result[$field_key][] = $this->t('Displayed');
+            }
+            else {
+              $result[$field_key][] = $this->t('Hidden');
+            }
+          }
+        }
+
+        // Add the requested separator between resulted strings.
+        if (isset($compare['property_separator'])) {
+          $separator = $compare['property_separator'] == 'nl' ? "\n" : $compare['property_separator'];
+          $result[$field_key] = implode($separator, $result[$field_key]);
+        }
       }
+
     }
 
     return $result;
@@ -109,7 +118,7 @@ class ImageFieldDiffBuilder implements FieldDiffBuilderInterface {
    * {@inheritdoc}
    */
   public function getSettingsForm($field_type) {
-    return $this->formBuilder->getForm('Drupal\diff\Form\ImageFieldSettingsForm', $field_type);
+    return $this->formBuilder->getForm('Drupal\diff\Form\FileFieldSettingsForm', $field_type);
   }
 
 }

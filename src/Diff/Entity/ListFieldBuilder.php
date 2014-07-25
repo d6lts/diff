@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\diff\Diff\Entity\ListDiffBuilder.
+ * Contains \Drupal\diff\Diff\Entity\ListFieldBuilder.
  */
 
 namespace Drupal\diff\Diff\Entity;
@@ -14,7 +14,7 @@ use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 
 
-class ListDiffBuilder implements FieldDiffBuilderInterface {
+class ListFieldBuilder implements FieldDiffBuilderInterface {
   use StringTranslationTrait;
 
   /**

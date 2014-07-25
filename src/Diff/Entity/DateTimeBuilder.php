@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\diff\Diff\Entity\TaxonomyReferenceDiffBuilder.
+ * Contains \Drupal\diff\DateTimeBuilder.
  */
 
 namespace Drupal\diff\Diff\Entity;
@@ -15,7 +15,7 @@ use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 
 
-class TermReferenceDiffBuilder implements FieldDiffBuilderInterface {
+class DateTimeBuilder implements FieldDiffBuilderInterface {
   use StringTranslationTrait;
 
   /**
@@ -34,7 +34,7 @@ class TermReferenceDiffBuilder implements FieldDiffBuilderInterface {
 
 
   /**
-   * Constructs a TaxonomyReferenceDiffBuilder object.
+   * Constructs a ImageFieldBuilder object.
    *
    * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
    *   The entity manager.
@@ -50,7 +50,8 @@ class TermReferenceDiffBuilder implements FieldDiffBuilderInterface {
    * {@inheritdoc}
    */
   public function applies(FieldDefinitionInterface $field_definition) {
-    if ($field_definition->getType() == 'taxonomy_term_reference' ) {
+    // This class can handle diffs for image field types.
+    if ($field_definition->getType() == 'datetime') {
       return TRUE;
     }
 
@@ -62,29 +63,14 @@ class TermReferenceDiffBuilder implements FieldDiffBuilderInterface {
    */
   public function build(FieldItemListInterface $field_items, array $context) {
     $result = array();
-    $compare = $context['settings']['compare'];
-
     // Every item from $field_items is of type FieldItemInterface.
     foreach ($field_items as $field_key => $field_item) {
-      // Build the array for comparison only if the field is not empty.
       if (!$field_item->isEmpty()) {
         $values = $field_item->getValue();
-        if (isset($values['target_id'])) {
-          // Show term name.
-          if (isset($compare['show_name']) && $compare['show_name'] == 1) {
-            $controller = $this->entityManager->getStorage('taxonomy_term');
-            $taxonomy_term = $controller->load($values['target_id']);
-            if ($taxonomy_term != NULL) {
-              $result[$field_key][] = $this->t('Term name: ') . $taxonomy_term->getName();
-            }
-          }
-          // Show term ids.
-          if (isset($compare['show_id']) && $compare['show_id'] == 1) {
-            $result[$field_key][] = $this->t('Term id: ') . $values['target_id'];
-          }
+        // Compare datetime values.
+        if (isset($values['value'])) {
+          $result[$field_key][] = $values['value'];
         }
-
-        $result[$field_key] = implode('; ', $result[$field_key]);
       }
     }
 
@@ -95,7 +81,7 @@ class TermReferenceDiffBuilder implements FieldDiffBuilderInterface {
    * {@inheritdoc}
    */
   public function getSettingsForm($field_type) {
-    return $this->formBuilder->getForm('Drupal\diff\Form\TermReferenceSettingsForm', $field_type);
+    return $this->formBuilder->getForm('Drupal\diff\Form\DiffFieldBaseSettingsForm', $field_type);
   }
 
 }

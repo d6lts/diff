@@ -8,7 +8,7 @@
 namespace Drupal\diff\Tests;
 
 use Drupal\Tests\UnitTestCase;
-use Drupal\diff\Diff\Entity\TextFieldDiffBuilder;
+use Drupal\diff\Diff\Entity\TextFieldBuilder;
 
 /**
  * @ingroup diff
@@ -47,7 +47,7 @@ class TextFieldBuilderTest extends UnitTestCase {
       ->disableOriginalConstructor()
       ->getMock();
 
-    $builder = new TextFieldDiffBuilder($entity_manager, $form_manager);
+    $builder = new TextFieldBuilder($entity_manager, $form_manager);
 
     $this->assertEquals(TRUE, $builder->applies($field_definition));
   }

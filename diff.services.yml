@@ -12,42 +12,42 @@ services:
     class: Drupal\diff\Diff\DiffFormatter
     arguments: ['@config.factory']
   diff.text_field_builder:
-    class: Drupal\diff\Diff\Entity\TextFieldDiffBuilder
+    class: Drupal\diff\Diff\Entity\TextFieldBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.image_field_builder:
-    class: Drupal\diff\Diff\Entity\ImageFieldDiffBuilder
+    class: Drupal\diff\Diff\Entity\ImageFieldBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.term_reference_field_builder:
-    class: Drupal\diff\Diff\Entity\TermReferenceDiffBuilder
+    class: Drupal\diff\Diff\Entity\TermReferenceBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.core_field_builder:
-    class: Drupal\diff\Diff\Entity\CoreFieldDiffBuilder
+    class: Drupal\diff\Diff\Entity\CoreFieldBuilder
     arguments: ['@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.list_field_builder:
-    class: Drupal\diff\Diff\Entity\ListDiffBuilder
+    class: Drupal\diff\Diff\Entity\ListBuilder
     arguments: ['@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.file_field_builder:
-    class: Drupal\diff\Diff\Entity\FileFieldDiffBuilder
+    class: Drupal\diff\Diff\Entity\FileFieldBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.entity_reference_field_builder:
-    class: Drupal\diff\Diff\Entity\EntityReferenceDiffBuilder
+    class: Drupal\diff\Diff\Entity\EntityReferenceBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
   diff.datetime_field_builder:
-    class: Drupal\diff\Diff\Entity\DateTimeDiffBuilder
+    class: Drupal\diff\Diff\Entity\DateTimeBuilder
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }

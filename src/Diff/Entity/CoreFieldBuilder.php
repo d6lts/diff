@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\diff\Diff\Entity\CoreFieldDiffBuilder.
+ * Contains \Drupal\diff\Diff\Entity\CoreFieldBuilder.
  */
 
 namespace Drupal\diff\Diff\Entity;
@@ -14,7 +14,7 @@ use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 
 
-class CoreFieldDiffBuilder implements FieldDiffBuilderInterface {
+class CoreFieldBuilder implements FieldDiffBuilderInterface {
   use StringTranslationTrait;
 
   /**
@@ -26,7 +26,7 @@ class CoreFieldDiffBuilder implements FieldDiffBuilderInterface {
 
 
   /**
-   * Constructs a TextFieldDiffBuilder object.
+   * Constructs a TextFieldBuilder object.
 
    * @param FormBuilderInterface $form_builder
    *   Form builder service.
