@@ -17,7 +17,7 @@ interface ChainFieldDiffBuilderInterface extends FieldDiffBuilderInterface {
    * Adds another field diff builder.
    *
    * @param FieldDiffBuilderInterface $builder
-   *  The field diff builder to add.
+   *   The field diff builder to add.
    * @param $priority
    *   Priority of the field diff builder.
    */

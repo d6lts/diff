@@ -40,7 +40,12 @@ class ListFieldBuilder implements FieldDiffBuilderInterface {
    */
   public function applies(FieldDefinitionInterface $field_definition) {
     // List of the field types for which this class provides diff support.
-    $field_types = array('list_boolean', 'list_text', 'list_float', 'list_integer');
+    $field_types = array(
+      'list_boolean',
+      'list_text',
+      'list_float',
+      'list_integer'
+    );
     // Check if this class can handle diff for a certain field.
     if (in_array($field_definition->getType(), $field_types)) {
       return TRUE;
@@ -67,9 +72,11 @@ class ListFieldBuilder implements FieldDiffBuilderInterface {
             case 'both':
               $result[$field_key][] = $possible_options[$values['value']] . ' (' . $values['value'] . ')';
               break;
+
             case 'label':
               $result[$field_key][] = $possible_options[$values['value']];
               break;
+
             default:
               $result[$field_key][] = $values['value'];
               break;

@@ -50,7 +50,7 @@ class TermReferenceFieldBuilder implements FieldDiffBuilderInterface {
    * {@inheritdoc}
    */
   public function applies(FieldDefinitionInterface $field_definition) {
-    if ($field_definition->getType() == 'taxonomy_term_reference' ) {
+    if ($field_definition->getType() == 'taxonomy_term_reference') {
       return TRUE;
     }
 

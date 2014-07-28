@@ -61,7 +61,7 @@ class EntityComparisonBase extends ControllerBase {
   /**
    * Represents non breaking space HTML character entity marked as safe markup.
    */
-  protected $non_breaking_space;
+  protected $nonBreakingSpace;
 
   /**
    * Constructs an EntityComparisonBase object.
@@ -81,7 +81,7 @@ class EntityComparisonBase extends ControllerBase {
     $this->date = $date;
     $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
     $this->config = $this->config('diff.settings');
-    $this->non_breaking_space = SafeMarkup::set('&nbsp');
+    $this->nonBreakingSpace = SafeMarkup::set('&nbsp');
   }
 
   /**
@@ -97,15 +97,18 @@ class EntityComparisonBase extends ControllerBase {
   }
 
   /**
+   * Transforms an entity into an array of strings.
+   *
    * Parses an entity's fields and for every field it builds an array of string
    * to be compared. Basically this function transforms an entity into an array
    * of strings.
    *
    * @param RevisionableInterface $entity
    *   An entity containing fields.
+   *
    * @return array
    *   Array of strings resulted by parsing the entity.
-   *   @todo Insert here some code as example here.
+   * @todo Insert here some code as example here.
    */
   private function parseEntity(RevisionableInterface $entity) {
     $result = array();
@@ -165,7 +168,8 @@ class EntityComparisonBase extends ControllerBase {
    * @param RevisionableInterface $right_entity
    *   The right entity
    *
-   * @return array Items ready to be compared by the Diff component.
+   * @return array
+   *   Items ready to be compared by the Diff component.
    */
   public function compareRevisions(RevisionableInterface $left_entity, RevisionableInterface $right_entity) {
     $result = array();
@@ -223,8 +227,8 @@ class EntityComparisonBase extends ControllerBase {
       $field_settings = $result[$key]['#settings'];
 
       if (!empty($field_settings['markdown'])) {
-        $result[$key]['#states']['raw_plain']['#left'] = $this->apply_markdown($field_settings['markdown'], $result[$key]['#states']['raw']['#left']);
-        $result[$key]['#states']['raw_plain']['#right'] = $this->apply_markdown($field_settings['markdown'], $result[$key]['#states']['raw']['#right']);
+        $result[$key]['#states']['raw_plain']['#left'] = $this->applyMarkdown($field_settings['markdown'], $result[$key]['#states']['raw']['#left']);
+        $result[$key]['#states']['raw_plain']['#right'] = $this->applyMarkdown($field_settings['markdown'], $result[$key]['#states']['raw']['#right']);
       }
     }
 
@@ -242,6 +246,7 @@ class EntityComparisonBase extends ControllerBase {
    *   Entity field formatted into an array of strings.
    * @param $right_values
    *   Entity field formatted into an array of strings.
+   *
    * @return array
    *   Array resulted after combining the left and right values.
    */
@@ -311,8 +316,7 @@ class EntityComparisonBase extends ControllerBase {
   }
 
   /**
-   * Processes all the states by splitting strings into lines and counting
-   * the resulted number of lines.
+   * Splits the strings into lines and counts the resulted number of lines.
    *
    * @param $diff
    *   Array of strings.
@@ -348,10 +352,11 @@ class EntityComparisonBase extends ControllerBase {
    *   One of drupal_html_to_text, filter_xss, filter_xss_all.
    * @param $items
    *   String to be processed.
+   * 
    * @return array|string
    *   Result after markdown was applied on $items.
    */
-  function apply_markdown($markdown, $items) {
+  protected function applyMarkdown($markdown, $items) {
     if (!$markdown) {
       return $items;
     }
@@ -370,4 +375,4 @@ class EntityComparisonBase extends ControllerBase {
     }
   }
 
-} 
+}

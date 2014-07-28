@@ -27,7 +27,7 @@ class CoreFieldBuilder implements FieldDiffBuilderInterface {
 
   /**
    * Constructs a TextFieldBuilder object.
-
+   *
    * @param FormBuilderInterface $form_builder
    *   Form builder service.
    */

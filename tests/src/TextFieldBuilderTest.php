@@ -28,8 +28,7 @@ class TextFieldBuilderTest extends UnitTestCase {
   }
 
   /**
-   * Tests if TextFieldsDiffBuilder applies to a field type
-   * provided by the core text module.
+   * Tests if TextFieldsDiffBuilder applies to a field of type text_with_summary.
    */
   public function testApplicableFieldType() {
     $field_definition = $this->getMockBuilder('\Drupal\Core\Field\FieldDefinitionInterface')

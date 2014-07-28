@@ -19,6 +19,8 @@ interface FieldDiffBuilderInterface {
    * Whether this field builder should be used to build the field diff.
    *
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   A definition of an entity field.
+   *
    * @return bool
    *   TRUE if this builder should be used or FALSE to let other builders
    *   decide.
@@ -46,6 +48,8 @@ interface FieldDiffBuilderInterface {
   public function build(FieldItemListInterface $field_items, array $context);
 
   /**
+   * Return a settings form for a field type.
+   *
    * @param $field_type
    *   Field type for which to build the settings form.
    *

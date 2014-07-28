@@ -49,7 +49,11 @@ class AdminController extends ControllerBase {
       '#markup' => '<p>' . $this->t('This table provides a summary of the field type support found on the system. It is recommended that you use global settings whenever possible to configure field comparison settings.') . '</p>',
     );
 
-    $header = array($this->t('Type'), $this->t('Provider'), $this->t('Operations'));
+    $header = array(
+      $this->t('Type'),
+      $this->t('Provider'),
+      $this->t('Operations')
+    );
     $rows = array();
     // Load all field types which have UI.
     $field_types = $this->fieldTypePluginManager->getDefinitions();

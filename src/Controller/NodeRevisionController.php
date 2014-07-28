@@ -24,8 +24,11 @@ class NodeRevisionController extends EntityComparisonBase {
    * @todo This might be changed to a view when the issue at this link is
    *   resolved: https://drupal.org/node/1863906
    *
-   * @param NodeInterface $node The node whose revisions are inspected.
-   * @return array Render array containing the revisions table for $node.
+   * @param NodeInterface $node
+   *   The node whose revisions are inspected.
+   *
+   * @return array
+   *   Render array containing the revisions table for $node.
    */
   public function revisionOverview(NodeInterface $node) {
     return $this->formBuilder()->getForm('Drupal\diff\Form\RevisionOverviewForm', $node);
@@ -53,7 +56,7 @@ class NodeRevisionController extends EntityComparisonBase {
     if (!in_array($filter, array('raw', 'raw-plain'))) {
       $filter = 'raw';
     }
-    else if ($filter == 'raw-plain') {
+    elseif ($filter == 'raw-plain') {
       $filter = 'raw_plain';
     }
     // Node storage service.
@@ -85,7 +88,7 @@ class NodeRevisionController extends EntityComparisonBase {
 
         // @todo This must be removed. It is just a temporary solution for
         //   displaying the diff data. This needs to be solved from diff formatter.
-        foreach($field_diff_rows as &$field_diff_row) {
+        foreach ($field_diff_rows as &$field_diff_row) {
           foreach ($field_diff_row as &$field_diff_column) {
             if (is_array($field_diff_column)) {
               $field_diff_column['data'] = SafeMarkup::set($field_diff_column['data']);
@@ -139,16 +142,20 @@ class NodeRevisionController extends EntityComparisonBase {
   /**
    * Build the header for the diff table.
    *
-   * @param $left_revision Revision from the left hand side.
-   * @param $right_revision Revision from the right hand side.
-   * @return array Header for Diff table
+   * @param $left_revision
+   *   Revision from the left hand side.
+   * @param $right_revision
+   *   Revision from the right hand side.
+   *
+   * @return array
+   *   Header for Diff table.
    */
   protected function buildTableHeader($left_revision, $right_revision) {
     $revisions = array($left_revision, $right_revision);
     $header = array();
 
     foreach ($revisions as $revision) {
-      $revision_log = $this->non_breaking_space;
+      $revision_log = $this->nonBreakingSpace;
 
       if ($revision->revision_log->value != '') {
         $revision_log = Xss::filter($revision->revision_log->value);
@@ -172,7 +179,7 @@ class NodeRevisionController extends EntityComparisonBase {
 //        'colspan' => 1,
 //      );
       $header[] = array(
-        'data' => $this->non_breaking_space,
+        'data' => $this->nonBreakingSpace,
         'colspan' => 1,
       );
       $header[] = array(
@@ -193,7 +200,7 @@ class NodeRevisionController extends EntityComparisonBase {
 
     $row = array();
     // First column.
-    $row[] = $this->non_breaking_space;
+    $row[] = $this->nonBreakingSpace;
     // Find the previous revision.
     while ($left_vid > $vids[$i]) {
       $i += 1;
@@ -202,23 +209,23 @@ class NodeRevisionController extends EntityComparisonBase {
       // Second column.
       $row[] = array(
         'data' => $this->l(
-            $this->t('< Previous difference'),
-            'diff.revisions_diff',
-            array(
-              'node' => $nid,
-              'left_vid' => $vids[$i - 1],
-              'right_vid' => $left_vid
-            )
-          ),
+          $this->t('< Previous difference'),
+          'diff.revisions_diff',
+          array(
+            'node' => $nid,
+            'left_vid' => $vids[$i - 1],
+            'right_vid' => $left_vid
+          )
+        ),
         'colspan' => 1,
       );
     }
     else {
       // Second column.
-      $row[] = $this->non_breaking_space;
+      $row[] = $this->nonBreakingSpace;
     }
     // Third column.
-    $row[] = $this->non_breaking_space;
+    $row[] = $this->nonBreakingSpace;
     // Find the next revision.
     $i = 0;
     while ($i < $revisions_count && $right_vid >= $vids[$i]) {
@@ -228,20 +235,20 @@ class NodeRevisionController extends EntityComparisonBase {
       // Forth column.
       $row[] = array(
         'data' => $this->l(
-            $this->t('Next difference >'),
-            'diff.revisions_diff',
-            array(
-              'node' => $nid,
-              'left_vid' => $right_vid,
-              'right_vid' => $vids[$i],
-            )
-          ),
+          $this->t('Next difference >'),
+          'diff.revisions_diff',
+          array(
+            'node' => $nid,
+            'left_vid' => $right_vid,
+            'right_vid' => $vids[$i],
+          )
+        ),
         'colspan' => 1,
       );
     }
     else {
-      // Forth column
-      $row[] = $this->non_breaking_space;
+      // Forth column.
+      $row[] = $this->nonBreakingSpace;
     }
 
     // If there are only 2 revision return an empty row.
@@ -283,7 +290,7 @@ class NodeRevisionController extends EntityComparisonBase {
     unset($links[$active_filter]);
     array_unshift($links, $filter);
 
-    $row[] = $this->non_breaking_space;
+    $row[] = $this->nonBreakingSpace;
     $row[] = array(
       'data' => array(
         '#type' => 'operations',

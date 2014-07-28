@@ -27,7 +27,7 @@ class GeneralSettingsForm extends ConfigFormBase {
     $form['theme'] = array(
       '#type' => 'select',
       '#title' => $this->t('CSS options'),
-      '#default_value' => $config->get('general_settings' . '.' . 'theme'),
+      '#default_value' => $config->get('general_settings.theme'),
       '#options' => array(
         'default' => $this->t('Classic'),
         'boxes' => $this->t('Boxes'),
@@ -73,7 +73,12 @@ class GeneralSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, array &$form_state) {
     $config = $this->config('diff.settings');
 
-    $keys = array('theme', 'radio_behavior', 'context_lines_leading', 'context_lines_trailing');
+    $keys = array(
+      'theme',
+      'radio_behavior',
+      'context_lines_leading',
+      'context_lines_trailing'
+    );
     foreach ($keys as $key) {
       $config->set('general_settings.' . $key, $form_state['values'][$key]);
     }

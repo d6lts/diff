@@ -64,13 +64,13 @@ class NodeEntitySettingsForm extends ConfigFormBase {
     $node_base_fields = $this->entityManager->getBaseFieldDefinitions('node');
     foreach ($node_base_fields as $field_key => $field) {
       $form[$field_key] = array(
-        '#title' =>  $this->t('@field_label (%field_type)', array(
+        '#title' => $this->t('@field_label (%field_type)', array(
           '@field_label' => $field->getLabel(),
           '%field_type' => $field->getType(),
           )
         ),
         '#type' => 'checkbox',
-        '#default_value' => $config->get('entity.node' . '.' . $field_key),
+        '#default_value' => $config->get('entity.node.' . $field_key),
       );
     }
 
@@ -94,4 +94,3 @@ class NodeEntitySettingsForm extends ConfigFormBase {
   }
 
 }
-

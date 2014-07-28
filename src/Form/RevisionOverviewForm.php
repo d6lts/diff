@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains the revision overview form.
+ */
+
 namespace Drupal\diff\Form;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -239,7 +244,7 @@ class RevisionOverviewForm extends FormBase {
       '#attached' => array(
         'js' => array(
           drupal_get_path('module', 'diff') . '/js/diff.js',
-          array (
+          array(
             'data' => array('diffRevisionRadios' => $this->config->get('general_settings.radio_behavior')),
             'type' => 'setting',
           ),

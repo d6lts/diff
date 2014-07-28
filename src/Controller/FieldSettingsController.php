@@ -9,7 +9,6 @@ namespace Drupal\diff\Controller;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\diff\Diff\FieldDiffManager;
 
 class FieldSettingsController implements ContainerInjectionInterface {
@@ -23,8 +22,8 @@ class FieldSettingsController implements ContainerInjectionInterface {
 
 
   /**
-   * Constructs a new FieldSettingsController
-
+   * Constructs a new FieldSettingsController.
+   *
    * @param FieldDiffManager $field_diff_manager
    *   Field diff manager negotiated service.
    */
@@ -46,6 +45,7 @@ class FieldSettingsController implements ContainerInjectionInterface {
    *
    * @param $field_type
    *   Field type for which to return a settings form.
+   *
    * @return array
    *   Settings form for field type in the argument list.
    */

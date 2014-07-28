@@ -63,7 +63,12 @@ class ImageFieldSettingsForm extends DiffFieldBaseSettingsForm {
     $config = $this->config('diff.settings');
     $field_type = $form_state['values']['field_type'];
 
-    $keys = array('show_id', 'compare_alt_field', 'compare_title_field', 'property_separator');
+    $keys = array(
+      'show_id',
+      'compare_alt_field',
+      'compare_title_field',
+      'property_separator'
+    );
     foreach ($keys as $key) {
       $config->set('field_types.' . $field_type . '.' . $key, $form_state['values'][$key]);
     }

@@ -76,7 +76,7 @@ class TextFieldBuilder implements FieldDiffBuilderInterface {
           $format = $controller->load($values['format']);
           // The format loaded successfully.
           $label = $this->t('Format');
-          if ($format != null) {
+          if ($format != NULL) {
             $result[$field_key][] = $label . ": " . $format->name;
           }
           else {
