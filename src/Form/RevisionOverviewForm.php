@@ -22,7 +22,6 @@ use Drupal\Component\Utility\SafeMarkup;
  * Provides a form for revision overview page.
  */
 class RevisionOverviewForm extends FormBase {
-  use LinkGeneratorTrait;
 
   /**
    * The entity manager.

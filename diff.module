@@ -8,25 +8,26 @@
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function diff_form_node_type_edit_form_alter(&$form, $form_state) {
-  // @todo Currently there is no possibility  saving this settings somewhere
-  //   This issue: https://www.drupal.org/node/1728788 addresses this problem.
-  if (isset($form['type'])) {
-//    $config = \Drupal::configFactory()->get('diff.settings');
-    $type = $form['type']['#default_value'];
+  // @todo Follow this issue: https://www.drupal.org/node/1728788.
+  $type = $form_state['controller']->getEntity();
+  if ($type->id()) {
+    $config = \Drupal::configFactory()->get('diff.settings');
     $form['diff'] = array(
       '#title' => t('Compare revisions'),
       '#type' => 'details',
       '#group' => 'additional_settings',
       '#tree' => FALSE,
     );
-    $form['diff']['diff_show_preview_changes_node'] = array(
+    $form['diff']['show_preview_changes'] = array(
       '#type' => 'checkbox',
       '#title' => t('Show <em>View changes</em> button on node edit form'),
+      '#default_value' => $config->get('content_type_settings.' . $type->id() . '.show_preview_changes'),
       '#weight' => 10,
     );
-    $form['diff']['diff_enable_revisions_page_node'] = array(
+    $form['diff']['enable_revisions_page'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable the <em>Revisions</em> page for this content type'),
+      '#default_value' => $config->get('content_type_settings.' . $type->id() . '.enable_revisions_page'),
       '#weight' => 11,
     );
 
@@ -36,14 +37,31 @@ function diff_form_node_type_edit_form_alter(&$form, $form_state) {
     foreach ($node_view_modes as $view_mode => $view_mode_info) {
       $options[$view_mode] = $view_mode_info['label'];
     }
-    $form['diff']['diff_view_mode_preview_node'] = array(
+    $form['diff']['view_mode_preview'] = array(
       '#type' => 'select',
       '#title' => t('Standard comparison preview'),
       '#description' => t('Governs the <em>Current revision</em> view mode when doing standard comparisons.'),
       '#options' => $options,
       '#weight' => 13,
+      '#default_value' => $config->get('content_type_settings.' . $type->id() . '.view_mode_preview'),
       '#empty_value' => '',
       '#empty_option' => t('- Do not display -'),
     );
+
+    $form['actions']['submit']['#submit'][] = 'diff_form_node_type_form_submit';
   }
+}
+
+/**
+ * Submit handler for forms with menu options.
+ *
+ * @see diff_form_node_type_edit_form_alter().
+ */
+function diff_form_node_type_form_submit(&$form, $form_state) {
+  $type = $form_state['controller']->getEntity();
+  \Drupal::config('diff.settings')
+    ->set('content_type_settings.' . $type->id() . '.show_preview_changes', $form_state['values']['show_preview_changes'])
+    ->set('content_type_settings.' . $type->id() . '.enable_revisions_page', $form_state['values']['enable_revisions_page'])
+    ->set('content_type_settings.' . $type->id() . '.view_mode_preview', $form_state['values']['view_mode_preview'])
+    ->save();
 }

@@ -127,8 +127,9 @@ class EntityComparisonBase extends ControllerBase {
       );
       // If this field is not a base field for this entity it means it has UI
       // (can be created form back-office). The visibility settings for this
-      // field are taken from content type view modes (not implemented yet).
+      // field are taken from content type view modes.
       if (!array_key_exists($field_items->getName(), $entity_base_fields)) {
+//        $this->config('content_type_settings.' . $type->id() . '.view_mode_preview');
         // For every field of the entity we call build method on the negotiated
         // service FieldDiffManager and this service will search for the service
         // that applies to this type of field and call the method on that service.
