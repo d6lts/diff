@@ -8,7 +8,6 @@
 namespace Drupal\diff\Form;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Component\Utility\Xss;
@@ -16,7 +15,6 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Datetime\Date;
 use Drupal\Component\Utility\String;
 use Drupal\Core\Routing\LinkGeneratorTrait;
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
@@ -62,14 +60,12 @@ class RevisionOverviewForm extends FormBase {
    *   The current user.
    * @param \Drupal\Core\Datetime\Date $date
    *   The date service.
-   * @param ConfigFactoryInterface $config_factory
-   *   Config Factory service
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, Date $date, ConfigFactoryInterface $config_factory) {
+  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, Date $date) {
     $this->entityManager = $entityManager;
     $this->currentUser = $currentUser;
     $this->date = $date;
-    $this->config = $config_factory->get('diff.settings');
+    $this->config = $this->config('diff.settings');
   }
 
   /**
@@ -79,8 +75,7 @@ class RevisionOverviewForm extends FormBase {
     return new static(
       $container->get('entity.manager'),
       $container->get('current_user'),
-      $container->get('date'),
-      $container->get('config.factory')
+      $container->get('date')
     );
   }
 
@@ -99,149 +94,34 @@ class RevisionOverviewForm extends FormBase {
     $node_storage = $this->entityManager->getStorage('node');
     $type = $node->getType();
 
-    $build = array();
-    $build['#title'] = $this->t('Revisions for %title', array('%title' => $node->label()));
-    $build['nid'] = array(
-      '#type' => 'hidden',
-      '#value' => $node->nid->value,
+    $build = array(
+      '#title' => $this->t('Revisions for %title', array('%title' => $node->label())),
+      'nid' => array(
+        '#type' => 'hidden',
+        '#value' => $node->nid->value,
+      ),
     );
 
-    $header = array($this->t('Revision'), '', '', $this->t('Operations'));
-
-    $revert_permission = ((
-        $account->hasPermission("revert $type revisions") ||
-        $account->hasPermission('revert all revisions') ||
-        $account->hasPermission('administer nodes')) &&
-      $node->access('update')
-    );
-    $delete_permission = ((
-        $account->hasPermission("delete $type revisions") ||
-        $account->hasPermission('delete all revisions') ||
-        $account->hasPermission('administer nodes')) &&
-      $node->access('delete')
+    $table_header = array(
+      'revision' => $this->t('Revision'),
+      'select_column_one' => '',
+      'select_column_two' => '',
+      'operations' => $this->t('Operations'),
     );
 
-    $rows = array();
+    $rev_revert_perm = $account->hasPermission("revert $type revisions") ||
+      $account->hasPermission('revert all revisions') ||
+      $account->hasPermission('administer nodes');
+    $rev_delete_perm = $account->hasPermission("delete $type revisions") ||
+      $account->hasPermission('delete all revisions') ||
+      $account->hasPermission('administer nodes');
+    $revert_permission = $rev_revert_perm && $node->access('update');
+    $delete_permission = $rev_delete_perm && $node->access('delete');
 
-    $vids = array_reverse($node_storage->revisionIds($node));
-    // @todo We should take care of pagination in the future.
-    foreach ($vids as $vid) {
-      if ($revision = $node_storage->loadRevision($vid)) {
-        $row = array();
-
-        $revision_log = '';
-
-        if ($revision->revision_log->value != '') {
-          $revision_log = '<p class="revision-log">' . Xss::filter($revision->revision_log->value) . '</p>';
-        }
-        $username = array(
-          '#theme' => 'username',
-          '#account' => $revision->uid->entity,
-        );
-        $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
-
-        // Current revision.
-        if ($revision->isDefaultRevision()) {
-          // @todo When solved in core check to see if there's a better solution
-          //   to avoid double escaping.
-          $row[] = array(
-            'data' => SafeMarkup::set($this->t('!date by !username', array(
-                '!date' => $this->l($revision_date, 'node.view', array('node' => $node->id())),
-                '!username' => drupal_render($username),
-              )) . $revision_log),
-            'class' => array('revision-current'),
-          );
-          // @todo If #value key is not provided a notice of undefined key appears.
-          //   I've created issue https://drupal.org/node/2275837 for this bug.
-          //   When resolved refactor this.
-          $row[] = array(
-            'data' => array(
-              '#type' => 'radio',
-              '#title_display' => 'invisible',
-              '#name' => 'radios_left',
-              '#return_value' => $vid,
-              '#default_value' => FALSE,
-            ),
-          );
-          $row[] = array(
-            'data' => array(
-              '#type' => 'radio',
-              '#title_display' => 'invisible',
-              '#name' => 'radios_right',
-              '#default_value' => $vid,
-              '#return_value' => $vid,
-            ),
-          );
-          $row[] = array(
-            'data' => String::placeholder($this->t('current revision')),
-            'class' => array('revision-current')
-          );
-        }
-        else {
-          $row[] = SafeMarkup::set($this->t('!date by !username', array(
-              '!date' => $this->l($revision_date, 'node.revision_show', array(
-                  'node' => $node->id(),
-                  'node_revision' => $vid
-                )),
-              '!username' => drupal_render($username)
-            )) . $revision_log);
-
-          if ($revert_permission) {
-            $links['revert'] = array(
-              'title' => $this->t('Revert'),
-              'route_name' => 'node.revision_revert_confirm',
-              'route_parameters' => array(
-                'node' => $node->id(),
-                'node_revision' => $vid
-              ),
-            );
-          }
-
-          if ($delete_permission) {
-            $links['delete'] = array(
-              'title' => $this->t('Delete'),
-              'route_name' => 'node.revision_delete_confirm',
-              'route_parameters' => array(
-                'node' => $node->id(),
-                'node_revision' => $vid
-              ),
-            );
-          }
-
-          $row[] = array(
-            'data' => array(
-              '#type' => 'radio',
-              '#title_display' => 'invisible',
-              '#name' => 'radios_left',
-              '#return_value' => $vid,
-              '#default_value' => isset ($vids[1]) ? $vids[1] : FALSE,
-            ),
-          );
-          $row[] = array(
-            'data' => array(
-              '#type' => 'radio',
-              '#title_display' => 'invisible',
-              '#name' => 'radios_right',
-              '#return_value' => $vid,
-              '#default_value' => FALSE,
-            ),
-          );
-          $row[] = array(
-            'data' => array(
-              '#type' => 'operations',
-              '#links' => $links,
-            ),
-          );
-        }
-
-        $rows[] = $row;
-      }
-    }
-
+    // Contains the table listing the revisions.
     $build['node_revisions_table'] = array(
-      '#theme' => 'table',
-      '#rows' => $rows,
-      '#header' => $header,
+      '#type' => 'table',
+      '#header' => $table_header,
       '#attributes' => array('class' => array('diff-revisions')),
       '#attached' => array(
         'js' => array(
@@ -256,6 +136,121 @@ class RevisionOverviewForm extends FormBase {
         ),
       ),
     );
+
+    $vids = array_reverse($node_storage->revisionIds($node));
+    // @todo We should take care of pagination in the future.
+    // Add rows to the table.
+    foreach ($vids as $vid) {
+      if ($revision = $node_storage->loadRevision($vid)) {
+        // Markup for revision log.
+        if ($revision->revision_log->value != '') {
+          $revision_log = '<p class="revision-log">' . Xss::filter($revision->revision_log->value) . '</p>';
+        }
+        else {
+          $revision_log = '';
+        }
+        // Username to be rendered.
+        $username = array(
+          '#theme' => 'username',
+          '#account' => $revision->uid->entity,
+        );
+        $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
+
+        // Default revision.
+        if ($revision->isDefaultRevision()) {
+          $date_username_markup = $this->t('!date by !username', array(
+            '!date' => $this->l($revision_date, 'node.view', array('node' => $node->id())),
+            '!username' => drupal_render($username),
+            )
+          );
+
+          $row = array(
+            'revision' => array(
+              '#markup' => $date_username_markup . $revision_log,
+            ),
+            'select_column_one' => array(
+              '#type' => 'radio',
+              '#title_display' => 'invisible',
+              '#name' => 'radios_left',
+              '#return_value' => $vid,
+              '#default_value' => FALSE,
+            ),
+            'select_column_two' => array(
+              '#type' => 'radio',
+              '#title_display' => 'invisible',
+              '#name' => 'radios_right',
+              '#default_value' => $vid,
+              '#return_value' => $vid,
+            ),
+            'operations' => array(
+              '#markup' => String::placeholder($this->t('current revision')),
+            ),
+            '#attributes' => array(
+              'class' => array('revision-current'),
+            ),
+          );
+        }
+        else {
+          // Add links based on permissions.
+          if ($revert_permission) {
+            $links['revert'] = array(
+              'title' => $this->t('Revert'),
+              'route_name' => 'node.revision_revert_confirm',
+              'route_parameters' => array(
+                'node' => $node->id(),
+                'node_revision' => $vid
+              ),
+            );
+          }
+          if ($delete_permission) {
+            $links['delete'] = array(
+              'title' => $this->t('Delete'),
+              'route_name' => 'node.revision_delete_confirm',
+              'route_parameters' => array(
+                'node' => $node->id(),
+                'node_revision' => $vid
+              ),
+            );
+          }
+
+          $date_username_markup = $this->t('!date by !username', array(
+            '!date' => $this->l($revision_date, 'node.revision_show', array(
+                  'node' => $node->id(),
+                  'node_revision' => $vid,
+                )
+              ),
+            '!username' => drupal_render($username),
+            )
+          );
+
+          $row = array(
+            'revision' => array(
+              '#markup' => $date_username_markup . $revision_log,
+            ),
+            'select_column_one' => array(
+              '#type' => 'radio',
+              '#title_display' => 'invisible',
+              '#name' => 'radios_left',
+              '#return_value' => $vid,
+              '#default_value' => isset ($vids[1]) ? $vids[1] : FALSE,
+            ),
+            'select_column_two' => array(
+              '#type' => 'radio',
+              '#title_display' => 'invisible',
+              '#name' => 'radios_right',
+              '#return_value' => $vid,
+              '#default_value' => FALSE,
+            ),
+            'operations' => array(
+              '#type' => 'operations',
+              '#links' => $links,
+            ),
+          );
+        }
+        // Add the row to the table.
+        $build['node_revisions_table'][] = $row;
+      }
+    }
 
     $build['submit'] = array(
       '#type' => 'submit',
@@ -277,8 +272,8 @@ class RevisionOverviewForm extends FormBase {
     $vid_left = $form_state['input']['radios_left'];
     $vid_right = $form_state['input']['radios_right'];
     if ($vid_left == $vid_right || !$vid_left || !$vid_right) {
-      // @todo See why radio-boxes reset if there are errors.
-      $form_state->setError($form['node_revision_table'], $this->t('Select different revisions to compare.'));
+      // @todo See why radio-boxes selection resets if there are errors.
+      $form_state->setError($form['node_revisions_table'], $this->t('Select different revisions to compare.'));
     }
   }
 
