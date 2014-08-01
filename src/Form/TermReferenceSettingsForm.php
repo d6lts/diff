@@ -7,6 +7,9 @@
 
 namespace Drupal\diff\Form;
 
+use Drupal\Core\Form\FormStateInterface;
+
+
 class TermReferenceSettingsForm extends DiffFieldBaseSettingsForm {
 
   /**
@@ -19,7 +22,7 @@ class TermReferenceSettingsForm extends DiffFieldBaseSettingsForm {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, array &$form_state, $field_type = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $field_type = NULL) {
     $config = $this->config('diff.settings');
 
     $form['show_name'] = array(
@@ -39,7 +42,7 @@ class TermReferenceSettingsForm extends DiffFieldBaseSettingsForm {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, array &$form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('diff.settings');
     $field_type = $form_state['values']['field_type'];
 

@@ -17,6 +17,9 @@ use Drupal\Core\Datetime\Date;
 use Drupal\Component\Utility\String;
 use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+
 
 /**
  * Provides a form for revision overview page.
@@ -91,7 +94,7 @@ class RevisionOverviewForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, array &$form_state, $node = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $node = NULL) {
     $account = $this->currentUser;
     $node_storage = $this->entityManager->getStorage('node');
     $type = $node->getType();
@@ -270,34 +273,41 @@ class RevisionOverviewForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, array &$form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state) {
     $vid_left = $form_state['input']['radios_left'];
     $vid_right = $form_state['input']['radios_right'];
     if ($vid_left == $vid_right || !$vid_left || !$vid_right) {
       // @todo See why radio-boxes reset if there are errors.
-      // @todo Follow the task 'Convert $form_state to an object and provide
-      //   methods like setError()' (2225353).
-      $this->setFormError('node_revisions_table', $form_state, $this->t('Select different revisions to compare.'));
+      $form_state->setError($form['node_revision_table'], $this->t('Select different revisions to compare.'));
     }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, array &$form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $vid_left = $form_state['input']['radios_left'];
     $vid_right = $form_state['input']['radios_right'];
     $nid = $form_state['input']['nid'];
 
     // Always place the older revision on the left side of the comparison
-    // and the newer revision on the right side.
+    // and the newer revision on the right side (however revisions can be
+    // compared both ways if we manually change the order of the parameters).
     if ($vid_left > $vid_right) {
       $aux = $vid_left;
       $vid_left = $vid_right;
       $vid_right = $aux;
     }
-
-    $form_state['redirect'] = 'node/' . $nid . '/revisions/view/' . $vid_left . '/' . $vid_right;
+    // Builds the redirect Url.
+    $redirect_url = new Url(
+      'diff.revisions_diff',
+      array(
+        'node' => $nid,
+        'left_vid' => $vid_left,
+        'right_vid' => $vid_right,
+      )
+    );
+    $form_state->setRedirect($redirect_url);
   }
 
 }

@@ -8,6 +8,7 @@
 namespace Drupal\diff\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
 
 class GeneralSettingsForm extends ConfigFormBase {
 
@@ -21,7 +22,7 @@ class GeneralSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, array &$form_state, $field_type = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $field_type = NULL) {
     $config = $this->config('diff.settings');
 
     $form['theme'] = array(
@@ -70,7 +71,7 @@ class GeneralSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, array &$form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('diff.settings');
 
     $keys = array(

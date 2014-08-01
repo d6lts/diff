@@ -10,6 +10,7 @@ namespace Drupal\diff\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 
 /**
@@ -53,7 +54,7 @@ class NodeEntitySettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, array &$form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $form = array();
     $config = $this->config('diff.settings');
 
@@ -81,7 +82,7 @@ class NodeEntitySettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, array &$form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('diff.settings');
 
     $node_base_fields = $this->entityManager->getBaseFieldDefinitions('node');
