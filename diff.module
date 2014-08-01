@@ -12,18 +12,21 @@ function diff_form_node_type_edit_form_alter(&$form, $form_state) {
   $type = $form_state['controller']->getEntity();
   if ($type->id()) {
     $config = \Drupal::configFactory()->get('diff.settings');
+
     $form['diff'] = array(
       '#title' => t('Compare revisions'),
       '#type' => 'details',
       '#group' => 'additional_settings',
       '#tree' => FALSE,
     );
+
     $form['diff']['show_preview_changes'] = array(
       '#type' => 'checkbox',
       '#title' => t('Show <em>View changes</em> button on node edit form'),
       '#default_value' => $config->get('content_type_settings.' . $type->id() . '.show_preview_changes'),
       '#weight' => 10,
     );
+
     $form['diff']['enable_revisions_page'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable the <em>Revisions</em> page for this content type'),
@@ -37,13 +40,14 @@ function diff_form_node_type_edit_form_alter(&$form, $form_state) {
     foreach ($node_view_modes as $view_mode => $view_mode_info) {
       $options[$view_mode] = $view_mode_info['label'];
     }
-    $form['diff']['view_mode_preview'] = array(
+
+    $form['diff']['view_mode'] = array(
       '#type' => 'select',
       '#title' => t('Standard comparison preview'),
-      '#description' => t('Governs the <em>Current revision</em> view mode when doing standard comparisons.'),
+      '#description' => t('Governs the <em>Current revision</em> view mode when doing comparisons.'),
       '#options' => $options,
       '#weight' => 13,
-      '#default_value' => $config->get('content_type_settings.' . $type->id() . '.view_mode_preview'),
+      '#default_value' => $config->get('content_type_settings.' . $type->id() . '.view_mode'),
       '#empty_value' => '',
       '#empty_option' => t('- Do not display -'),
     );
@@ -62,6 +66,6 @@ function diff_form_node_type_form_submit(&$form, $form_state) {
   \Drupal::config('diff.settings')
     ->set('content_type_settings.' . $type->id() . '.show_preview_changes', $form_state['values']['show_preview_changes'])
     ->set('content_type_settings.' . $type->id() . '.enable_revisions_page', $form_state['values']['enable_revisions_page'])
-    ->set('content_type_settings.' . $type->id() . '.view_mode_preview', $form_state['values']['view_mode_preview'])
+    ->set('content_type_settings.' . $type->id() . '.view_mode', $form_state['values']['view_mode'])
     ->save();
 }

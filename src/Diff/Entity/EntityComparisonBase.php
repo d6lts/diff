@@ -9,7 +9,7 @@ namespace Drupal\diff\Diff\Entity;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
-use Drupal\Core\Entity\RevisionableInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\diff\Diff\FieldDiffManager;
 use Drupal\Core\Render\Element;
@@ -18,6 +18,7 @@ use Drupal\Component\Diff\Diff;
 use Drupal\Core\Datetime\Date;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\SafeMarkup;
+use Drupal\node\NodeInterface;
 
 
 /**
@@ -103,14 +104,14 @@ class EntityComparisonBase extends ControllerBase {
    * to be compared. Basically this function transforms an entity into an array
    * of strings.
    *
-   * @param RevisionableInterface $entity
+   * @param ContentEntityInterface $entity
    *   An entity containing fields.
    *
    * @return array
    *   Array of strings resulted by parsing the entity.
    * @todo Insert here some code as example here.
    */
-  private function parseEntity(RevisionableInterface $entity) {
+  private function parseEntity(ContentEntityInterface $entity) {
     $result = array();
     $entity_type_id = $entity->getEntityTypeId();
     // Load all entity base fields.
@@ -125,11 +126,9 @@ class EntityComparisonBase extends ControllerBase {
           'compare' => $this->config->get('field_types.' . $field_type),
         ),
       );
-      // If this field is not a base field for this entity it means it has UI
-      // (can be created form back-office). The visibility settings for this
+      // Configurable field. The visibility settings for this
       // field are taken from content type view modes.
       if (!array_key_exists($field_items->getName(), $entity_base_fields)) {
-//        $this->config('content_type_settings.' . $type->id() . '.view_mode_preview');
         // For every field of the entity we call build method on the negotiated
         // service FieldDiffManager and this service will search for the service
         // that applies to this type of field and call the method on that service.
@@ -164,15 +163,15 @@ class EntityComparisonBase extends ControllerBase {
    *
    * @todo Insert here some code as example.
    *
-   * @param RevisionableInterface $left_entity
+   * @param ContentEntityInterface $left_entity
    *   The left entity
-   * @param RevisionableInterface $right_entity
+   * @param ContentEntityInterface $right_entity
    *   The right entity
    *
    * @return array
    *   Items ready to be compared by the Diff component.
    */
-  public function compareRevisions(RevisionableInterface $left_entity, RevisionableInterface $right_entity) {
+  public function compareRevisions(ContentEntityInterface $left_entity, ContentEntityInterface $right_entity) {
     $result = array();
 
     $left_values = $this->parseEntity($left_entity);
