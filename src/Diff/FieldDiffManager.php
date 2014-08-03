@@ -11,6 +11,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldDefinition;
 
 
 /**
@@ -134,7 +135,8 @@ class FieldDiffManager implements ChainFieldDiffBuilderInterface {
     // Call the getSettingsForm method of registered builders,
     // until one of them returns a renderable form array.
     foreach ($this->getSortedBuilders() as $builder) {
-      if (!$builder->applies(array('field_type' => $field_type))) {
+      $field_definition = FieldDefinition::create($field_type);
+      if (!$builder->applies($field_definition)) {
         // The builder does not apply, so we continue with the other builders.
         continue;
       }
