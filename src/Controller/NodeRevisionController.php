@@ -77,6 +77,10 @@ class NodeRevisionController extends EntityComparisonBase {
         // If we are dealing with nodes only compare those fields
         // set as visible from the selected view mode.
         $view_mode = $this->config->get('content_type_settings.' . $node->getType() . '.view_mode');
+        // If no view mode is selected use the default view mode.
+        if ($view_mode == NULL) {
+          $view_mode = 'default';
+        }
         $visible = entity_get_display('node', $node->getType(), $view_mode)->getComponent($field_name);
         if ($visible == NULL) {
           unset($fields[$field_name]);
