@@ -118,3 +118,8 @@ field_types:
   decimal:
     show_header: 1
     markdown: drupal_html_to_text
+  text_with_summary:
+    compare_format: 0
+    compare_summary: 0
+    show_header: 1
+    markdown: drupal_html_to_text
