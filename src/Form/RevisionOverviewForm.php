@@ -12,7 +12,7 @@ use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Datetime\Date;
+use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Component\Utility\String;
 use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\Core\Form\FormStateInterface;
@@ -41,7 +41,7 @@ class RevisionOverviewForm extends FormBase {
   /**
    * The date service.
    *
-   * @var \Drupal\Core\Datetime\Date
+   * @var \Drupal\Core\Datetime\DateFormatter
    */
   protected $date;
 
@@ -58,10 +58,10 @@ class RevisionOverviewForm extends FormBase {
    *   The entity manager.
    * @param \Drupal\Core\Session\AccountInterface $currentUser
    *   The current user.
-   * @param \Drupal\Core\Datetime\Date $date
+   * @param \Drupal\Core\Datetime\DateFormatter $date
    *   The date service.
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, Date $date) {
+  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, DateFormatter $date) {
     $this->entityManager = $entityManager;
     $this->currentUser = $currentUser;
     $this->date = $date;
@@ -75,7 +75,7 @@ class RevisionOverviewForm extends FormBase {
     return new static(
       $container->get('entity.manager'),
       $container->get('current_user'),
-      $container->get('date')
+      $container->get('date.formatter')
     );
   }
 

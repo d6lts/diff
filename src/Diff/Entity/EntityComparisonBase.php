@@ -15,7 +15,7 @@ use Drupal\diff\Diff\FieldDiffManager;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Diff\DiffFormatter;
 use Drupal\Component\Diff\Diff;
-use Drupal\Core\Datetime\Date;
+use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\node\NodeInterface;
@@ -45,7 +45,7 @@ class EntityComparisonBase extends ControllerBase {
   /**
    * The date service.
    *
-   * @var \Drupal\Core\Datetime\Date
+   * @var \Drupal\Core\Datetime\DateFormatter
    */
   protected $date;
 
@@ -71,12 +71,12 @@ class EntityComparisonBase extends ControllerBase {
    *   Field diff manager negotiated service.
    * @param DiffFormatter $diff_formatter
    *   Diff formatter service.
-   * @param Date $date
-   *   Date service.
+   * @param DateFormatter $date
+   *   DateFormatter service.
    * @param PluginManagerInterface $plugin_manager
    *   The Plugin manager service.
    */
-  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, Date $date, PluginManagerInterface $plugin_manager) {
+  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, DateFormatter $date, PluginManagerInterface $plugin_manager) {
     $this->fieldDiffManager = $field_diff_manager;
     $this->diffFormatter = $diff_formatter;
     $this->date = $date;
@@ -92,7 +92,7 @@ class EntityComparisonBase extends ControllerBase {
     return new static(
       $container->get('diff.manager'),
       $container->get('diff.diff.formatter'),
-      $container->get('date'),
+      $container->get('date.formatter'),
       $container->get('plugin.manager.field.field_type')
     );
   }
