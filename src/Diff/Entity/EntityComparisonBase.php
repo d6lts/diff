@@ -18,7 +18,7 @@ use Drupal\Component\Diff\Diff;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\SafeMarkup;
-use Drupal\node\NodeInterface;
+use Drupal\diff\DiffBuilderManager;
 
 
 /**
@@ -50,6 +50,13 @@ class EntityComparisonBase extends ControllerBase {
   protected $date;
 
   /**
+   * The diff field builder plugin manager.
+   *
+   * @var \Drupal\diff\DiffBuilderManager
+   */
+  protected $diffBuilderManager;
+
+  /**
    * Wrapper object for writing/reading simple configuration from diff.settings.yml
    */
   protected $config;
@@ -75,14 +82,17 @@ class EntityComparisonBase extends ControllerBase {
    *   DateFormatter service.
    * @param PluginManagerInterface $plugin_manager
    *   The Plugin manager service.
+   * @param DiffBuilderManager $diffBuilderManager
+   *   The diff field builder plugin manager.
    */
-  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, DateFormatter $date, PluginManagerInterface $plugin_manager) {
+  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, DateFormatter $date, PluginManagerInterface $plugin_manager, DiffBuilderManager $diffBuilderManager) {
     $this->fieldDiffManager = $field_diff_manager;
     $this->diffFormatter = $diff_formatter;
     $this->date = $date;
     $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
     $this->config = $this->config('diff.settings');
     $this->nonBreakingSpace = SafeMarkup::set('&nbsp');
+    $this->diffBuilderManager = $diffBuilderManager;
   }
 
   /**
@@ -93,7 +103,8 @@ class EntityComparisonBase extends ControllerBase {
       $container->get('diff.manager'),
       $container->get('diff.diff.formatter'),
       $container->get('date.formatter'),
-      $container->get('plugin.manager.field.field_type')
+      $container->get('plugin.manager.field.field_type'),
+      $container->get('plugin.manager.diff.builder')
     );
   }
 
@@ -126,6 +137,13 @@ class EntityComparisonBase extends ControllerBase {
           'compare' => $this->config->get('field_types.' . $field_type),
         ),
       );
+      // This is just for testing plugins defined by the diff module.
+      if ($field_type == 'text_with_summary') {
+        $options = array(
+          'field_definition' => $field_items->getFieldDefinition(),
+        );
+        $this->diffBuilderManager->getInstance($options)->build($field_items);
+      }
       // Configurable field. The visibility settings for this
       // field are taken from content type view modes.
       if (!array_key_exists($field_items->getName(), $entity_base_fields)) {

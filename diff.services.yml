@@ -51,3 +51,6 @@ services:
     arguments: ['@entity.manager', '@form_builder']
     tags:
       - { name: diff.field_builder, priority: 0 }
+  plugin.manager.diff.builder:
+      class: Drupal\diff\DiffBuilderManager
+      parent: default_plugin_manager
