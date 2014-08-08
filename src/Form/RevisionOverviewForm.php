@@ -302,7 +302,7 @@ class RevisionOverviewForm extends FormBase {
         'right_vid' => $vid_right,
       )
     );
-    $form_state->setRedirect($redirect_url);
+    $form_state->setRedirectUrl($redirect_url);
   }
 
 }
