@@ -14,9 +14,11 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * @FieldDiffBuilder(
  *   id = "text_field_diff_builder",
- *   label = @Translation("merge -- d sfs fs"),
+ *   label = @Translation("Text Field Diff"),
  *   field_types = {
- *     "boolean"
+ *     "text_with_summary",
+ *     "text",
+ *     "text_long"
  *   },
  * )
  */
@@ -96,7 +98,7 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
 //      );
 //    }
 
-    return parent::buildForm($form, $form_state);
+    return parent::buildConfigurationForm($form, $form_state);
 
   }
 }

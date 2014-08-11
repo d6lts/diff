@@ -34,3 +34,9 @@ diff.field_types_list:
     _title: Field Type Settings
   requirements:
     _permission: 'administer site configuration'
+diff.test:
+  path: '/admin/test'
+  defaults:
+    _form: '\Drupal\diff\Form\Test'
+  requirements:
+    _permission: 'administer site configuration'

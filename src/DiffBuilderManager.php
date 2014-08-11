@@ -41,14 +41,10 @@ class DiffBuilderManager extends DefaultPluginManager {
   public function getInstance(array $options) {
     $field_type = $options['field_definition']->getType();
 
-//    $definitions = $this->getDefinitions();
-//    dsm($definitions);
-//    if (isset($definitions['field_types']) && in_array($field_type, $definitions['field_types'])) {
-//    }
     // Get from configuration the selected plugin for this field type.
     // If it not set use the default one.
-
     $plugin_id = 'text_field_diff_builder';
+
     return $this->createInstance($plugin_id, $options);
   }
 
