@@ -38,6 +38,7 @@ class Test extends FormBase {
    * Constructs a RevisionOverviewForm object.
    *
    * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
+   * @param \Drupal\Component\Plugin\PluginManagerInterface $diffBuilderManager
    */
   public function __construct(PluginManagerInterface $plugin_manager, PluginManagerInterface $diffBuilderManager) {
     $this->config = $this->config('diff.settings');
@@ -62,6 +63,121 @@ class Test extends FormBase {
     return 'diff.test';
   }
 
+  protected function buildFieldRow($field_name, $field_type, $diff_plugin_definitions, array $form, FormStateInterface $form_state) {
+    $type = $this->t('@field_label (%field_type)', array(
+        '@field_label' => $field_type['label'],
+        '%field_type' => $field_name
+      )
+    );
+    $plugin_options = array();
+    if (isset($plugins[$field_name])) {
+      foreach ($plugins[$field_name] as $id) {
+        $plugin_options[] = $diff_plugin_definitions[$id]['label']->render();
+      }
+    }
+    // Base button element for the various plugin settings actions.
+    $base_button = array(
+      '#submit' => array(array($this, 'multistepSubmit')),
+      '#ajax' => array(
+        'callback' => array($this, 'multistepAjax'),
+        'wrapper' => 'field-display-overview-wrapper',
+        'effect' => 'fade',
+      ),
+      '#field_name' => $field_name,
+    );
+    $field_row = array(
+      'field_type' => array(
+        '#markup' => $type,
+      ),
+    );
+    // @todo Here we need to get the default plugin from the config entity and create an instance of plugin.
+//      // Check the currently selected plugin, and merge persisted values for its
+//      // settings.
+//      if (isset($form_state['values']['fields'][$field_name]['type'])) {
+//        $display_options['type'] = $form_state['values']['fields'][$field_name]['type'];
+//      }
+//      if (isset($form_state['plugin_settings'][$field_name]['settings'])) {
+//        $display_options['settings'] = $form_state['plugin_settings'][$field_name]['settings'];
+//      }
+
+    // @todo Here we need to create an instance of the plugin based on field definition and settings.
+    // This needs to be replaced.
+    $options['field_definition'] = FieldDefinition::create($field_name);
+    $plugin = $this->diffBuilderManager->getInstance($options);
+
+    if ($form_state['plugin_settings_edit'] == $field_name) {
+      // We are currently editing this field's plugin settings. Display the
+      // settings form and submit buttons.
+      $field_row['plugin']['settings_edit_form'] = array(
+        '#type' => 'container',
+        '#attributes' => array('class' => array('field-plugin-settings-edit-form')),
+        '#parents' => array('fields', $field_name, 'settings_edit_form'),
+        'label' => array(
+          '#markup' => $this->t('Plugin settings'),
+        ),
+        'settings' => $plugin->buildConfigurationForm(array(), $form_state),
+        'actions' => array(
+          '#type' => 'actions',
+          'save_settings' => $base_button + array(
+              '#type' => 'submit',
+              '#button_type' => 'primary',
+              '#name' => $field_name . '_plugin_settings_update',
+              '#value' => $this->t('Update'),
+              '#op' => 'update',
+            ),
+          'cancel_settings' => $base_button + array(
+              '#type' => 'submit',
+              '#name' => $field_name . '_plugin_settings_cancel',
+              '#value' => $this->t('Cancel'),
+              '#op' => 'cancel',
+              // Do not check errors for the 'Cancel' button, but make sure we
+              // get the value of the 'plugin type' select.
+              '#limit_validation_errors' => array(array('fields', $field_name, 'type')),
+            ),
+        ),
+      );
+      $field_row['settings_edit'] = array(
+        '#markup' => '',
+      );
+      $field_row['provider'] = array(
+        '#markup' => '',
+      );
+      $field_row['#attributes']['class'][] = 'field-plugin-settings-editing';
+    }
+    else {
+      $field_row['provider'] = array(
+        '#markup' => $field_type['provider'],
+      );
+      $field_row['plugin'] = array(
+        'type' => array(
+          '#type' => 'select',
+          '#options' => $plugin_options,
+          '#title_display' => 'invisible',
+          '#empty_option' => $this->t('- Hide -'),
+          // @todo This needs to be taken form config entity.
+//            '#default_value' => '',
+        ),
+        'settings_edit_form' => array(),
+      );
+      if ($plugin) {
+        $field_row['settings_edit'] = $base_button + array(
+            '#type' => 'image_button',
+            '#name' => $field_name . '_settings_edit',
+            '#src' => 'core/misc/configure-dark.png',
+            '#attributes' => array('class' => array('field-plugin-settings-edit'), 'alt' => $this->t('Edit')),
+            '#op' => 'edit',
+            // Do not check errors for the 'Edit' button, but make sure we get
+            // the value of the 'plugin type' select.
+            '#limit_validation_errors' => array(array('fields', $field_name, 'type')),
+            '#prefix' => '<div class="field-plugin-settings-edit-wrapper">',
+            '#suffix' => '</div>',
+          );
+      }
+    }
+
+    return $field_row;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -71,7 +187,12 @@ class Test extends FormBase {
       '#tree' => TRUE,
       '#header' => $this->getTableHeader(),
       '#empty' => $this->t('No configurable fields found.'),
-      '#attributes' => array('id' => array('diff-field-types-list-table')),
+      '#prefix' => '<div id="field-display-overview-wrapper">',
+      '#suffix' => '</div>',
+      '#attributes' => array(
+        'class' => array('field-ui-overview'),
+        'id' => 'field-display-overview',
+      ),
     );
 
     $diff_plugin_definitions = $this->diffBuilderManager->getDefinitions();
@@ -85,102 +206,10 @@ class Test extends FormBase {
     }
     $field_definitions = $this->fieldTypePluginManager->getDefinitions();
     foreach ($field_definitions as $field_name => $field_type) {
-      $type = $this->t('@field_label (%field_type)', array(
-          '@field_label' => $field_type['label'],
-          '%field_type' => $field_name
-        )
-      );
-      $plugin_options = array();
-      if (isset($plugins[$field_name])) {
-        foreach ($plugins[$field_name] as $id) {
-          $plugin_options[] = $diff_plugin_definitions[$id]['label']->render();
-        }
-      }
-      // Base button element for the various plugin settings actions.
-      $base_button = array(
-        '#submit' => array(array($this, 'multistepSubmit')),
-        '#ajax' => array(
-          'callback' => array($this, 'multistepAjax'),
-          'wrapper' => 'field-display-overview-wrapper',
-          'effect' => 'fade',
-        ),
-        '#field_name' => $field_name,
-      );
-      $form['fields'][$field_name] = array(
-        'field_type' => array(
-          '#markup' => $type,
-        ),
-        'provider' => array(
-          '#markup' => $field_type['provider'],
-        ),
-        'plugin' => array(
-          'type' => array(
-            '#type' => 'select',
-            '#options' => $plugin_options,
-            '#title_display' => 'invisible',
-            '#empty_option' => $this->t('- Hide -'),
-          ),
-          'settings_edit_form' => array(),
-        ),
-        'settings_edit' => $base_button + array(
-          '#type' => 'image_button',
-          '#name' => $field_name . '_settings_edit',
-          '#src' => 'core/misc/configure-dark.png',
-          '#attributes' => array('class' => array('field-plugin-settings-edit'), 'alt' => $this->t('Edit')),
-          '#op' => 'edit',
-          // Do not check errors for the 'Edit' button, but make sure we get
-          // the value of the 'plugin type' select.
-          '#limit_validation_errors' => array(array('fields', $field_name, 'type')),
-          '#prefix' => '<div class="field-plugin-settings-edit-wrapper">',
-          '#suffix' => '</div>',
-        ),
-      );
-
-      $options['field_definition'] = FieldDefinition::create($field_name);
-      $plugin = $this->diffBuilderManager->getInstance($options);
-//      if ($field_name == 'text_with_summary') {
-//        dsm($plugin);
-//        dsm($form_state);
-//        $form['plugin'] = $plugin->buildConfigurationForm($form, $form_state);
-//      }
-      if ($form_state['plugin_settings_edit'] == $field_name) {
-        // We are currently editing this field's plugin settings. Display the
-        // settings form and submit buttons.
-        $form['fields'][$field_name]['plugin']['settings_edit_form'] = array();
-
-        $form['fields'][$field_name]['plugin']['#cell_attributes'] = array('colspan' => 3);
-        $form['fields'][$field_name]['plugin']['settings_edit_form'] = array(
-          '#type' => 'container',
-          '#attributes' => array('class' => array('field-plugin-settings-edit-form')),
-          '#parents' => array('fields', $field_name, 'settings_edit_form'),
-          'label' => array(
-            '#markup' => $this->t('Plugin settings'),
-          ),
-          'settings' => $plugin->buildConfigurationForm($form, $form_state),
-          'actions' => array(
-            '#type' => 'actions',
-            'save_settings' => $base_button + array(
-                '#type' => 'submit',
-                '#button_type' => 'primary',
-                '#name' => $field_name . '_plugin_settings_update',
-                '#value' => $this->t('Update'),
-                '#op' => 'update',
-              ),
-            'cancel_settings' => $base_button + array(
-                '#type' => 'submit',
-                '#name' => $field_name . '_plugin_settings_cancel',
-                '#value' => $this->t('Cancel'),
-                '#op' => 'cancel',
-                // Do not check errors for the 'Cancel' button, but make sure we
-                // get the value of the 'plugin type' select.
-                '#limit_validation_errors' => array(array('fields', $field_name, 'type')),
-              ),
-          ),
-        );
-        $form['fields'][$field_name]['#attributes']['class'][] = 'field-plugin-settings-editing';
-      }
+      $form['fields'][$field_name] = $this->buildFieldRow($field_name, $field_type, $diff_plugin_definitions, $form, $form_state);
     }
 
+    $form['#attached']['library'][] = 'field_ui/drupal.field_ui';
     $form['actions'] = array('#type' => 'actions');
     $form['actions']['submit'] = array(
       '#type' => 'submit',
@@ -194,17 +223,13 @@ class Test extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
   }
 
+  /**
+   * Returns the header for the table.
+   */
   protected function getTableHeader() {
     return array(
       'field_type' => $this->t('Field Type'),
@@ -215,7 +240,7 @@ class Test extends FormBase {
   }
 
   /**
-   * Form submission handler for multistep buttons.
+   * Form submission handler for multi-step buttons.
    */
   public function multistepSubmit($form, FormStateInterface $form_state) {
     $trigger = $form_state['triggering_element'];
@@ -234,9 +259,6 @@ class Test extends FormBase {
         if (isset($form_state['values']['fields'][$field_name]['settings_edit_form']['settings'])) {
           $form_state['plugin_settings'][$field_name]['settings'] = $form_state['values']['fields'][$field_name]['settings_edit_form']['settings'];
         }
-        if (isset($form_state['values']['fields'][$field_name]['settings_edit_form']['third_party_settings'])) {
-          $form_state['plugin_settings'][$field_name]['third_party_settings'] = $form_state['values']['fields'][$field_name]['settings_edit_form']['third_party_settings'];
-        }
         unset($form_state['plugin_settings_edit']);
         break;
 
@@ -249,9 +271,8 @@ class Test extends FormBase {
     $form_state['rebuild'] = TRUE;
   }
 
-
   /**
-   * Ajax handler for multistep buttons.
+   * Ajax handler for multi-step buttons.
    */
   public function multistepAjax($form, FormStateInterface $form_state) {
     $trigger = $form_state['triggering_element'];
@@ -267,7 +288,7 @@ class Test extends FormBase {
       case 'update':
       case 'cancel':
         $updated_rows = array($trigger['#field_name']);
-        $updated_columns = array('plugin', 'settings_summary', 'settings_edit');
+        $updated_columns = array('provider', 'plugin', 'settings_edit');
         break;
     }
 
@@ -282,4 +303,5 @@ class Test extends FormBase {
     // Return the whole table.
     return $form['fields'];
   }
+
 }
