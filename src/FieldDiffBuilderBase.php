@@ -102,7 +102,10 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    return array();
+    return array(
+      'show_header' => 1,
+      'markdown' => 'drupal_html_to_text',
+    );
   }
 
   /**
