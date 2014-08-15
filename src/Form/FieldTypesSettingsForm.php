@@ -2,7 +2,11 @@
 
 /**
  * @file
- * Contains the revision overview form.
+ * Contains \Drupal\diff\Form\FieldTypesSettingsForm.
+ *
+ * This form lists all the field types from the system and for every field type
+ * it provides a select having as options all the FieldDiffBuilder plugins that
+ * support that field type.
  */
 
 namespace Drupal\diff\Form;
@@ -16,7 +20,7 @@ use Drupal\Component\Plugin\PluginManagerInterface;
 /**
  * Provides a form for revision overview page.
  */
-class Test extends FormBase {
+class FieldTypesSettingsForm extends FormBase {
 
   /**
    * Wrapper object for writing/reading simple configuration from diff.settings.yml
@@ -24,22 +28,27 @@ class Test extends FormBase {
   protected $config;
 
   /**
-   * The field type plugin manager manager service.
+   * The field type plugin manager service.
    *
    * @var \Drupal\Component\Plugin\PluginManagerInterface
    */
   protected $fieldTypePluginManager;
 
+  /**
+   * The field diff plugin manager service.
+   *
+   * @var \Drupal\diff\DiffBuilderManager
+   */
   protected $diffBuilderManager;
 
   /**
-   * Constructs a RevisionOverviewForm object.
+   * Constructs a FieldTypesListSettingsForm object.
    *
    * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
    * @param \Drupal\Component\Plugin\PluginManagerInterface $diffBuilderManager
    */
   public function __construct(PluginManagerInterface $plugin_manager, PluginManagerInterface $diffBuilderManager) {
-    $this->config = $this->config('diff.settings.test');
+    $this->config = $this->config('diff.settings.test2');
     $this->fieldTypePluginManager = $plugin_manager;
     $this->diffBuilderManager = $diffBuilderManager;
   }
@@ -94,6 +103,7 @@ class Test extends FormBase {
     // Get all the field type plugins.
     $field_definitions = $this->fieldTypePluginManager->getDefinitions();
     foreach ($field_definitions as $field_id => $field_type) {
+      // Build a row in the table for every field type.
       $form['fields'][$field_id] = $this->buildFieldRow($field_id, $field_type, $plugins, $diff_plugin_definitions, $form_state);
     }
 
@@ -106,7 +116,6 @@ class Test extends FormBase {
     );
 
     $form['#attached']['library'][] = 'field_ui/drupal.field_ui';
-//    $form['#attached']['js'][] = drupal_get_path('module', 'diff') . '/js/test.js';
 
     return $form;
   }
@@ -135,8 +144,7 @@ class Test extends FormBase {
         '%field_type' => $field_id,
       )
     );
-    $field_type_label .= '<br />' . $form_state['values']['fields'][$field_id]['plugin']['type'];
-    $field_type_label .= '<br />' . $form_state['values']['fields'][$field_id]['type'];
+    // Build a list of all the plugins for this field type.
     $plugin_options = array();
     if (isset($plugins[$field_id])) {
       foreach ($plugins[$field_id] as $id) {
@@ -153,63 +161,37 @@ class Test extends FormBase {
       ),
       '#field_name' => $field_id,
     );
-    $field_row = array(
-      'field_type_label' => array(
+    $field_row['field_type_label'] = array(
         '#markup' => $field_type_label,
-      ),
-      'plugin' => array(
-        'type' => array(
-          '#type' => 'select',
-          '#options' => $plugin_options,
-          '#title_display' => 'invisible',
-          '#attributes' => array(
-            'class' => array('field-plugin-type'),
-//              'id' => $field_id,
-          ),
-          '#empty_option' => array('hidden' => $this->t('- Don\'t compare -')),
-          '#default_value' => $display_options ? $display_options['type'] : 'hidden',
-          '#ajax' => array(
-            'callback' => array($this, 'multistepAjax'),
-            'wrapper' => 'field-display-overview-wrapper',
-            'effect' => 'fade',
-          ),
-          '#field_name' => $field_id,
-        ),
-        'settings_edit_form' => array(),
-      ),
-      'settings_edit' => array(
-        '#markup' => '',
-      ),
     );
-//    $field_row['refresh'] = array(
-//      '#type' => 'submit',
-//      '#value' => $this->t('Refresh'),
-//      '#op' => 'refresh_table',
-//      '#submit' => array(array($this, 'multistepSubmit')),
-//      '#ajax' => array(
-//        'callback' => array($this, 'multistepAjax'),
-//        'wrapper' => 'field-display-overview-wrapper',
-//        'effect' => 'fade',
-//        // The button stays hidden, so we hide the Ajax spinner too. Ad-hoc
-//        // spinners will be added manually by the client-side script.
-//        'progress' => 'none',
-//      ),
-//      '#attributes' => array(
-//        'class' => array('visually-hidden'),
-//        'id' => $field_id,
-//      )
-//    );
+    $field_row['plugin'] = array(
+      'type' => array(
+        '#type' => 'select',
+        '#options' => $plugin_options,
+        '#title_display' => 'invisible',
+        '#attributes' => array(
+          'class' => array('field-plugin-type'),
+        ),
+        '#empty_option' => array('hidden' => $this->t('- Don\'t compare -')),
+        '#default_value' => $display_options ? $display_options['type'] : 'hidden',
+        '#ajax' => array(
+          'callback' => array($this, 'multistepAjax'),
+          'method' => 'replace',
+          'wrapper' => 'field-display-overview-wrapper',
+          'effect' => 'fade',
+        ),
+        '#field_name' => $field_id,
+      ),
+      'settings_edit_form' => array(),
+    );
     // Check the currently selected plugin, and merge persisted values for its
     // settings.
     if (isset($form_state['values']['fields'][$field_id]['plugin']['type'])) {
       $display_options['type'] = $form_state['values']['fields'][$field_id]['plugin']['type'];
     }
-//    elseif (isset($form_state['builder'])) {
-//      $display_options['type'] = $form_state['builder'];
-//    }
-//    if (isset($form_state['plugin_settings'][$field_id]['plugin']['settings'])) {
-//      $display_options['settings'] = $form_state['plugin_settings'][$field_id]['plugin']['settings'];
-//    }
+    if (isset($form_state['plugin_settings'][$field_id]['plugin']['settings'])) {
+      $display_options['settings'] = $form_state['plugin_settings'][$field_id]['plugin']['settings'];
+    }
 
     $plugin = $this->getPlugin($display_options);
 
@@ -221,9 +203,9 @@ class Test extends FormBase {
         '#attributes' => array('class' => array('field-plugin-settings-edit-form')),
         '#parents' => array('fields', $field_id, 'settings_edit_form'),
         'label' => array(
-          '#markup' => $this->t('Plugin settings'),
+          '#markup' => $this->t('Plugin settings:' . ' <span class="plugin-name">' . $plugin_options[$display_options['type']] . '</span>'),
         ),
-//        'settings' => $plugin->buildConfigurationForm(array(), $form_state),
+        'settings' => $plugin->buildConfigurationForm(array(), $form_state),
         'actions' => array(
           '#type' => 'actions',
           'save_settings' => $base_button + array(
@@ -240,24 +222,15 @@ class Test extends FormBase {
               '#op' => 'cancel',
               // Do not check errors for the 'Cancel' button, but make sure we
               // get the value of the 'plugin type' select.
-//              '#limit_validation_errors' => array(array('fields', $field_id, 'type')),
+              '#limit_validation_errors' => array(),
             ),
         ),
       );
-      $field_row['settings_edit'] = array(
-        '#markup' => '',
-      );
-      $field_row['provider'] = array(
-        '#markup' => '',
-      );
+      $field_row['settings_edit'] = array();
       $field_row['#attributes']['class'][] = 'field-plugin-settings-editing';
     }
     else {
-      $field_row += array(
-        'provider' => array(
-          '#markup' => $form_state['values']['fields'][$field_id]['plugin']['type'],
-        ),
-      );
+      $field_row['settings_edit'] = array();
       if ($plugin) {
         $field_row['settings_edit'] = $base_button + array(
             '#type' => 'image_button',
@@ -267,7 +240,7 @@ class Test extends FormBase {
             '#op' => 'edit',
             // Do not check errors for the 'Edit' button, but make sure we get
             // the value of the 'plugin type' select.
-            '#limit_validation_errors' => array(array('fields', $field_id, 'type')),
+//            '#limit_validation_errors' => array(array('fields', $field_id, 'type')),
             '#prefix' => '<div class="field-plugin-settings-edit-wrapper">',
             '#suffix' => '</div>',
         );
@@ -280,7 +253,7 @@ class Test extends FormBase {
   /**
    * Form submission handler for multi-step buttons.
    */
-  public function multistepSubmit(&$form, FormStateInterface $form_state) {
+  public function multistepSubmit($form, FormStateInterface $form_state) {
     $trigger = $form_state['triggering_element'];
     $op = $trigger['#op'];
 
@@ -292,6 +265,7 @@ class Test extends FormBase {
         break;
 
       case 'update':
+        $form_state['nimic'] = $form_state;
         // Store the saved settings, and set the field back to 'non edit' mode.
         $field_name = $trigger['#field_name'];
         if (isset($form_state['values']['fields'][$field_name]['settings_edit_form']['settings'])) {
@@ -306,6 +280,7 @@ class Test extends FormBase {
         break;
     }
 
+    $form_state['rebuild'] = TRUE;
     $form_state->set('rebuild', TRUE);
 
   }
@@ -313,7 +288,7 @@ class Test extends FormBase {
   /**
    * Ajax handler for multi-step buttons.
    */
-  public function multistepAjax(&$form, FormStateInterface $form_state) {
+  public function multistepAjax(array $form, FormStateInterface $form_state) {
     $trigger = $form_state['triggering_element'];
     $op = $trigger['#op'];
 
@@ -327,7 +302,7 @@ class Test extends FormBase {
       case 'update':
       case 'cancel':
         $updated_rows = array($trigger['#field_name']);
-        $updated_columns = array('provider', 'plugin', 'settings_edit');
+        $updated_columns = array('plugin', 'settings_edit');
         break;
     }
 
@@ -347,48 +322,49 @@ class Test extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $form_values = $form_state['values'];
+    $field_types = $form_state['values']['fields'];
 
-    // Collect data for 'regular' fields.
-    foreach ($form['#fields'] as $field_name) {
-      // Retrieve the stored instance settings to merge with the incoming
-      // values.
-      $values = $form_values['fields'][$field_name];
-
-      if ($values['type'] == 'hidden') {
-        $this->config->clear('field_types.' . $field_name);
+    foreach ($field_types as $field_type => $field_type_values) {
+      // If there is no plugin selected erase all configuration.
+      if ($field_type_values['plugin']['type'] == 'hidden') {
+        $this->config->clear('field_types.' . $field_type);
       }
       else {
         // Get plugin settings. They lie either directly in submitted form
         // values (if the whole form was submitted while some plugin settings
         // were being edited), or have been persisted in $form_state.
         $settings = array();
-        if (isset($values['settings_edit_form']['settings'])) {
-          $settings = $values['settings_edit_form']['settings'];
+        // Form submitted without pressing update button on plugin settings form.
+        if (isset($field_type_values['settings_edit_form']['settings'])) {
+          $settings = $field_type_values['settings_edit_form']['settings'];
         }
-        elseif (isset($form_state['plugin_settings'][$field_name]['settings'])) {
-          $settings = $form_state['plugin_settings'][$field_name]['settings'];
+        // Form submitted after settings were updated.
+        elseif (isset($form_state['plugin_settings'][$field_type]['settings'])) {
+          $settings = $form_state['plugin_settings'][$field_type]['settings'];
         }
-        elseif ($current_options = $this->config->get('field_types.' . $field_name)) {
+        elseif ($current_options = $this->config->get('field_types.' . $field_type)) {
           $settings = $current_options['settings'];
         }
 
-        // Default component values.
-        $component_values = array(
-          'type' => $values['type'],
+        // Field Type values.
+        $field_type_values = array(
+          'type' => $field_type_values['plugin']['type'],
           'settings' => $settings,
         );
 
-        $this->config->set('field_types.' . $field_name, $component_values);
+        $this->config->set('field_types.' . $field_type, $field_type_values);
       }
     }
 
     // Save the configuration.
     $this->config->save();
 
-//    drupal_set_message($this->t('Your settings have been saved.'));
+    drupal_set_message($this->t('Your settings have been saved.'));
   }
 
+  /**
+   * Returns a plugin object or NULL based on configuration.
+   */
   protected function getPlugin($configuration) {
     $plugin = NULL;
 
@@ -410,7 +386,6 @@ class Test extends FormBase {
   protected function getTableHeader() {
     return array(
       'field_type' => $this->t('Field Type'),
-      'provider' => $this->t('Provider'),
       'plugin' => $this->t('Plugin'),
       'settings_edit' => $this->t(''),
     );

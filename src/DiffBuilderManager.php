@@ -35,17 +35,4 @@ class DiffBuilderManager extends DefaultPluginManager {
     $this->alterInfo('field_diff_builder_info');
   }
 
-  /**
-   * Overrides \Drupal\Component\Plugin\PluginManagerBase::getInstance().
-   */
-  public function getInstance(array $options) {
-    $field_type = $options['field_definition']->getType();
-
-    // Get from configuration the selected plugin for this field type.
-    // If it not set use the default one.
-    $plugin_id = 'text_field_diff_builder';
-
-    return $this->createInstance($plugin_id, $options);
-  }
-
 }

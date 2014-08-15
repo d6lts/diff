@@ -96,7 +96,6 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
     foreach ($keys as $key) {
       $this->configuration[$key] = $form_state['values'][$key];
     }
-    // @todo Consider refactoring field diff builders to ConfigEntity so this is not needed.
     $this->setConfiguration($this->configuration);
   }
 

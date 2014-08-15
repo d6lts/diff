@@ -37,6 +37,6 @@ diff.field_types_list:
 diff.test:
   path: '/admin/test'
   defaults:
-    _form: '\Drupal\diff\Form\Test'
+    _form: '\Drupal\diff\Form\FieldTypesSettingsForm'
   requirements:
     _permission: 'administer site configuration'
