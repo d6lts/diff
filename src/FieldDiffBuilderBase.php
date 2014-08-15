@@ -60,10 +60,6 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-//    $form['field_type'] = array(
-//      '#type' => 'hidden',
-//      '#value' => $field_type,
-//    );
     $form['show_header'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Show field title'),
