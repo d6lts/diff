@@ -16,6 +16,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\Core\Form\FormState;
 
 /**
  * Provides a form for revision overview page.
@@ -48,7 +49,7 @@ class FieldTypesSettingsForm extends FormBase {
    * @param \Drupal\Component\Plugin\PluginManagerInterface $diffBuilderManager
    */
   public function __construct(PluginManagerInterface $plugin_manager, PluginManagerInterface $diffBuilderManager) {
-    $this->config = $this->config('diff.settings.test2');
+    $this->config = $this->config('diff.plugins');
     $this->fieldTypePluginManager = $plugin_manager;
     $this->diffBuilderManager = $diffBuilderManager;
   }
@@ -138,7 +139,7 @@ class FieldTypesSettingsForm extends FormBase {
    *   A table row for the field type listing table.
    */
   protected function buildFieldRow($field_id, $field_type, $plugins, $diff_plugin_definitions, FormStateInterface $form_state) {
-    $display_options = $this->config->get('field_types.' . $field_id);
+    $display_options = $this->config->get($field_id);
     $field_type_label = $this->t('@field_label (%field_type)', array(
         '@field_label' => $field_type['label'],
         '%field_type' => $field_id,
@@ -164,6 +165,14 @@ class FieldTypesSettingsForm extends FormBase {
     $field_row['field_type_label'] = array(
         '#markup' => $field_type_label,
     );
+    // Check the currently selected plugin, and merge persisted values for its
+    // settings.
+    if (isset($form_state['values']['fields'][$field_id]['plugin']['type'])) {
+      $display_options['type'] = $form_state['values']['fields'][$field_id]['plugin']['type'];
+    }
+    if (isset($form_state['plugin_settings'][$field_id]['plugin']['settings'])) {
+      $display_options['settings'] = $form_state['plugin_settings'][$field_id]['plugin']['settings'];
+    }
     $field_row['plugin'] = array(
       'type' => array(
         '#type' => 'select',
@@ -184,14 +193,6 @@ class FieldTypesSettingsForm extends FormBase {
       ),
       'settings_edit_form' => array(),
     );
-    // Check the currently selected plugin, and merge persisted values for its
-    // settings.
-    if (isset($form_state['values']['fields'][$field_id]['plugin']['type'])) {
-      $display_options['type'] = $form_state['values']['fields'][$field_id]['plugin']['type'];
-    }
-    if (isset($form_state['plugin_settings'][$field_id]['plugin']['settings'])) {
-      $display_options['settings'] = $form_state['plugin_settings'][$field_id]['plugin']['settings'];
-    }
 
     $plugin = $this->getPlugin($display_options);
 
@@ -318,6 +319,21 @@ class FieldTypesSettingsForm extends FormBase {
     return $form['fields'];
   }
 
+  // @todo
+//  /**
+//   * {@inheritdoc}
+//   */
+//  public function validateForm(array &$form, FormStateInterface $form_state) {
+//    // The image effect configuration is stored in the 'data' key in the form,
+//    // pass that through for validation.
+//    $effect_data = new FormState(array(
+//      'values' => $form_state['values']['data'],
+//    ));
+//    $this->imageEffect->validateConfigurationForm($form, $effect_data);
+//    // Update the original form values.
+//    $form_state['values']['data'] = $effect_data['values'];
+//  }
+
   /**
    * {@inheritdoc}
    */
@@ -342,22 +358,19 @@ class FieldTypesSettingsForm extends FormBase {
         elseif (isset($form_state['plugin_settings'][$field_type]['settings'])) {
           $settings = $form_state['plugin_settings'][$field_type]['settings'];
         }
-        elseif ($current_options = $this->config->get('field_types.' . $field_type)) {
-          $settings = $current_options['settings'];
+//        elseif ($current_options = $this->config->get('field_types.' . $field_type)) {
+//          $settings = $current_options['settings'];
+//        }
+        if (!empty($settings)) {
+          $settings = new FormState(array(
+            'values' => $settings,
+            'field_type' => $field_type,
+          ));
+          $plugin = $this->diffBuilderManager->createInstance($field_type_values['plugin']['type'], array());
+          $plugin->submitConfigurationForm($form, $settings);
         }
-
-        // Field Type values.
-        $field_type_values = array(
-          'type' => $field_type_values['plugin']['type'],
-          'settings' => $settings,
-        );
-
-        $this->config->set('field_types.' . $field_type, $field_type_values);
       }
     }
-
-    // Save the configuration.
-    $this->config->save();
 
     drupal_set_message($this->t('Your settings have been saved.'));
   }
@@ -369,16 +382,18 @@ class FieldTypesSettingsForm extends FormBase {
     $plugin = NULL;
 
     if ($configuration && isset($configuration['type']) && $configuration['type'] != 'hidden') {
-      if (!isset($display_options['settings'])) {
-        $display_options['settings'] = array();
+      if (!isset($configuration['settings'])) {
+        $configuration['settings'] = array();
       }
       $plugin = $this->diffBuilderManager->createInstance(
-        $configuration['type'], $display_options['settings']
+        $configuration['type'], $configuration['settings']
       );
     }
 
     return $plugin;
   }
+
+
 
   /**
    * Returns the header for the table.

@@ -31,6 +31,7 @@ class DiffBuilderManager extends DefaultPluginManager {
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
     parent::__construct('Plugin/Diff', $namespaces, $module_handler, 'Drupal\diff\Annotation\FieldDiffBuilder');
+
     $this->setCacheBackend($cache_backend, 'field_diff_builder_plugins');
     $this->alterInfo('field_diff_builder_info');
   }

@@ -86,7 +86,7 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
     $form['compare_format'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Compare format'),
-//      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'compare_format'),
+      '#default_value' => $this->configuration['compare_format'],
       '#description' => $this->t('This is only used if the "Text processing" instance settings are set to <em>Filtered text (user selects text format)</em>.'),
     );
 //    if ($field_type == 'text_with_summary') {
@@ -99,6 +99,15 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
 //    }
 
     return parent::buildConfigurationForm($form, $form_state);
-
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    $this->configuration['compare_format'] = $form_state['values']['compare_format'];
+
+    parent::submitConfigurationForm($form, $form_state);
+  }
+
 }

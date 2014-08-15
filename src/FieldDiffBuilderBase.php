@@ -64,12 +64,12 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
       '#type' => 'checkbox',
       '#title' => $this->t('Show field title'),
       '#weight' => -5,
-//      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'show_header'),
+      '#default_value' => $this->configuration['show_header'],
     );
     $form['markdown'] = array(
       '#type' => 'select',
       '#title' => $this->t('Markdown callback'),
-//      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'markdown'),
+      '#default_value' => $this->configuration['markdown'],
       '#options' => array(
         'drupal_html_to_text' => $this->t('Drupal HTML to Text'),
         'filter_xss' => $this->t('Filter XSS (some tags)'),
@@ -92,10 +92,9 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $keys = array('show_header', 'markdown');
-    foreach ($keys as $key) {
-      $this->configuration[$key] = $form_state['values'][$key];
-    }
+    $this->configuration['show_header'] = $form_state['values']['show_header'];
+    $this->configuration['markdown'] = $form_state['values']['markdown'];
+    $this->configuration['#field_type'] = $form_state['field_type'];
     $this->setConfiguration($this->configuration);
   }
 
@@ -110,17 +109,25 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
    * {@inheritdoc}
    */
   public function getConfiguration() {
-    return $this->configFactory->get('diff.settings')->get();
+    return $this->configFactory->get('diff.plugins')->get($this->pluginId);
   }
 
   /**
    * {@inheritdoc}
    */
   public function setConfiguration(array $configuration) {
-    $config = $this->configFactory->get('diff.settings');
+    $config = $this->configFactory->get('diff.plugins');
+    $field_type_settings = array();
     foreach ($configuration as $key => $value) {
-      $config->set($key, $value);
+      if ($key != '#field_type') {
+        $field_type_settings[$key] = $value;
+      }
     }
+    $field_type = array(
+      'type' => $this->pluginId,
+      'settings' => $field_type_settings,
+    );
+    $config->set($configuration['#field_type'], $field_type);
     $config->save();
   }
 
