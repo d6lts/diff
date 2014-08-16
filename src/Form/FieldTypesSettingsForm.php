@@ -164,7 +164,7 @@ class FieldTypesSettingsForm extends FormBase {
     );
 
     $field_row['field_type_label'] = array(
-        '#markup' => $field_type_label,
+      '#markup' => $field_type_label,
     );
 
     // Check the currently selected plugin, and merge persisted values for its
@@ -227,7 +227,7 @@ class FieldTypesSettingsForm extends FormBase {
               '#op' => 'cancel',
               // Do not check errors for the 'Cancel' button, but make sure we
               // get the value of the 'plugin type' select.
-              '#limit_validation_errors' => array(),
+              '#limit_validation_errors' => array(array('fields', $field_type, 'plugin', 'type')),
             ),
         ),
       );
@@ -246,6 +246,7 @@ class FieldTypesSettingsForm extends FormBase {
             '#op' => 'edit',
             // Do not check errors for the 'Edit' button, but make sure we get
             // the value of the 'plugin type' select.
+            '#limit_validation_errors' => array(array('fields', $field_type, 'plugin', 'type')),
             '#prefix' => '<div class="field-plugin-settings-edit-wrapper">',
             '#suffix' => '</div>',
         );
