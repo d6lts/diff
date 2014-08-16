@@ -11,7 +11,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\diff\Diff\FieldDiffManager;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Diff\DiffFormatter;
 use Drupal\Component\Diff\Diff;
@@ -27,13 +26,6 @@ use Drupal\diff\DiffBuilderManager;
  *   displayed on the UI representing the differences between two entities.
  */
 class EntityComparisonBase extends ControllerBase {
-
-  /**
-   * Field diff manager negotiated service.
-   *
-   * @var \Drupal\diff\Diff\FieldDiffManager
-   */
-  protected $fieldDiffManager;
 
   /**
    * DiffFormatter service.
@@ -79,8 +71,6 @@ class EntityComparisonBase extends ControllerBase {
   /**
    * Constructs an EntityComparisonBase object.
    *
-   * @param FieldDiffManager $field_diff_manager
-   *   Field diff manager negotiated service.
    * @param DiffFormatter $diff_formatter
    *   Diff formatter service.
    * @param DateFormatter $date
@@ -90,8 +80,7 @@ class EntityComparisonBase extends ControllerBase {
    * @param DiffBuilderManager $diffBuilderManager
    *   The diff field builder plugin manager.
    */
-  public function __construct(FieldDiffManager $field_diff_manager, DiffFormatter $diff_formatter, DateFormatter $date, PluginManagerInterface $plugin_manager, DiffBuilderManager $diffBuilderManager) {
-    $this->fieldDiffManager = $field_diff_manager;
+  public function __construct(DiffFormatter $diff_formatter, DateFormatter $date, PluginManagerInterface $plugin_manager, DiffBuilderManager $diffBuilderManager) {
     $this->diffFormatter = $diff_formatter;
     $this->date = $date;
     $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
@@ -106,7 +95,6 @@ class EntityComparisonBase extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('diff.manager'),
       $container->get('diff.diff.formatter'),
       $container->get('date.formatter'),
       $container->get('plugin.manager.field.field_type'),

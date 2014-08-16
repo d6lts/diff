@@ -3,54 +3,9 @@ services:
     class: Drupal\diff\Routing\RouteSubscriber
     tags:
       - { name: event_subscriber }
-  diff.manager:
-    class: Drupal\diff\Diff\FieldDiffManager
-    arguments: ['@module_handler', '@form_builder']
-    tags:
-      - { name: service_collector, tag: diff.field_builder, call: addBuilder }
   diff.diff.formatter:
     class: Drupal\diff\Diff\DiffFormatter
     arguments: ['@config.factory']
-  diff.text_field_builder:
-    class: Drupal\diff\Diff\Entity\TextFieldBuilder
-    arguments: ['@entity.manager', '@form_builder']
-    tags:
-      - { name: diff.field_builder, priority: 0 }
-  diff.image_field_builder:
-    class: Drupal\diff\Diff\Entity\ImageFieldBuilder
-    arguments: ['@entity.manager', '@form_builder']
-    tags:
-      - { name: diff.field_builder, priority: 0 }
-  diff.term_reference_field_builder:
-    class: Drupal\diff\Diff\Entity\TermReferenceFieldBuilder
-    arguments: ['@entity.manager', '@form_builder']
-    tags:
-      - { name: diff.field_builder, priority: 0 }
-  diff.core_field_builder:
-    class: Drupal\diff\Diff\Entity\CoreFieldBuilder
-    arguments: ['@form_builder']
-    tags:
-      - { name: diff.field_builder, priority: 0 }
-  diff.list_field_builder:
-    class: Drupal\diff\Diff\Entity\ListFieldBuilder
-    arguments: ['@form_builder']
-    tags:
-      - { name: diff.field_builder, priority: 0 }
-  diff.file_field_builder:
-    class: Drupal\diff\Diff\Entity\FileFieldBuilder
-    arguments: ['@entity.manager', '@form_builder']
-    tags:
-      - { name: diff.field_builder, priority: 0 }
-  diff.entity_reference_field_builder:
-    class: Drupal\diff\Diff\Entity\EntityReferenceFieldBuilder
-    arguments: ['@entity.manager', '@form_builder']
-    tags:
-      - { name: diff.field_builder, priority: 0 }
-  diff.datetime_field_builder:
-    class: Drupal\diff\Diff\Entity\DateTimeFieldBuilder
-    arguments: ['@entity.manager', '@form_builder']
-    tags:
-      - { name: diff.field_builder, priority: 0 }
   plugin.manager.diff.builder:
       class: Drupal\diff\DiffBuilderManager
       parent: default_plugin_manager
