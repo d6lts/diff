@@ -108,6 +108,8 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
     $this->configuration['markdown'] = $form_state['values']['markdown'];
     $this->configuration['#field_type'] = $form_state['field_type'];
     $this->setConfiguration($this->configuration);
+    $this->configFactory->get('diff.plugins')->save();
+//    dsm($this->getConfiguration()->get());
   }
 
   /**
@@ -132,17 +134,18 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
    */
   public function setConfiguration(array $configuration) {
     $config = $this->configFactory->get('diff.plugins');
+    $field_type = $configuration['#field_type'];
+    unset($configuration['#field_type']);
+
     $field_type_settings = array();
     foreach ($configuration as $key => $value) {
-      if ($key != '#field_type') {
-        $field_type_settings[$key] = $value;
-      }
+      $field_type_settings[$key] = $value;
     }
-    $field_type = array(
+    $settings = array(
       'type' => $this->pluginId,
       'settings' => $field_type_settings,
     );
-    $config->set($configuration['#field_type'], $field_type);
+    $config->set($field_type, $settings);
     $config->save();
   }
 
