@@ -4,7 +4,7 @@ services:
     tags:
       - { name: event_subscriber }
   diff.diff.formatter:
-    class: Drupal\diff\Diff\DiffFormatter
+    class: Drupal\diff\DiffFormatter
     arguments: ['@config.factory']
   plugin.manager.diff.builder:
       class: Drupal\diff\DiffBuilderManager

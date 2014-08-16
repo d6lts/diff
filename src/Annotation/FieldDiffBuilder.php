@@ -47,12 +47,4 @@ class FieldDiffBuilder extends Plugin {
    */
   public $field_types = array();
 
-  /**
-   * An integer to determine the weight of this diff builder relative to other
-   * diff builders for a field type in the Diff settings page.
-   *
-   * @var int optional
-   */
-  public $weight = NULL;
-
 }

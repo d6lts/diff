@@ -5,20 +5,17 @@
  * Contains \Drupal\diff\EntityComparisonBase.
  */
 
-namespace Drupal\diff\Diff\Entity;
+namespace Drupal\diff;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Render\Element;
-use Drupal\Core\Diff\DiffFormatter;
 use Drupal\Component\Diff\Diff;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\SafeMarkup;
-use Drupal\diff\DiffBuilderManager;
-
 
 /**
  * Class EntityComparisonBase
@@ -30,7 +27,7 @@ class EntityComparisonBase extends ControllerBase {
   /**
    * DiffFormatter service.
    *
-   * @var \Drupal\Core\Diff\DiffFormatter
+   * @var \Drupal\diff\DiffFormatter
    */
   protected $diffFormatter;
 

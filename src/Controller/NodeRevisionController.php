@@ -8,7 +8,7 @@
 namespace Drupal\diff\Controller;
 
 use Drupal\node\NodeInterface;
-use Drupal\diff\Diff\Entity\EntityComparisonBase;
+use Drupal\diff\EntityComparisonBase;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\SafeMarkup;
 
