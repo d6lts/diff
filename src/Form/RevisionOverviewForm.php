@@ -159,7 +159,7 @@ class RevisionOverviewForm extends FormBase {
         // Default revision.
         if ($revision->isDefaultRevision()) {
           $date_username_markup = $this->t('!date by !username', array(
-            '!date' => $this->l($revision_date, 'node.view', array('node' => $node->id())),
+            '!date' => $this->l($revision_date, 'entity.node.canonical', array('node' => $node->id())),
             '!username' => drupal_render($username),
             )
           );
