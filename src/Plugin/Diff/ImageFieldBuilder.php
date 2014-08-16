@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\diff\Plugin\Diff\TextFieldBuilder
+ * Contains \Drupal\diff\Plugin\Diff\ImageFieldBuilder
  */
 
 namespace Drupal\diff\Plugin\Diff;
@@ -16,7 +16,6 @@ use Drupal\Core\Form\FormStateInterface;
  *   id = "image_field_diff_builder",
  *   label = @Translation("Image Field Diff"),
  *   field_types = {
- *     "text",
  *     "image"
  *   },
  * )
@@ -25,55 +24,43 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
 
   function build(FieldItemListInterface $field_items) {
     $result = array();
-//    $compare = $context['settings']['compare'];
-//    // Every item from $field_items is of type FieldItemInterface.
-//    foreach ($field_items as $field_key => $field_item) {
-//      $values = $field_item->getValue();
-//      // Compare text formats.
-//      if (isset($compare['compare_format']) && $compare['compare_format'] == 1) {
-//        if (isset($values['format'])) {
-//          $controller = $this->entityManager->getStorage('filter_format');
-//          $format = $controller->load($values['format']);
-//          // The format loaded successfully.
-//          $label = $this->t('Format');
-//          if ($format != NULL) {
-//            $result[$field_key][] = $label . ": " . $format->name;
-//          }
-//          else {
-//            // @todo Solve $value_key is undefined.
-//            $result[$field_key][] = $label . ": " . $this->t('Missing format !format', array('!format' => $values[$value_key]));
-//          }
-//        }
-//      }
-//      // Handle the text summary.
-//      if (isset($compare['compare_summary']) && $compare['compare_summary'] == 1) {
-//        if (isset($values['summary'])) {
-//          $label = $this->t('Summary');
-//          if ($values['summary'] == '') {
-//            $result[$field_key][] = $label . ":\n" . $this->t('Empty');
-//          }
-//          else {
-//            $result[$field_key][] = $label . ":\n" . $values['summary'];
-//          }
-//        }
-//      }
-//      // Compare field values.
-//      if (isset($values['value'])) {
-//        $value_only = TRUE;
-//        // Check if summary or text format are included in the diff.
-//        if ($compare['compare_format'] && $compare['compare_format'] == 1 || isset($compare['compare_summary']) && $compare['compare_summary'] == 1) {
-//          $value_only = FALSE;
-//        }
-//        $label = $this->t('Value');
-//        if ($value_only) {
-//          // Don't display 'value' label.
-//          $result[$field_key][] = $values['value'];
-//        }
-//        else {
-//          $result[$field_key][] = $label . ":\n" . $values['value'];
-//        }
-//      }
-//    }
+    $fileManager = $this->entityManager->getStorage('file');
+    // Every item from $field_items is of type FieldItemInterface.
+    foreach ($field_items as $field_key => $field_item) {
+      if (!$field_item->isEmpty()) {
+        $values = $field_item->getValue();
+
+        // Compare file names.
+        if (isset($values['target_id'])) {
+          $image = $fileManager->load($values['target_id']);
+          $result[$field_key][] = $this->t('Image: !image', array('!image' => $image->getFilename()));
+        }
+
+        // Compare Alt fields.
+        if ($this->configuration['compare_alt_field']) {
+          if (isset($values['alt'])) {
+            $result[$field_key][] = $this->t('Alt: !alt', array('!alt' => $values['alt']));
+          }
+        }
+
+        // Compare Title fields.
+        if ($this->configuration['compare_title_field']) {
+          if (isset($values['title'])) {
+            $result[$field_key][] = $this->t('Title: !title', array('!title' => $values['title']));
+          }
+        }
+
+        // Compare file id.
+        if ($this->configuration['show_id']) {
+          if (isset($values['target_id'])) {
+            $result[$field_key][] = $this->t('File ID: !fid', array('!fid' => $values['target_id']));
+          }
+        }
+
+        $separator = $this->configuration['property_separator'] == 'nl' ? "\n" : $this->configuration['property_separator'];
+        $result[$field_key] = implode($separator, $result[$field_key]);
+      }
+    }
 
     return $result;
   }
@@ -85,24 +72,24 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
     $form['show_id'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Show image ID'),
-//      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'show_id'),
-    );
+      '#default_value' => $this->configuration['show_id'],
+     );
     $form['compare_alt_field'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Compare <em>Alt</em> field'),
-//      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'compare_alt_field'),
+      '#default_value' => $this->configuration['compare_alt_field'],
       '#description' => $this->t('This is only used if the "Enable <em>Alt</em> field" is checked in the instance settings.'),
     );
     $form['compare_title_field'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Compare <em>Title</em> field'),
-//      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'compare_title_field'),
+      '#default_value' => $this->configuration['compare_title_field'],
       '#description' => $this->t('This is only used if the "Enable <em>Title</em> field" is checked in the instance settings.'),
     );
     $form['property_separator'] = array(
       '#type' => 'select',
       '#title' => $this->t('Property separator'),
-//      '#default_value' => $config->get('field_types.' . $field_type . '.' . 'property_separator'),
+      '#default_value' => $this->configuration['property_separator'],
       '#description' => $this->t('Provides the ability to show properties inline or across multiple lines.'),
       '#options' => array(
         ', ' => $this->t('Comma (,)'),
@@ -113,6 +100,17 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
     );
 
     return parent::buildConfigurationForm($form, $form_state);
+  }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    $this->configuration['show_id'] = $form_state['values']['show_id'];
+    $this->configuration['compare_alt_field'] = $form_state['values']['compare_alt_field'];
+    $this->configuration['compare_title_field'] = $form_state['values']['compare_title_field'];
+    $this->configuration['property_separator'] = $form_state['values']['property_separator'];
+
+    parent::submitConfigurationForm($form, $form_state);
   }
 }
