@@ -113,4 +113,19 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
 
     parent::submitConfigurationForm($form, $form_state);
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    $default_configuration = array(
+      'show_id' => 1,
+      'compare_alt_field' => 0,
+      'compare_title_field' => 0,
+      'property_separator' => 'nl',
+    );
+    $default_configuration += parent::defaultConfiguration();
+
+    return $default_configuration;
+  }
 }

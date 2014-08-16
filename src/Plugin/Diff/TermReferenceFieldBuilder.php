@@ -82,4 +82,17 @@ class TermReferenceFieldBuilder extends FieldDiffBuilderBase {
     parent::submitConfigurationForm($form, $form_state);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    $default_configuration = array(
+      'show_name' => 1,
+      'show_id' => 0,
+    );
+    $default_configuration += parent::defaultConfiguration();
+
+    return $default_configuration;
+  }
+
 }

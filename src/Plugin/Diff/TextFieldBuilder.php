@@ -111,4 +111,16 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
     parent::submitConfigurationForm($form, $form_state);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    $default_configuration = array(
+      'compare_format' => 0,
+    );
+    $default_configuration += parent::defaultConfiguration();
+
+    return $default_configuration;
+  }
+
 }

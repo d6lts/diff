@@ -85,4 +85,16 @@ class ListFieldBuilder extends FieldDiffBuilderBase {
     parent::submitConfigurationForm($form, $form_state);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    $default_configuration = array(
+      'compare' => 'key',
+    );
+    $default_configuration += parent::defaultConfiguration();
+
+    return $default_configuration;
+  }
+
 }
