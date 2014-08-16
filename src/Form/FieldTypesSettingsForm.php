@@ -372,13 +372,13 @@ class FieldTypesSettingsForm extends FormBase {
     foreach ($field_types as $field_type => $field_type_values) {
       // If there is no plugin selected erase all configuration.
       if ($field_type_values['plugin']['type'] == 'hidden') {
-        $this->config->clear($field_type)->save();
+        $this->config->clear($field_type);
       }
       else {
         // Get plugin settings. They lie either directly in submitted form
         // values (if the whole form was submitted while some plugin settings
         // were being edited), or have been persisted in $form_state.
-        $settings = array();
+        $plugin = $this->diffBuilderManager->createInstance($field_type_values['plugin']['type']);
         // Form submitted without pressing update button on plugin settings form.
         if (isset($field_type_values['settings_edit_form']['settings'])) {
           $settings = $field_type_values['settings_edit_form']['settings'];
@@ -387,16 +387,20 @@ class FieldTypesSettingsForm extends FormBase {
         elseif (isset($form_state['plugin_settings'][$field_type]['settings'])) {
           $settings = $form_state['plugin_settings'][$field_type]['settings'];
         }
-        if (!empty($settings)) {
-          $state = new FormState(array(
-            'values' => $settings,
-            'field_type' => $field_type,
-          ));
-          $plugin = $this->diffBuilderManager->createInstance($field_type_values['plugin']['type'], array());
-          $plugin->submitConfigurationForm($form, $state);
+        // If the settings are not set anywhere in the form state just save the
+        // default configuration for the current plugin.
+        else {
+          $settings = $plugin->defaultConfiguration();
         }
+        // Build a FormState object and call the plugin submit handler.
+        $state = new FormState(array(
+          'values' => $settings,
+          'field_type' => $field_type,
+        ));
+        $plugin->submitConfigurationForm($form, $state);
       }
     }
+//    $this->config->save();
 
     drupal_set_message($this->t('Your settings have been saved.'));
   }
