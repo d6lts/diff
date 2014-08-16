@@ -62,6 +62,11 @@ class EntityComparisonBase extends ControllerBase {
   protected $config;
 
   /**
+   * Wrapper object for writing/reading simple configuration from diff.plugins.yml
+   */
+  protected $pluginsConfig;
+
+  /**
    * A list of all the field types from the system and their definitions.
    */
   protected $fieldTypeDefinitions;
@@ -91,6 +96,7 @@ class EntityComparisonBase extends ControllerBase {
     $this->date = $date;
     $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
     $this->config = $this->config('diff.settings');
+    $this->pluginsConfig = $this->config('diff.plugins');
     $this->nonBreakingSpace = SafeMarkup::set('&nbsp');
     $this->diffBuilderManager = $diffBuilderManager;
   }
@@ -132,42 +138,32 @@ class EntityComparisonBase extends ControllerBase {
     foreach ($entity as $field_items) {
       $field_type = $field_items->getFieldDefinition()->getType();
       $config_key = 'entity.' . $entity_type_id . '.' . $field_items->getName();
-      $context = array(
-        'settings' => array(
-          'compare' => $this->config->get('field_types.' . $field_type),
-        ),
-      );
-      // This is just for testing plugins defined by the diff module.
-      if ($field_type == 'text_with_summary') {
-        $options = array(
-          'field_definition' => $field_items->getFieldDefinition(),
-        );
-        $this->diffBuilderManager->getInstance($options)->build($field_items);
+      $plugin_config = $this->pluginsConfig->get($field_type);
+      $plugin = NULL;
+      if ($plugin_config && $plugin_config['type'] != 'hidden') {
+        $plugin = $this->diffBuilderManager->createInstance($plugin_config['type'], $plugin_config['settings']);
       }
-      // Configurable field. The visibility settings for this
-      // field are taken from content type view modes.
-      if (!array_key_exists($field_items->getName(), $entity_base_fields)) {
-        // For every field of the entity we call build method on the negotiated
-        // service FieldDiffManager and this service will search for the service
-        // that applies to this type of field and call the method on that service.
-        // @todo After implementing all functionality see if it's possible to
-        //   send only $field_items to the build method (and settings for the
-        //   field will be retrieved in the field diff builder).
-        $build = $this->fieldDiffManager->build($field_items, $context);
-        if (!empty($build)) {
-          $result[$field_items->getName()] = $build;
-        }
-      }
-      // If field is one of the entity base fields take visibility settings from
-      // diff admin config page. This means that the visibility of these fields
-      // is controlled per entity type.
-      else {
-        // Check if this field needs to be compared.
-        $enabled = $this->config->get($config_key);
-        if ($enabled) {
-          $build = $this->fieldDiffManager->build($field_items, $context);
+      if ($plugin) {
+        // Configurable field. It is the responsibility of the class extending
+        // this class to hide some configurable fields from comparison. This class
+        // compares all configurable fields.
+        if (!array_key_exists($field_items->getName(), $entity_base_fields)) {
+          $build = $plugin->build($field_items);
           if (!empty($build)) {
             $result[$field_items->getName()] = $build;
+          }
+        }
+        // If field is one of the entity base fields take visibility settings from
+        // diff admin config page. This means that the visibility of these fields
+        // is controlled per entity type.
+        else {
+          // Check if this field needs to be compared.
+          $enabled = $this->config->get($config_key);
+          if ($enabled) {
+            $build = $plugin->build($field_items);
+            if (!empty($build)) {
+              $result[$field_items->getName()] = $build;
+            }
           }
         }
       }
@@ -198,9 +194,9 @@ class EntityComparisonBase extends ControllerBase {
     foreach ($left_values as $field_name => $values) {
       $field_definition = $left_entity->getFieldDefinition($field_name);
       // Get the compare settings for this field type.
-      $compare_settings = $this->config->get('field_types.' . $field_definition->getType());
+      $compare_settings = $this->pluginsConfig->get($field_definition->getType());
       $result[$field_name] = array(
-        '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->getLabel() : '',
+        '#name' => ($compare_settings['settings']['show_header'] == 1) ? $field_definition->getLabel() : '',
         '#settings' => $compare_settings,
       );
 

@@ -13,6 +13,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityManagerInterface;
 
 abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuilderInterface, ContainerFactoryPluginInterface {
 
@@ -26,6 +27,13 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
   protected $configFactory;
 
   /**
+   * The entity manager.
+   *
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityManager;
+
+  /**
    * Constructs a FieldDiffBuilderBase object.
    *
    * @param array $configuration
@@ -36,9 +44,12 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
    *   The plugin implementation definition.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   The configuration factory object.
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
+   *   The entity manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityManagerInterface $entityManager) {
     $this->configFactory = $config;
+    $this->entityManager = $entityManager;
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->configuration += $this->defaultConfiguration();
@@ -52,7 +63,8 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('entity.manager')
     );
   }
 
@@ -112,7 +124,7 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
    * {@inheritdoc}
    */
   public function getConfiguration() {
-    return $this->configFactory->get('diff.plugins')->get($this->pluginId);
+    return $this->configFactory->get('diff.plugins');
   }
 
   /**

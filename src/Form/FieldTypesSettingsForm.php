@@ -24,7 +24,7 @@ use Drupal\Core\Form\FormState;
 class FieldTypesSettingsForm extends FormBase {
 
   /**
-   * Wrapper object for writing/reading simple configuration from diff.settings.yml
+   * Wrapper object for writing/reading simple configuration from diff.plugins.yml
    */
   protected $config;
 
