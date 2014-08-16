@@ -324,45 +324,41 @@ class FieldTypesSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-//    $field_types = $form_state['values']['fields'];
-//
-//    foreach ($field_types as $field_type => $field_type_values) {
-//      // If there is no plugin selected erase all configuration.
-//      if ($field_type_values['plugin']['type'] == 'hidden') {
-//        $this->config->clear('field_types.' . $field_type);
-//      }
-//      else {
-//        // Get plugin settings. They lie either directly in submitted form
-//        // values (if the whole form was submitted while some plugin settings
-//        // were being edited), or have been persisted in $form_state.
-//        $settings = array();
-//        $key = NULL;
-//        // Form submitted without pressing update button on plugin settings form.
-//        if (isset($field_type_values['settings_edit_form']['settings'])) {
-//          $settings = $field_type_values['settings_edit_form']['settings'];
-//          $key = 1;
-//        }
-//        // Form submitted after settings were updated.
-//        elseif (isset($form_state['plugin_settings'][$field_type]['settings'])) {
-//          $settings = $form_state['plugin_settings'][$field_type]['settings'];
-//          $key = 2;
-//        }
-//        if (!empty($settings)) {
-//          $state = new FormState(array(
-//            'values' => $settings,
-//            'field_type' => $field_type,
-//          ));
-//          $plugin = $this->diffBuilderManager->createInstance($field_type_values['plugin']['type'], array());
-//          $plugin->validateConfigurationForm($form, $state);
-//          if ($key == 1) {
-//            $field_type_values['settings_edit_form']['settings'] = $state['values'];
-//          }
-//          elseif ($key == 2) {
-//            $form_state['plugin_settings'][$field_type]['settings'] = $state['values'];
-//          }
-//        }
-//      }
-//    }
+    $field_types = $form_state['values']['fields'];
+
+    foreach ($field_types as $field_type => $field_type_values) {
+      // If there is no plugin selected erase all configuration.
+      if ($field_type_values['plugin']['type'] != 'hidden') {
+        $settings = array();
+        $key = NULL;
+        // Form submitted without pressing update button on plugin settings form.
+        if (isset($field_type_values['settings_edit_form']['settings'])) {
+          $settings = $field_type_values['settings_edit_form']['settings'];
+          $key = 1;
+        }
+        // Form submitted after settings were updated.
+        elseif (isset($form_state['plugin_settings'][$field_type]['settings'])) {
+          $settings = $form_state['plugin_settings'][$field_type]['settings'];
+          $key = 2;
+        }
+        if (!empty($settings)) {
+          $state = new FormState(array(
+            'values' => $settings,
+            'field_type' => $field_type,
+          ));
+          $plugin = $this->diffBuilderManager->createInstance($field_type_values['plugin']['type'], array());
+          // Send the values to the plugins form validate handler.
+          $plugin->validateConfigurationForm($form, $state);
+          // Assign the validation messages back to the big table.
+          if ($key == 1) {
+            $field_type_values['settings_edit_form']['settings'] = $state['values'];
+          }
+          elseif ($key == 2) {
+            $form_state['plugin_settings'][$field_type]['settings'] = $state['values'];
+          }
+        }
+      }
+    }
   }
 
   /**

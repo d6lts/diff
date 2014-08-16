@@ -109,7 +109,6 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
     $this->configuration['#field_type'] = $form_state['field_type'];
     $this->setConfiguration($this->configuration);
     $this->configFactory->get('diff.plugins')->save();
-//    dsm($this->getConfiguration()->get());
   }
 
   /**
