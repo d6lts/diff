@@ -16,11 +16,13 @@ use Drupal\Component\Diff\Diff;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Core\Mail\MailFormatHelper;
 
 /**
- * Class EntityComparisonBase
- *   Builds an array of data to be passed through the Diff component and
- *   displayed on the UI representing the differences between two entities.
+ * Builds an array of data out of entity fields.
+ *
+ * The resulted data is then passed through the Diff component and
+ * displayed on the UI and represents the differences between two entities.
  */
 class EntityComparisonBase extends ControllerBase {
 
@@ -111,7 +113,6 @@ class EntityComparisonBase extends ControllerBase {
    *
    * @return array
    *   Array of strings resulted by parsing the entity.
-   * @todo Insert here some code as example here.
    */
   private function parseEntity(ContentEntityInterface $entity) {
     $result = array();
@@ -122,7 +123,6 @@ class EntityComparisonBase extends ControllerBase {
     // into an array of strings according to field type specific settings.
     foreach ($entity as $field_items) {
       $field_type = $field_items->getFieldDefinition()->getType();
-      $config_key = 'entity.' . $entity_type_id . '.' . $field_items->getName();
       $plugin_config = $this->pluginsConfig->get($field_type);
       $plugin = NULL;
       if ($plugin_config && $plugin_config['type'] != 'hidden') {
@@ -130,8 +130,8 @@ class EntityComparisonBase extends ControllerBase {
       }
       if ($plugin) {
         // Configurable field. It is the responsibility of the class extending
-        // this class to hide some configurable fields from comparison. This class
-        // compares all configurable fields.
+        // this class to hide some configurable fields from comparison. This
+        // class compares all configurable fields.
         if (!array_key_exists($field_items->getName(), $entity_base_fields)) {
           $build = $plugin->build($field_items);
           if (!empty($build)) {
@@ -143,6 +143,7 @@ class EntityComparisonBase extends ControllerBase {
         // is controlled per entity type.
         else {
           // Check if this field needs to be compared.
+          $config_key = 'entity.' . $entity_type_id . '.' . $field_items->getName();
           $enabled = $this->config->get($config_key);
           if ($enabled) {
             $build = $plugin->build($field_items);
@@ -159,8 +160,6 @@ class EntityComparisonBase extends ControllerBase {
 
   /**
    * This method should return an array of items ready to be compared.
-   *
-   * @todo Insert here some code as example.
    *
    * @param ContentEntityInterface $left_entity
    *   The left entity
@@ -228,6 +227,12 @@ class EntityComparisonBase extends ControllerBase {
       if (!empty($field_settings['settings']['markdown'])) {
         $result[$key]['#states']['raw_plain']['#left'] = $this->applyMarkdown($field_settings['settings']['markdown'], $result[$key]['#states']['raw']['#left']);
         $result[$key]['#states']['raw_plain']['#right'] = $this->applyMarkdown($field_settings['settings']['markdown'], $result[$key]['#states']['raw']['#right']);
+      }
+      // In case the settings are not loaded correctly use drupal_html_to_text
+      // to avoid any possible notices when a user clicks on markdown.
+      else {
+        $result[$key]['#states']['raw_plain']['#left'] = $this->applyMarkdown('drupal_html_to_text', $result[$key]['#states']['raw']['#left']);
+        $result[$key]['#states']['raw_plain']['#right'] = $this->applyMarkdown('drupal_html_to_text', $result[$key]['#states']['raw']['#right']);
       }
     }
 
@@ -307,8 +312,6 @@ class EntityComparisonBase extends ControllerBase {
 
     // Header is the line counter.
     $this->diffFormatter->show_header = $show_header;
-    // @todo Should Diff object be a service/should it be injected ?
-    //   Config manager from core also uses it like this.
     $diff = new Diff($a, $b);
 
     return $this->diffFormatter->format($diff);
@@ -361,7 +364,7 @@ class EntityComparisonBase extends ControllerBase {
     }
 
     if ($markdown == 'drupal_html_to_text') {
-      return trim(drupal_html_to_text($items), "\n");
+      return trim(MailFormatHelper::htmlToText($items), "\n");
     }
     elseif ($markdown == 'filter_xss') {
       return trim(Xss::filter($items), "\n");

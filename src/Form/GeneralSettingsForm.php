@@ -31,9 +31,9 @@ class GeneralSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('general_settings.theme'),
       '#options' => array(
         'default' => $this->t('Classic'),
-        'boxes' => $this->t('Boxes'),
+        // Not implemented yet.
+        // 'boxes' => $this->t('Boxes'),
       ),
-      '#empty_option' => $this->t('- None -'),
       '#description' => $this->t('Alter the CSS used when displaying diff results.'),
     );
     $form['radio_behavior'] = array(

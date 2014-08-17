@@ -12,7 +12,6 @@ use Drupal\diff\EntityComparisonBase;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\SafeMarkup;
 
-
 /**
  * Returns responses for Node Revision routes.
  */
@@ -86,13 +85,15 @@ class NodeRevisionController extends EntityComparisonBase {
           unset($fields[$field_name]);
         }
       }
-      // Build the diff rows for each field and append the field rows to the table rows.
+      // Build the diff rows for each field and append the field rows
+      // to the table rows.
       foreach ($fields as $field) {
         $field_label_row = '';
         if (!empty($field['#name'])) {
           $field_label_row = array(
             'data' => $this->t('Changes to %name', array('%name' => $field['#name'])),
             'colspan' => 4,
+            'class' => array('field-name'),
           );
         }
         $field_diff_rows = $this->getRows(
@@ -100,7 +101,7 @@ class NodeRevisionController extends EntityComparisonBase {
           $field['#states'][$filter]['#right']
         );
 
-        // @todo This must be removed. It is just a temporary solution for
+        // @todo This might be removed. It is just a temporary solution for
         //   displaying the diff data. This needs to be solved from diff formatter.
         foreach ($field_diff_rows as &$field_diff_row) {
           foreach ($field_diff_row as &$field_diff_column) {
@@ -123,13 +124,23 @@ class NodeRevisionController extends EntityComparisonBase {
       }
 
       // Add the CSS for the diff.
-      $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.default.css';
+      $theme = $this->config->get('general_settings.theme');
+      if ($theme && $theme == 'default') {
+        $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.default.css';
+      }
+      // If the setting could not be loaded or is missing use the default theme.
+      elseif ($theme == NULL) {
+        $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.default.css';
+      }
 
       $build['diff'] = array(
         '#type' => 'table',
         '#header' => $diff_header,
         '#rows' => $diff_rows,
         '#empty' => $this->t('No visible changes'),
+        '#attributes' => array(
+          'class' => array('diff'),
+        ),
       );
 
       $build['back'] = array(
@@ -186,7 +197,7 @@ class NodeRevisionController extends EntityComparisonBase {
           )),
       ));
       // @todo When theming think about where in the table to integrate this
-      //   link to the revision user. There is some issue about multiline headers
+      //   link to the revision user. There is some issue about multi-line headers
       //   for theme table.
 //      $header[] = array(
 //        'data' => $this->t('by' . '!username', array('!username' => drupal_render($username))),
@@ -213,8 +224,6 @@ class NodeRevisionController extends EntityComparisonBase {
     $i = 0;
 
     $row = array();
-    // First column.
-    $row[] = $this->nonBreakingSpace;
     // Find the previous revision.
     while ($left_vid > $vids[$i]) {
       $i += 1;
@@ -231,7 +240,8 @@ class NodeRevisionController extends EntityComparisonBase {
             'right_vid' => $left_vid
           )
         ),
-        'colspan' => 1,
+        'colspan' => 2,
+        'class' => 'rev-navigation',
       );
     }
     else {
@@ -257,7 +267,8 @@ class NodeRevisionController extends EntityComparisonBase {
             'right_vid' => $vids[$i],
           )
         ),
-        'colspan' => 1,
+        'colspan' => 2,
+        'class' => 'rev-navigation',
       );
     }
     else {
@@ -304,13 +315,12 @@ class NodeRevisionController extends EntityComparisonBase {
     unset($links[$active_filter]);
     array_unshift($links, $filter);
 
-    $row[] = $this->nonBreakingSpace;
     $row[] = array(
       'data' => array(
         '#type' => 'operations',
         '#links' => $links,
       ),
-      'colspan' => 3,
+      'colspan' => 4,
     );
 
     return $row;

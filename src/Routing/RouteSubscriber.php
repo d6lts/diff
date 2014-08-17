@@ -6,6 +6,7 @@
  */
 
 namespace Drupal\diff\Routing;
+
 use Drupal\Core\Routing\RouteSubscriberBase;
 use Symfony\Component\Routing\RouteCollection;
 

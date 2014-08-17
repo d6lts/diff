@@ -18,7 +18,6 @@ use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
-
 /**
  * Provides a form for revision overview page.
  */
@@ -138,7 +137,6 @@ class RevisionOverviewForm extends FormBase {
     );
 
     $vids = array_reverse($node_storage->revisionIds($node));
-    // @todo We should take care of pagination in the future.
     // Add rows to the table.
     foreach ($vids as $vid) {
       if ($revision = $node_storage->loadRevision($vid)) {
@@ -272,7 +270,7 @@ class RevisionOverviewForm extends FormBase {
     $vid_left = $form_state['input']['radios_left'];
     $vid_right = $form_state['input']['radios_right'];
     if ($vid_left == $vid_right || !$vid_left || !$vid_right) {
-      // @todo See why radio-boxes selection resets if there are errors.
+      // @todo Radio-boxes selection resets if there are errors.
       $form_state->setError($form['node_revisions_table'], $this->t('Select different revisions to compare.'));
     }
   }

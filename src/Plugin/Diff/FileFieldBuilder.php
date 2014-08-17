@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\diff\Plugin\Diff\TermReferenceFieldBuilder
+ * Contains \Drupal\diff\Plugin\Diff\FileFieldBuilder
  */
 
 namespace Drupal\diff\Plugin\Diff;

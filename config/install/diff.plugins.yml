@@ -64,10 +64,11 @@ text_long:
     show_header: 1
     markdown: drupal_html_to_text
 text_with_summary:
-  type: text_field_diff_builder
+  type: text_summary_field_diff_builder
   settings:
     compare_format: 0
-    show_header: 1
+    compare_summary: 0
+    show_header: '1'
     markdown: drupal_html_to_text
 email:
   type: core_field_diff_builder

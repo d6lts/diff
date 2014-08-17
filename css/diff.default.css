@@ -1,21 +1,6 @@
 /**
- * Inline diff metadata
- */
-.diff-inline-metadata {
-  padding: 4px;
-  border: 1px solid #ddd;
-  background: #fff;
-  margin: 0px 0px 10px;
-}
-.diff-inline-legend {
-  font-size: 11px;
-}
-.diff-inline-legend span,
-.diff-inline-legend label {
-  margin-right: 5px;
-}
-/**
- * Inline diff markup
+ * @file
+ * Stylesheet for the diff module.
  */
 span.diff-deleted {
   color: #ccc;
@@ -34,20 +19,6 @@ span.diff-added {
 }
 span.diff-added img {
   border: solid 2px #cfc;
-}
-/**
- * Traditional split diff theming
- */
-table.diff {
-  border-spacing: 4px;
-  margin-bottom: 20px;
-  table-layout: fixed;
-  width: 100%;
-}
-table.diff tr.even,
-table.diff tr.odd {
-  background-color: inherit;
-  border: none;
 }
 td.diff-prevlink {
   text-align: left;
@@ -73,30 +44,15 @@ td.diff-addedline {
   background-color: #afa;
   width: 50%;
 }
+td.field-name,
+td.rev-navigation {
+    text-align:center;
+    vertical-align:middle;
+}
 span.diffchange {
   color: #f00;
   font-weight: bold;
 }
-table.diff col.diff-marker {
-  width: 1.4em;
-}
-table.diff col.diff-content {
-  width: 50%;
-}
-table.diff th {
-  padding-right: inherit;
-}
-table.diff td div {
-  overflow: auto;
-  padding: 0.1ex 0.5em;
-  word-wrap: break-word;
-}
-table.diff td {
-  padding: 0.1ex 0.4em;
-}
 .diff-button {
   margin-bottom: 20px;
-}
-#diff-field-types-list-table {
-  margin-bottom: 40px;
 }

@@ -13,16 +13,14 @@ use Drupal\Core\Form\FormStateInterface;
 
 /**
  * @FieldDiffBuilder(
- *   id = "text_field_diff_builder",
- *   label = @Translation("Text Field Diff"),
+ *   id = "text_summary_field_diff_builder",
+ *   label = @Translation("Text with Summary Field"),
  *   field_types = {
- *     "text_with_summary",
- *     "text",
- *     "text_long"
+ *     "text_with_summary"
  *   },
  * )
  */
-class TextFieldBuilder extends FieldDiffBuilderBase {
+class TextWithSummaryFieldBuilder extends FieldDiffBuilderBase {
 
   /**
    * {@inheritdoc}
@@ -47,23 +45,23 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
           }
         }
       }
-//      // Handle the text summary.
-//      if (isset($compare['compare_summary']) && $compare['compare_summary'] == 1) {
-//        if (isset($values['summary'])) {
-//          $label = $this->t('Summary');
-//          if ($values['summary'] == '') {
-//            $result[$field_key][] = $label . ":\n" . $this->t('Empty');
-//          }
-//          else {
-//            $result[$field_key][] = $label . ":\n" . $values['summary'];
-//          }
-//        }
-//      }
+      // Handle the text summary.
+      if ($this->configuration['compare_summary'] == 1) {
+        if (isset($values['summary'])) {
+          $label = $this->t('Summary');
+          if ($values['summary'] == '') {
+            $result[$field_key][] = $label . ":\n" . $this->t('Empty');
+          }
+          else {
+            $result[$field_key][] = $label . ":\n" . $values['summary'];
+          }
+        }
+      }
       // Compare field values.
       if (isset($values['value'])) {
         $value_only = TRUE;
         // Check if summary or text format are included in the diff.
-        if ($this->configuration['compare_format'] == 1) {
+        if ($this->configuration['compare_format'] == 1 || $this->configuration['compare_summary'] == 1) {
           $value_only = FALSE;
         }
         $label = $this->t('Value');
@@ -90,14 +88,12 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
       '#default_value' => $this->configuration['compare_format'],
       '#description' => $this->t('This is only used if the "Text processing" instance settings are set to <em>Filtered text (user selects text format)</em>.'),
     );
-//    if ($field_type == 'text_with_summary') {
-//      $form['compare_summary'] = array(
-//        '#type' => 'checkbox',
-//        '#title' => $this->t('Compare summary separately'),
-//        '#default_value' => $config->get('field_types.' . $field_type . '.' . 'compare_summary'),
-//        '#description' => $this->t('This is only used if the "Summary input" option is checked in the instance settings.'),
-//      );
-//    }
+    $form['compare_summary'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Compare summary separately'),
+      '#default_value' => $this->configuration['compare_summary'],
+      '#description' => $this->t('This is only used if the "Summary input" option is checked in the instance settings.'),
+    );
 
     return parent::buildConfigurationForm($form, $form_state);
   }
@@ -107,6 +103,7 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration['compare_format'] = $form_state['values']['compare_format'];
+    $this->configuration['compare_summary'] = $form_state['values']['compare_summary'];
 
     parent::submitConfigurationForm($form, $form_state);
   }
@@ -117,6 +114,7 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
   public function defaultConfiguration() {
     $default_configuration = array(
       'compare_format' => 0,
+      'compare_summary' => 0,
     );
     $default_configuration += parent::defaultConfiguration();
 
