@@ -70,6 +70,7 @@ class NodeRevisionController extends EntityComparisonBase {
     // Perform comparison only if both node revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
       $fields = $this->compareRevisions($left_revision, $right_revision);
+      $node_base_fields = $this->entityManager()->getBaseFieldDefinitions('node');
       // Check to see if we need to display certain fields or not based on
       // selected view mode display settings.
       foreach ($fields as $field_name => $field) {
@@ -81,7 +82,7 @@ class NodeRevisionController extends EntityComparisonBase {
           $view_mode = 'default';
         }
         $visible = entity_get_display('node', $node->getType(), $view_mode)->getComponent($field_name);
-        if ($visible == NULL) {
+        if ($visible == NULL && !array_key_exists($field_name, $node_base_fields)) {
           unset($fields[$field_name]);
         }
       }

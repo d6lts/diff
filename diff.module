@@ -6,7 +6,6 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 
-
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  */
