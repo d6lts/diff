@@ -47,18 +47,6 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
           }
         }
       }
-//      // Handle the text summary.
-//      if (isset($compare['compare_summary']) && $compare['compare_summary'] == 1) {
-//        if (isset($values['summary'])) {
-//          $label = $this->t('Summary');
-//          if ($values['summary'] == '') {
-//            $result[$field_key][] = $label . ":\n" . $this->t('Empty');
-//          }
-//          else {
-//            $result[$field_key][] = $label . ":\n" . $values['summary'];
-//          }
-//        }
-//      }
       // Compare field values.
       if (isset($values['value'])) {
         $value_only = TRUE;
@@ -90,14 +78,6 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
       '#default_value' => $this->configuration['compare_format'],
       '#description' => $this->t('This is only used if the "Text processing" instance settings are set to <em>Filtered text (user selects text format)</em>.'),
     );
-//    if ($field_type == 'text_with_summary') {
-//      $form['compare_summary'] = array(
-//        '#type' => 'checkbox',
-//        '#title' => $this->t('Compare summary separately'),
-//        '#default_value' => $config->get('field_types.' . $field_type . '.' . 'compare_summary'),
-//        '#description' => $this->t('This is only used if the "Summary input" option is checked in the instance settings.'),
-//      );
-//    }
 
     return parent::buildConfigurationForm($form, $form_state);
   }
