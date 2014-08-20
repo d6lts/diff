@@ -51,7 +51,9 @@ class NodeRevisionController extends EntityComparisonBase {
    */
   public function compareNodeRevisions(NodeInterface $node, $left_vid, $right_vid, $filter) {
     $diff_rows = array();
-    $build = array();
+    $build = array(
+      '#title' => $this->t('Revisions for %title', array('%title' => $node->label())),
+    );
     if (!in_array($filter, array('raw', 'raw-plain'))) {
       $filter = 'raw';
     }
@@ -194,16 +196,16 @@ class NodeRevisionController extends EntityComparisonBase {
       $revision_link = $this->t($revision_log . '!date', array(
         '!date' => $this->l($revision_date, 'node.revision_show', array(
             'node' => $revision->id(),
-            'node_revision' => $revision->getRevisionId()
+            'node_revision' => $revision->getRevisionId(),
           )),
       ));
       // @todo When theming think about where in the table to integrate this
       //   link to the revision user. There is some issue about multi-line headers
       //   for theme table.
-//      $header[] = array(
-//        'data' => $this->t('by' . '!username', array('!username' => drupal_render($username))),
-//        'colspan' => 1,
-//      );
+      // $header[] = array(
+      //   'data' => $this->t('by' . '!username', array('!username' => drupal_render($username))),
+      //   'colspan' => 1,
+      // );
       $header[] = array(
         'data' => $this->nonBreakingSpace,
         'colspan' => 1,
@@ -238,7 +240,7 @@ class NodeRevisionController extends EntityComparisonBase {
           array(
             'node' => $nid,
             'left_vid' => $vids[$i - 1],
-            'right_vid' => $left_vid
+            'right_vid' => $left_vid,
           )
         ),
         'colspan' => 2,

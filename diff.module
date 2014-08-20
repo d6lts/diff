@@ -63,25 +63,15 @@ function diff_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.diff':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('The Diff module replaces the normal <em>Revisions
-        </em> node tab and enhances the listing of revisions with an option to
-        view the differences between any two content revisions.') . '</p>';
+      $output .= '<p>' . t('The Diff module replaces the normal <em>Revisions </em> node tab and enhances the listing of revisions with an option to view the differences between any two content revisions.') . '</p>';
       $output .= '<h3>' . t('Uses') . '</h3>';
       $output .= '<dl>';
       $output .= '<dt>' . t('Compare content entity revisions') . '</dt>';
-      $output .= '<dd>' . t('Diff provides the possibility of comparing two node
-        revisions but it also provides support for comparing any two content
-        entities. With minimum effort it can be extended to display differences
-        between any two content entities.') . '</dd>';
+      $output .= '<dd>' . t('Diff provides the possibility of comparing two node revisions but it also provides support for comparing any two content entities. With minimum effort it can be extended to display differences between any two content entities.') . '</dd>';
       $output .= '<dt>' . t('Control field visibility settings') . '</dt>';
-      $output .= '<dd>' . t('Fields visibility can be controlled from view modes
-        for configurable fields and from Diff settings page for entity base
-        fields. Diff field types specific settings can also be configured from
-        Diff settings page') . '</dd>';
+      $output .= '<dd>' . t('Fields visibility can be controlled from view modes for configurable fields and from Diff settings page for entity base fields. Diff field types specific settings can also be configured from Diff settings page') . '</dd>';
       $output .= '<dt>' . t('Configure diff field type settings') . '</dt>';
-      $output .= '<dd>' . t('Every field type has specific diff settings
-        (display or not the title of the field, markdown format, etc.). These
-        settings can be configured from Diff settings page') . '</dd>';
+      $output .= '<dd>' . t('Every field type has specific diff settings (display or not the title of the field, markdown format, etc.). These settings can be configured from Diff settings page') . '</dd>';
       $output .= '</dl>';
       return $output;
 
@@ -89,14 +79,9 @@ function diff_help($route_name, RouteMatchInterface $route_match) {
       return '<p>' . t('Comparing two revisions:') . '</p>';
 
     case 'diff.revision_overview':
-      return '<p>' . t('Revisions allow you to track differences between multiple
-      versions of your content, and revert back to older versions.') . '</p>';
+      return '<p>' . t('Revisions allow you to track differences between multiple versions of your content, and revert back to older versions.') . '</p>';
 
     case 'diff.field_types_list':
-      return '<p>' . t('This table provides a summary of the field type
-      support found on the system. For every field type a plugin can be
-      selected and configured.') . '</p><p>' . t('FieldDiffBuilder plugins are
-      responsible for building a string out of every field and for
-      providing a settings form for that plugin.') . '</p>';
+      return '<p>' . t('This table provides a summary of the field type support found on the system. For every field type a plugin can be selected and configured.') . '</p><p>' . t('FieldDiffBuilder plugins are responsible for building a string out of every field and for providing a settings form for that plugin.') . '</p>';
   }
 }

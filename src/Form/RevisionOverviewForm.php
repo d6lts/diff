@@ -196,7 +196,7 @@ class RevisionOverviewForm extends FormBase {
               'route_name' => 'node.revision_revert_confirm',
               'route_parameters' => array(
                 'node' => $node->id(),
-                'node_revision' => $vid
+                'node_revision' => $vid,
               ),
             );
           }
@@ -206,7 +206,7 @@ class RevisionOverviewForm extends FormBase {
               'route_name' => 'node.revision_delete_confirm',
               'route_parameters' => array(
                 'node' => $node->id(),
-                'node_revision' => $vid
+                'node_revision' => $vid,
               ),
             );
           }

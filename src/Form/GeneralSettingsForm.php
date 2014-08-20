@@ -78,7 +78,7 @@ class GeneralSettingsForm extends ConfigFormBase {
       'theme',
       'radio_behavior',
       'context_lines_leading',
-      'context_lines_trailing'
+      'context_lines_trailing',
     );
     foreach ($keys as $key) {
       $config->set('general_settings.' . $key, $form_state['values'][$key]);

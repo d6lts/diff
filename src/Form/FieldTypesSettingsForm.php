@@ -122,13 +122,13 @@ class FieldTypesSettingsForm extends FormBase {
   /**
    * Builds a row for the table. Each row corresponds to a field type.
    *
-   * @param $field_type
+   * @param string $field_type
    *   ID of the field type.
-   * @param $field_definition
+   * @param array $field_definition
    *   Definition the field type.
-   * @param $plugins
+   * @param array $plugins
    *   An array of field types and the associated field diff builder plugins ids.
-   * @param $diff_plugin_definitions
+   * @param array $diff_plugin_definitions
    *   Definitions of all field diff builder plugins.
    * @param FormStateInterface $form_state
    *   THe form state object.
@@ -214,21 +214,21 @@ class FieldTypesSettingsForm extends FormBase {
         'actions' => array(
           '#type' => 'actions',
           'save_settings' => $base_button + array(
-              '#type' => 'submit',
-              '#button_type' => 'primary',
-              '#name' => $field_type . '_plugin_settings_update',
-              '#value' => $this->t('Update'),
-              '#op' => 'update',
-            ),
+            '#type' => 'submit',
+            '#button_type' => 'primary',
+            '#name' => $field_type . '_plugin_settings_update',
+            '#value' => $this->t('Update'),
+            '#op' => 'update',
+          ),
           'cancel_settings' => $base_button + array(
-              '#type' => 'submit',
-              '#name' => $field_type . '_plugin_settings_cancel',
-              '#value' => $this->t('Cancel'),
-              '#op' => 'cancel',
-              // Do not check errors for the 'Cancel' button, but make sure we
-              // get the value of the 'plugin type' select.
-              '#limit_validation_errors' => array(array('fields', $field_type, 'plugin', 'type')),
-            ),
+            '#type' => 'submit',
+            '#name' => $field_type . '_plugin_settings_cancel',
+            '#value' => $this->t('Cancel'),
+            '#op' => 'cancel',
+            // Do not check errors for the 'Cancel' button, but make sure we
+            // get the value of the 'plugin type' select.
+            '#limit_validation_errors' => array(array('fields', $field_type, 'plugin', 'type')),
+          ),
         ),
       );
       $field_row['settings_edit'] = array();
@@ -239,16 +239,16 @@ class FieldTypesSettingsForm extends FormBase {
       // Display the configure settings button only if a plugin is selected.
       if ($plugin) {
         $field_row['settings_edit'] = $base_button + array(
-            '#type' => 'image_button',
-            '#name' => $field_type . '_settings_edit',
-            '#src' => 'core/misc/configure-dark.png',
-            '#attributes' => array('class' => array('field-plugin-settings-edit'), 'alt' => $this->t('Edit')),
-            '#op' => 'edit',
-            // Do not check errors for the 'Edit' button, but make sure we get
-            // the value of the 'plugin type' select.
-            '#limit_validation_errors' => array(array('fields', $field_type, 'plugin', 'type')),
-            '#prefix' => '<div class="field-plugin-settings-edit-wrapper">',
-            '#suffix' => '</div>',
+          '#type' => 'image_button',
+          '#name' => $field_type . '_settings_edit',
+          '#src' => 'core/misc/configure-dark.png',
+          '#attributes' => array('class' => array('field-plugin-settings-edit'), 'alt' => $this->t('Edit')),
+          '#op' => 'edit',
+          // Do not check errors for the 'Edit' button, but make sure we get
+          // the value of the 'plugin type' select.
+          '#limit_validation_errors' => array(array('fields', $field_type, 'plugin', 'type')),
+          '#prefix' => '<div class="field-plugin-settings-edit-wrapper">',
+          '#suffix' => '</div>',
         );
       }
     }

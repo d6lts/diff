@@ -46,8 +46,8 @@ td.diff-addedline {
 }
 td.field-name,
 td.rev-navigation {
-    text-align:center;
-    vertical-align:middle;
+  text-align: center;
+  vertical-align: middle;
 }
 span.diffchange {
   color: #f00;

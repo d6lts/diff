@@ -21,7 +21,6 @@ class DiffFormatter extends CoreDiffFormatterBase {
    * We need to extend the constructor of the diff formatter used by the
    * core config system in order to provide our own settings.
    *
-   *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    */

@@ -25,7 +25,7 @@ class FileFieldBuilder extends FieldDiffBuilderBase {
   /**
    * {@inheritdoc}
    */
-  function build(FieldItemListInterface $field_items) {
+  public function build(FieldItemListInterface $field_items) {
     $result = array();
     $fileManager = $this->entityManager->getStorage('file');
 

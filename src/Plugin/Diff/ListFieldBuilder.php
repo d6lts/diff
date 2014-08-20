@@ -28,7 +28,7 @@ class ListFieldBuilder extends FieldDiffBuilderBase {
   /**
    * {@inheritdoc}
    */
-  function build(FieldItemListInterface $field_items) {
+  public function build(FieldItemListInterface $field_items) {
     $result = array();
 
     // Every item from $field_items is of type FieldItemInterface.

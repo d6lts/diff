@@ -22,7 +22,10 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class ImageFieldBuilder extends FieldDiffBuilderBase {
 
-  function build(FieldItemListInterface $field_items) {
+  /**
+   * {@inheritdoc}
+   */
+  public function build(FieldItemListInterface $field_items) {
     $result = array();
     $fileManager = $this->entityManager->getStorage('file');
     // Every item from $field_items is of type FieldItemInterface.

@@ -9,3 +9,8 @@ services:
   plugin.manager.diff.builder:
       class: Drupal\diff\DiffBuilderManager
       parent: default_plugin_manager
+  diff.breadcrumb:
+      class: Drupal\diff\DiffBreadcrumbBuilder
+      arguments: ['@router.request_context', '@access_manager', '@router', '@path_processor_manager', '@config.factory',  '@title_resolver', '@current_user']
+      tags:
+        - { name: breadcrumb_builder, priority: 1000 }
