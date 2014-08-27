@@ -149,7 +149,7 @@ class FieldTypesSettingsForm extends FormBase {
     $plugin_options = array();
     if (isset($plugins[$field_type])) {
       foreach ($plugins[$field_type] as $id) {
-        $plugin_options[$id] = $diff_plugin_definitions[$id]['label']->render();
+        $plugin_options[$id] = $diff_plugin_definitions[$id]['label'];
       }
     }
 
