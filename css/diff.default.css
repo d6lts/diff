@@ -1,6 +1,6 @@
 /**
  * @file
- * Stylesheet for the diff module.
+ * Stylesheet for the diff table.
  */
 span.diff-deleted {
   color: #ccc;
@@ -52,9 +52,6 @@ td.rev-navigation {
 span.diffchange {
   color: #f00;
   font-weight: bold;
-}
-.diff-button {
-  margin-bottom: 20px;
 }
 td.diff-context {
     width: 50%;

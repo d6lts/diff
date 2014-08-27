@@ -115,6 +115,7 @@ class FieldTypesSettingsForm extends FormBase {
     );
 
     $form['#attached']['css'][] = drupal_get_path('module', 'field_ui') . '/css/field_ui.admin.css';
+    $form['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.general.css';
 
     return $form;
   }
@@ -173,6 +174,20 @@ class FieldTypesSettingsForm extends FormBase {
       $display_options['type'] = $form_state['values']['fields'][$field_type]['plugin']['type'];
     }
     if (isset($form_state['plugin_settings'][$field_type]['settings'])) {
+      $modified = FALSE;
+      if (!empty($display_options['settings'])) {
+        foreach ($display_options['settings'] as $key => $value) {
+          if ($form_state['plugin_settings'][$field_type]['settings'][$key] != $value) {
+            $modified = TRUE;
+            break;
+          }
+        }
+      }
+      // In case settings are no identical to the ones in the config display
+      // a warning message.
+      if ($modified && !$_SESSION['messages']['warning']) {
+        drupal_set_message($this->t('You have unsaved changes.'), 'warning', FALSE);
+      }
       $display_options['settings'] = $form_state['plugin_settings'][$field_type]['settings'];
     }
 
@@ -227,7 +242,9 @@ class FieldTypesSettingsForm extends FormBase {
             '#op' => 'cancel',
             // Do not check errors for the 'Cancel' button, but make sure we
             // get the value of the 'plugin type' select.
-            '#limit_validation_errors' => array(array('fields', $field_type, 'plugin', 'type')),
+            '#limit_validation_errors' => array(
+              array('fields', $field_type, 'plugin', 'type'),
+            ),
           ),
         ),
       );

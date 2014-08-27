@@ -82,6 +82,6 @@ function diff_help($route_name, RouteMatchInterface $route_match) {
       return '<p>' . t('Revisions allow you to track differences between multiple versions of your content, and revert back to older versions.') . '</p>';
 
     case 'diff.field_types_list':
-      return '<p>' . t('This table provides a summary of the field type support found on the system. For every field type a plugin can be selected and configured.') . '</p><p>' . t('FieldDiffBuilder plugins are responsible for building a string out of every field and for providing a settings form for that plugin.') . '</p>';
+      return '<p>' . t('This table provides a summary of the field type support found on the system. For every field type a diff plugin can be selected and configured.') . '</p>';
   }
 }

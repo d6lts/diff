@@ -127,6 +127,7 @@ class NodeRevisionController extends EntityComparisonBase {
       }
 
       // Add the CSS for the diff.
+      $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.general.css';
       $theme = $this->config->get('general_settings.theme');
       if ($theme) {
         if ($theme == 'default') {

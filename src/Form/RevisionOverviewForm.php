@@ -131,7 +131,7 @@ class RevisionOverviewForm extends FormBase {
           ),
         ),
         'css' => array(
-          drupal_get_path('module', 'diff') . '/css/diff.default.css',
+          drupal_get_path('module', 'diff') . '/css/diff.general.css',
         ),
       ),
     );

@@ -1,6 +1,6 @@
 /**
  * @file
- * Stylesheet for the diff module.
+ * Stylesheet for the diff table.
  */
 td.diff-section-title,
 div.diff-section-title {
@@ -8,9 +8,6 @@ div.diff-section-title {
   font-size: 0.83em;
   font-weight: bold;
   padding: 0.1em 1em;
-}
-.diff-button {
-  margin-bottom: 20px;
 }
 td.diff-prevlink {
   text-align: left;
