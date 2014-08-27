@@ -128,12 +128,17 @@ class NodeRevisionController extends EntityComparisonBase {
 
       // Add the CSS for the diff.
       $theme = $this->config->get('general_settings.theme');
-      if ($theme && $theme == 'default') {
-        $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.default.css';
+      if ($theme) {
+        if ($theme == 'default') {
+          $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.default.css';
+        }
+        elseif ($theme == 'github') {
+          $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.github.css';
+        }
       }
       // If the setting could not be loaded or is missing use the default theme.
       elseif ($theme == NULL) {
-        $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.default.css';
+        $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.github.css';
       }
 
       $build['diff'] = array(

@@ -31,8 +31,7 @@ class GeneralSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('general_settings.theme'),
       '#options' => array(
         'default' => $this->t('Classic'),
-        // Not implemented yet.
-        // 'boxes' => $this->t('Boxes'),
+        'github' => $this->t('Github theme'),
       ),
       '#description' => $this->t('Alter the CSS used when displaying diff results.'),
     );

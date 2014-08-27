@@ -56,3 +56,6 @@ span.diffchange {
 .diff-button {
   margin-bottom: 20px;
 }
+td.diff-context {
+    width: 50%;
+}
