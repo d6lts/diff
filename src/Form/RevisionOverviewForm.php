@@ -2,7 +2,9 @@
 
 /**
  * @file
- * Contains the revision overview form.
+ * Contains \Drupal\diff\Form\RevisionOverviewForm
+ * The form displays all revisions of a node and allows the user two select
+ * two of them and compare.
  */
 
 namespace Drupal\diff\Form;
@@ -14,7 +16,6 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Component\Utility\String;
-use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
@@ -157,7 +158,7 @@ class RevisionOverviewForm extends FormBase {
         // Default revision.
         if ($revision->isDefaultRevision()) {
           $date_username_markup = $this->t('!date by !username', array(
-            '!date' => $this->l($revision_date, 'entity.node.canonical', array('node' => $node->id())),
+            '!date' => $this->l($revision_date, new Url('entity.node.canonical', array('node' => $node->id()))),
             '!username' => drupal_render($username),
             )
           );
@@ -212,11 +213,11 @@ class RevisionOverviewForm extends FormBase {
           }
 
           $date_username_markup = $this->t('!date by !username', array(
-            '!date' => $this->l($revision_date, 'node.revision_show', array(
+            '!date' => $this->l($revision_date, new Url('node.revision_show', array(
                   'node' => $node->id(),
                   'node_revision' => $vid,
                 )
-              ),
+              )),
             '!username' => drupal_render($username),
             )
           );
@@ -267,11 +268,12 @@ class RevisionOverviewForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $vid_left = $form_state['input']['radios_left'];
-    $vid_right = $form_state['input']['radios_right'];
+    $input = $form_state->getUserInput();
+    $vid_left = $input['radios_left'];
+    $vid_right = $input['radios_right'];
     if ($vid_left == $vid_right || !$vid_left || !$vid_right) {
       // @todo Radio-boxes selection resets if there are errors.
-      $form_state->setError($form['node_revisions_table'], $this->t('Select different revisions to compare.'));
+      $form_state->setErrorByName('node_revisions_table', $this->t('Select different revisions to compare.'));
     }
   }
 
@@ -279,9 +281,10 @@ class RevisionOverviewForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $vid_left = $form_state['input']['radios_left'];
-    $vid_right = $form_state['input']['radios_right'];
-    $nid = $form_state['input']['nid'];
+    $input = $form_state->getUserInput();
+    $vid_left = $input['radios_left'];
+    $vid_right = $input['radios_right'];
+    $nid = $input['nid'];
 
     // Always place the older revision on the left side of the comparison
     // and the newer revision on the right side (however revisions can be

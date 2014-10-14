@@ -102,8 +102,8 @@ class TextWithSummaryFieldBuilder extends FieldDiffBuilderBase {
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['compare_format'] = $form_state['values']['compare_format'];
-    $this->configuration['compare_summary'] = $form_state['values']['compare_summary'];
+    $this->configuration['compare_format'] = $form_state->getValue('compare_format');
+    $this->configuration['compare_summary'] = $form_state->getValue('compare_summary');
 
     parent::submitConfigurationForm($form, $form_state);
   }

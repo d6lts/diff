@@ -109,10 +109,10 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['show_id'] = $form_state['values']['show_id'];
-    $this->configuration['compare_alt_field'] = $form_state['values']['compare_alt_field'];
-    $this->configuration['compare_title_field'] = $form_state['values']['compare_title_field'];
-    $this->configuration['property_separator'] = $form_state['values']['property_separator'];
+    $this->configuration['show_id'] = $form_state->getValue('show_id');
+    $this->configuration['compare_alt_field'] = $form_state->getValue('compare_alt_field');
+    $this->configuration['compare_title_field'] = $form_state->getValue('compare_title_field');
+    $this->configuration['property_separator'] = $form_state->getValue('property_separator');
 
     parent::submitConfigurationForm($form, $form_state);
   }

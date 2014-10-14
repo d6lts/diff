@@ -104,9 +104,9 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['show_header'] = $form_state['values']['show_header'];
-    $this->configuration['markdown'] = $form_state['values']['markdown'];
-    $this->configuration['#field_type'] = $form_state['field_type'];
+    $this->configuration['show_header'] = $form_state->getValue('show_header');
+    $this->configuration['markdown'] = $form_state->getValue('markdown');
+    $this->configuration['#field_type'] = $form_state->get('field_type');
     $this->setConfiguration($this->configuration);
     $this->configFactory->get('diff.plugins')->save();
   }

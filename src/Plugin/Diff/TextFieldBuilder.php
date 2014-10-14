@@ -86,7 +86,7 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['compare_format'] = $form_state['values']['compare_format'];
+    $this->configuration['compare_format'] = $form_state->getValue('compare_format');
 
     parent::submitConfigurationForm($form, $form_state);
   }

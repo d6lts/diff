@@ -72,6 +72,7 @@ class GeneralSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('diff.settings');
+    $values = $form_state->getValues();
 
     $keys = array(
       'theme',
@@ -80,7 +81,7 @@ class GeneralSettingsForm extends ConfigFormBase {
       'context_lines_trailing',
     );
     foreach ($keys as $key) {
-      $config->set('general_settings.' . $key, $form_state['values'][$key]);
+      $config->set('general_settings.' . $key, $values[$key]);
     }
     $config->save();
 

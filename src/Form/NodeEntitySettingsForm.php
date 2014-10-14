@@ -83,10 +83,11 @@ class NodeEntitySettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('diff.settings');
+    $values = $form_state->getValues();
 
     $node_base_fields = $this->entityManager->getBaseFieldDefinitions('node');
     foreach ($node_base_fields as $field_key => $field) {
-      $config->set('entity.node' . '.' . $field_key, $form_state['values'][$field_key]);
+      $config->set('entity.node' . '.' . $field_key, $values[$field_key]);
       $config->save();
     }
 

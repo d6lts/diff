@@ -51,7 +51,7 @@ function diff_form_node_type_edit_form_alter(&$form, $form_state) {
 function diff_form_node_type_form_submit(&$form, $form_state) {
   $type = $form_state->getFormObject()->getEntity();
   \Drupal::config('diff.settings')
-    ->set('content_type_settings.' . $type->id() . '.view_mode', $form_state['values']['view_mode'])
+    ->set('content_type_settings.' . $type->id() . '.view_mode', $form_state->getValue('view_mode'))
     ->save();
 }
 

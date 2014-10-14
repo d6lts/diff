@@ -9,15 +9,14 @@ namespace Drupal\diff\Form;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\FormBase;
-use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Form\FormState;
 
 /**
  * This form lists all the field types from the system and for every field type
- * it provides a select having as options all the FieldDiffBuilder plugins that
- * support that field type.
+ * it provides a select-box having as options all the FieldDiffBuilder plugins
+ * that support that field type.
  */
 class FieldTypesSettingsForm extends FormBase {
 
@@ -170,25 +169,26 @@ class FieldTypesSettingsForm extends FormBase {
 
     // Check the currently selected plugin, and merge persisted values for its
     // settings.
-    if (isset($form_state['values']['fields'][$field_type]['plugin']['type'])) {
-      $display_options['type'] = $form_state['values']['fields'][$field_type]['plugin']['type'];
+    if ($type = $form_state->getValue(array('fields', $field_type, 'plugin', 'type'))) {
+      $display_options['type'] = $type;
     }
-    if (isset($form_state['plugin_settings'][$field_type]['settings'])) {
+    $plugin_settings = $form_state->get('plugin_settings');
+    if (isset($plugin_settings[$field_type]['settings'])) {
       $modified = FALSE;
       if (!empty($display_options['settings'])) {
         foreach ($display_options['settings'] as $key => $value) {
-          if ($form_state['plugin_settings'][$field_type]['settings'][$key] != $value) {
+          if ($plugin_settings[$field_type]['settings'][$key] != $value) {
             $modified = TRUE;
             break;
           }
         }
       }
       // In case settings are no identical to the ones in the config display
-      // a warning message.
+      // a warning message. Don't display it twice.
       if ($modified && !$_SESSION['messages']['warning']) {
         drupal_set_message($this->t('You have unsaved changes.'), 'warning', FALSE);
       }
-      $display_options['settings'] = $form_state['plugin_settings'][$field_type]['settings'];
+      $display_options['settings'] = $plugin_settings[$field_type]['settings'];
     }
 
     $field_row['plugin'] = array(
@@ -217,7 +217,7 @@ class FieldTypesSettingsForm extends FormBase {
 
     // We are currently editing this field's plugin settings. Display the
     // settings form and submit buttons.
-    if ($form_state['plugin_settings_edit'] == $field_type) {
+    if ($form_state->get('plugin_settings_edit') == $field_type) {
       $field_row['plugin']['settings_edit_form'] = array(
         '#type' => 'container',
         '#attributes' => array('class' => array('field-plugin-settings-edit-form')),
@@ -242,9 +242,7 @@ class FieldTypesSettingsForm extends FormBase {
             '#op' => 'cancel',
             // Do not check errors for the 'Cancel' button, but make sure we
             // get the value of the 'plugin type' select.
-            '#limit_validation_errors' => array(
-              array('fields', $field_type, 'plugin', 'type'),
-            ),
+            '#limit_validation_errors' => array(array('fields', $field_type, 'plugin', 'type')),
           ),
         ),
       );
@@ -277,39 +275,39 @@ class FieldTypesSettingsForm extends FormBase {
    * Form submission handler for multi-step buttons.
    */
   public function multistepSubmit($form, FormStateInterface $form_state) {
-    $trigger = $form_state['triggering_element'];
+    $trigger = $form_state->getTriggeringElement();
     $op = $trigger['#op'];
 
     switch ($op) {
       case 'edit':
         // Store the field whose settings are currently being edited.
         $field_name = $trigger['#field_type'];
-        $form_state['plugin_settings_edit'] = $field_name;
+        $form_state->set('plugin_settings_edit', $field_name);
         break;
 
       case 'update':
         // Store the saved settings, and set the field back to 'non edit' mode.
         $field_name = $trigger['#field_type'];
-        if (isset($form_state['values']['fields'][$field_name]['settings_edit_form']['settings'])) {
-          $form_state['plugin_settings'][$field_name]['settings'] = $form_state['values']['fields'][$field_name]['settings_edit_form']['settings'];
+        if ($plugin_settings = $form_state->getValue(array('fields', $field_name, 'settings_edit_form', 'settings'))) {
+          $form_state->set(['plugin_settings', $field_name, 'settings'], $plugin_settings);
         }
-        unset($form_state['plugin_settings_edit']);
+        $form_state->set('plugin_settings_edit', NULL);
         break;
 
       case 'cancel':
         // Set the field back to 'non edit' mode.
-        unset($form_state['plugin_settings_edit']);
+        $form_state->set('plugin_settings_edit', NULL);
         break;
     }
 
-    $form_state->set('rebuild', TRUE);
+    $form_state->setRebuild();
   }
 
   /**
    * Ajax handler for multi-step buttons.
    */
   public function multistepAjax(array $form, FormStateInterface $form_state) {
-    $trigger = $form_state['triggering_element'];
+    $trigger = $form_state->getTriggeringElement();
     $op = $trigger['#op'];
 
     // Pick the elements that need to receive the ajax-new-content effect.
@@ -342,10 +340,12 @@ class FieldTypesSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $field_types = $form_state['values']['fields'];
+    $form_values = $form_state->getValues();
+    $plugin_settings = $form_state->get('plugin_settings');
+    $field_types = $form_values['fields'];
 
     foreach ($field_types as $field_type => $field_type_values) {
-      // If there is no plugin selected erase all configuration.
+      // Validate only non-null plugins.
       if ($field_type_values['plugin']['type'] != 'hidden') {
         $settings = array();
         $key = NULL;
@@ -355,24 +355,24 @@ class FieldTypesSettingsForm extends FormBase {
           $key = 1;
         }
         // Form submitted after settings were updated.
-        elseif (isset($form_state['plugin_settings'][$field_type]['settings'])) {
-          $settings = $form_state['plugin_settings'][$field_type]['settings'];
+        elseif (isset($plugin_settings[$field_type]['settings'])) {
+          $settings = $plugin_settings[$field_type]['settings'];
           $key = 2;
         }
         if (!empty($settings)) {
-          $state = new FormState(array(
-            'values' => $settings,
-            'field_type' => $field_type,
-          ));
+          // Build a new Form State object and populate it with values.
+          $state = new FormState();
+          $state->setValues($settings);
+          $state->set('field_type', $field_type);
           $plugin = $this->diffBuilderManager->createInstance($field_type_values['plugin']['type'], array());
           // Send the values to the plugins form validate handler.
           $plugin->validateConfigurationForm($form, $state);
           // Assign the validation messages back to the big table.
           if ($key == 1) {
-            $field_type_values['settings_edit_form']['settings'] = $state['values'];
+            $form_state->setValue(['fields', $field_type, 'settings_edit_form', 'settings'], $state->getValues());
           }
           elseif ($key == 2) {
-            $form_state['plugin_settings'][$field_type]['settings'] = $state['values'];
+            $form_state->set(['plugin_settings', $field_type, 'settings'], $state->getValues());
           }
         }
       }
@@ -383,11 +383,14 @@ class FieldTypesSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $field_types = $form_state['values']['fields'];
+    $form_values = $form_state->getValues();
+    $plugin_settings = $form_state->get('plugin_settings');
+    $field_types = $form_values['fields'];
+
     // Remove from configuration the keys of the field types which have no
     // plugin selected. We need to clear this keys from configuration first
     // and then save the settings for the fields which have a plugin selected.
-    // If we do both writing and clearing in the same for teh values won't get
+    // If we do both writing and clearing in the same for, the values won't get
     // saved.
     foreach ($field_types as $field_type => $field_type_values) {
       // If there is no plugin selected remove the key from config file.
@@ -398,7 +401,6 @@ class FieldTypesSettingsForm extends FormBase {
     $this->config->save();
     // For field types that have a plugin selected save the settings.
     foreach ($field_types as $field_type => $field_type_values) {
-      // If there is no plugin selected remove the key from config file.
       if ($field_type_values['plugin']['type'] != 'hidden') {
         // Get plugin settings. They lie either directly in submitted form
         // values (if the whole form was submitted while some plugin settings
@@ -409,8 +411,8 @@ class FieldTypesSettingsForm extends FormBase {
           $settings = $field_type_values['settings_edit_form']['settings'];
         }
         // Form submitted after settings were updated.
-        elseif (isset($form_state['plugin_settings'][$field_type]['settings'])) {
-          $settings = $form_state['plugin_settings'][$field_type]['settings'];
+        elseif (isset($plugin_settings[$field_type]['settings'])) {
+          $settings = $plugin_settings[$field_type]['settings'];
         }
         // If the settings are not set anywhere in the form state just save the
         // default configuration for the current plugin.
@@ -418,10 +420,10 @@ class FieldTypesSettingsForm extends FormBase {
           $settings = $plugin->defaultConfiguration();
         }
         // Build a FormState object and call the plugin submit handler.
-        $state = new FormState(array(
-          'values' => $settings,
-          'field_type' => $field_type,
-        ));
+        $state = new FormState();
+        $state->setValues($settings);
+        $state->set('field_type', $field_type);
+
         $plugin->submitConfigurationForm($form, $state);
       }
     }

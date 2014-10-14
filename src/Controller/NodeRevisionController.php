@@ -7,6 +7,7 @@
 
 namespace Drupal\diff\Controller;
 
+use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\diff\EntityComparisonBase;
 use Drupal\Component\Utility\Xss;
@@ -200,10 +201,10 @@ class NodeRevisionController extends EntityComparisonBase {
       );
       $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
       $revision_link = $this->t($revision_log . '!date', array(
-        '!date' => $this->l($revision_date, 'node.revision_show', array(
-            'node' => $revision->id(),
-            'node_revision' => $revision->getRevisionId(),
-          )),
+        '!date' => $this->l($revision_date, new Url('node.revision_show', array(
+          'node' => $revision->id(),
+          'node_revision' => $revision->getRevisionId(),
+        ))),
       ));
       // @todo When theming think about where in the table to integrate this
       //   link to the revision user. There is some issue about multi-line headers
@@ -301,22 +302,20 @@ class NodeRevisionController extends EntityComparisonBase {
 
     $links['raw'] = array(
       'title' => $this->t('Standard'),
-      'route_name' => 'diff.revisions_diff',
-      'route_parameters' => array(
+      'url' => new Url('diff.revisions_diff', array(
         'node' => $nid,
         'left_vid' => $left_vid,
         'right_vid' => $right_vid,
-      ),
+      )),
     );
     $links['raw_plain'] = array(
       'title' => $this->t('Markdown'),
-      'route_name' => 'diff.revisions_diff',
-      'route_parameters' => array(
+      'url' => new Url('diff.revisions_diff', array(
         'node' => $nid,
         'left_vid' => $left_vid,
         'right_vid' => $right_vid,
         'filter' => 'raw-plain',
-      ),
+      )),
     );
 
     // Set as the first element the current filter.

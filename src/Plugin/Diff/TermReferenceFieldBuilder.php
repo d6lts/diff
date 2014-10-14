@@ -76,8 +76,8 @@ class TermReferenceFieldBuilder extends FieldDiffBuilderBase {
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['show_name'] = $form_state['values']['show_name'];
-    $this->configuration['show_id'] = $form_state['values']['show_id'];
+    $this->configuration['show_name'] = $form_state->getValue('show_name');
+    $this->configuration['show_id'] = $form_state->getValue('show_id');
 
     parent::submitConfigurationForm($form, $form_state);
   }

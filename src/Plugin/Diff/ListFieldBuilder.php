@@ -80,7 +80,7 @@ class ListFieldBuilder extends FieldDiffBuilderBase {
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['compare'] = $form_state['values']['compare'];
+    $this->configuration['compare'] = $form_state->getValue('compare');
 
     parent::submitConfigurationForm($form, $form_state);
   }

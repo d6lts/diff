@@ -119,10 +119,10 @@ class FileFieldBuilder extends FieldDiffBuilderBase {
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['show_id'] = $form_state['values']['show_id'];
-    $this->configuration['compare_description_field'] = $form_state['values']['compare_description_field'];
-    $this->configuration['compare_display_field'] = $form_state['values']['compare_display_field'];
-    $this->configuration['property_separator'] = $form_state['values']['property_separator'];
+    $this->configuration['show_id'] = $form_state->getValue('show_id');
+    $this->configuration['compare_description_field'] = $form_state->getValue('compare_description_field');
+    $this->configuration['compare_display_field'] = $form_state->getValue('compare_display_field');
+    $this->configuration['property_separator'] = $form_state->getValue('property_separator');
 
     parent::submitConfigurationForm($form, $form_state);
   }
