@@ -3,8 +3,9 @@
 /**
  * @file
  * Contains \Drupal\diff\Form\RevisionOverviewForm
- * The form displays all revisions of a node and allows the user two select
- * two of them and compare.
+ *
+ * This form displays all the revisions of a node and allows the selection
+ * of two of them for comparison.
  */
 
 namespace Drupal\diff\Form;
@@ -18,6 +19,7 @@ use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Component\Utility\String;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Render\RendererInterface;
 
 /**
  * Provides a form for revision overview page.
@@ -46,6 +48,14 @@ class RevisionOverviewForm extends FormBase {
   protected $date;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+
+  /**
    * Wrapper object for writing/reading simple configuration from diff.settings.yml
    */
   protected $config;
@@ -60,11 +70,14 @@ class RevisionOverviewForm extends FormBase {
    *   The current user.
    * @param \Drupal\Core\Datetime\DateFormatter $date
    *   The date service.
+   * @param  \Drupal\Core\Render\RendererInterface
+   *   The renderer service.
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, DateFormatter $date) {
+  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, DateFormatter $date, RendererInterface $renderer) {
     $this->entityManager = $entityManager;
     $this->currentUser = $currentUser;
     $this->date = $date;
+    $this->renderer = $renderer;
     $this->config = $this->config('diff.settings');
   }
 
@@ -75,14 +88,15 @@ class RevisionOverviewForm extends FormBase {
     return new static(
       $container->get('entity.manager'),
       $container->get('current_user'),
-      $container->get('date.formatter')
+      $container->get('date.formatter'),
+      $container->get('renderer')
     );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormID() {
+  public function getFormId() {
     return 'revision_overview_form';
   }
 
@@ -123,19 +137,10 @@ class RevisionOverviewForm extends FormBase {
       '#type' => 'table',
       '#header' => $table_header,
       '#attributes' => array('class' => array('diff-revisions')),
-      '#attached' => array(
-        'js' => array(
-          drupal_get_path('module', 'diff') . '/js/diff.js',
-          array(
-            'data' => array('diffRevisionRadios' => $this->config->get('general_settings.radio_behavior')),
-            'type' => 'setting',
-          ),
-        ),
-        'css' => array(
-          drupal_get_path('module', 'diff') . '/css/diff.general.css',
-        ),
-      ),
     );
+
+    $build['node_revisions_table']['#attached']['library'][] = 'diff/diff.general';
+    $build['node_revisions_table']['#attached']['drupalSettings']['diffRevisionRadios'] = $this->config->get('general_settings.radio_behavior');
 
     $vids = array_reverse($node_storage->revisionIds($node));
     // Add rows to the table.
@@ -158,8 +163,8 @@ class RevisionOverviewForm extends FormBase {
         // Default revision.
         if ($revision->isDefaultRevision()) {
           $date_username_markup = $this->t('!date by !username', array(
-            '!date' => $this->l($revision_date, new Url('entity.node.canonical', array('node' => $node->id()))),
-            '!username' => drupal_render($username),
+            '!date' => $this->l($revision_date, Url::fromRoute('entity.node.canonical', array('node' => $node->id()))),
+            '!username' => $this->renderer->render($username),
             )
           );
 
@@ -190,35 +195,27 @@ class RevisionOverviewForm extends FormBase {
           );
         }
         else {
+          $route_params = array(
+            'node' => $node->id(),
+            'node_revision' => $vid,
+          );
           // Add links based on permissions.
           if ($revert_permission) {
             $links['revert'] = array(
               'title' => $this->t('Revert'),
-              'route_name' => 'node.revision_revert_confirm',
-              'route_parameters' => array(
-                'node' => $node->id(),
-                'node_revision' => $vid,
-              ),
+              'url' => Url::fromRoute('node.revision_revert_confirm', $route_params)
             );
           }
           if ($delete_permission) {
             $links['delete'] = array(
               'title' => $this->t('Delete'),
-              'route_name' => 'node.revision_delete_confirm',
-              'route_parameters' => array(
-                'node' => $node->id(),
-                'node_revision' => $vid,
-              ),
+              'url' => Url::fromRoute('node.revision_delete_confirm', $route_params)
             );
           }
 
           $date_username_markup = $this->t('!date by !username', array(
-            '!date' => $this->l($revision_date, new Url('node.revision_show', array(
-                  'node' => $node->id(),
-                  'node_revision' => $vid,
-                )
-              )),
-            '!username' => drupal_render($username),
+            '!date' => $this->l($revision_date, Url::fromRoute('node.revision_show', $route_params)),
+            '!username' => $this->renderer->render($username),
             )
           );
 
@@ -295,7 +292,7 @@ class RevisionOverviewForm extends FormBase {
       $vid_right = $aux;
     }
     // Builds the redirect Url.
-    $redirect_url = new Url(
+    $redirect_url = Url::fromRoute(
       'diff.revisions_diff',
       array(
         'node' => $nid,

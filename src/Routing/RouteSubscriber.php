@@ -24,7 +24,7 @@ class RouteSubscriber extends RouteSubscriberBase {
     $route = $collection->get('entity.node.version_history');
     $route->addDefaults(
       array(
-        '_content' => '\Drupal\diff\Controller\NodeRevisionController::revisionOverview'
+        '_controller' => '\Drupal\diff\Controller\NodeRevisionController::revisionOverview'
       )
     );
   }

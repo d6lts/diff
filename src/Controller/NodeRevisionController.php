@@ -128,19 +128,19 @@ class NodeRevisionController extends EntityComparisonBase {
       }
 
       // Add the CSS for the diff.
-      $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.general.css';
+      $build['#attached']['library'][] = 'diff/diff.general';
       $theme = $this->config->get('general_settings.theme');
       if ($theme) {
         if ($theme == 'default') {
-          $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.default.css';
+          $build['#attached']['library'][] = 'diff/diff.default';
         }
         elseif ($theme == 'github') {
-          $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.github.css';
+          $build['#attached']['library'][] = 'diff/diff.github';
         }
       }
       // If the setting could not be loaded or is missing use the default theme.
       elseif ($theme == NULL) {
-        $build['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.github.css';
+        $build['#attached']['library'][] = 'diff/diff.github';
       }
 
       $build['diff'] = array(
@@ -162,7 +162,7 @@ class NodeRevisionController extends EntityComparisonBase {
           ),
         ),
         '#title' => $this->t('Back to Revision Overview'),
-        '#href' => 'node/' . $node->id() . '/revisions',
+        '#url' => Url::fromRoute('entity.node.version_history', ['node' => $node->id()]),
       );
 
       return $build;
@@ -201,7 +201,7 @@ class NodeRevisionController extends EntityComparisonBase {
       );
       $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
       $revision_link = $this->t($revision_log . '!date', array(
-        '!date' => $this->l($revision_date, new Url('node.revision_show', array(
+        '!date' => $this->l($revision_date, Url::fromRoute('node.revision_show', array(
           'node' => $revision->id(),
           'node_revision' => $revision->getRevisionId(),
         ))),
@@ -243,12 +243,12 @@ class NodeRevisionController extends EntityComparisonBase {
       $row[] = array(
         'data' => $this->l(
           $this->t('< Previous difference'),
-          'diff.revisions_diff',
+          Url::fromRoute('diff.revisions_diff',
           array(
             'node' => $nid,
             'left_vid' => $vids[$i - 1],
             'right_vid' => $left_vid,
-          )
+          ))
         ),
         'colspan' => 2,
         'class' => 'rev-navigation',
@@ -270,12 +270,12 @@ class NodeRevisionController extends EntityComparisonBase {
       $row[] = array(
         'data' => $this->l(
           $this->t('Next difference >'),
-          'diff.revisions_diff',
+          Url::fromRoute('diff.revisions_diff',
           array(
             'node' => $nid,
             'left_vid' => $right_vid,
             'right_vid' => $vids[$i],
-          )
+          ))
         ),
         'colspan' => 2,
         'class' => 'rev-navigation',
@@ -302,7 +302,7 @@ class NodeRevisionController extends EntityComparisonBase {
 
     $links['raw'] = array(
       'title' => $this->t('Standard'),
-      'url' => new Url('diff.revisions_diff', array(
+      'url' => Url::fromRoute('diff.revisions_diff', array(
         'node' => $nid,
         'left_vid' => $left_vid,
         'right_vid' => $right_vid,
@@ -310,7 +310,7 @@ class NodeRevisionController extends EntityComparisonBase {
     );
     $links['raw_plain'] = array(
       'title' => $this->t('Markdown'),
-      'url' => new Url('diff.revisions_diff', array(
+      'url' => Url::fromRoute('diff.revisions_diff', array(
         'node' => $nid,
         'left_vid' => $left_vid,
         'right_vid' => $right_vid,

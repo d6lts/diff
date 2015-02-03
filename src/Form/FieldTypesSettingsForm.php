@@ -8,7 +8,7 @@
 namespace Drupal\diff\Form;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Form\FormState;
@@ -18,7 +18,7 @@ use Drupal\Core\Form\FormState;
  * it provides a select-box having as options all the FieldDiffBuilder plugins
  * that support that field type.
  */
-class FieldTypesSettingsForm extends FormBase {
+class FieldTypesSettingsForm extends ConfigFormBase {
 
   /**
    * Wrapper object for writing/reading configuration from diff.plugins.yml
@@ -64,8 +64,17 @@ class FieldTypesSettingsForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormID() {
-    return 'diff.admin.plugins';
+  public function getFormId() {
+    return 'diff_admin_plugins';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return [
+      'diff.plugins',
+    ];
   }
 
   /**
@@ -113,8 +122,8 @@ class FieldTypesSettingsForm extends FormBase {
       '#value' => $this->t('Save'),
     );
 
-    $form['#attached']['css'][] = drupal_get_path('module', 'field_ui') . '/css/field_ui.admin.css';
-    $form['#attached']['css'][] = drupal_get_path('module', 'diff') . '/css/diff.general.css';
+    $form['#attached']['library'][] = 'field_ui/drupal.field_ui';
+    $form['#attached']['library'][] = 'diff/diff.general';
 
     return $form;
   }
@@ -183,13 +192,15 @@ class FieldTypesSettingsForm extends FormBase {
           }
         }
       }
-      // In case settings are no identical to the ones in the config display
+      // In case settings are not identical to the ones in the config display
       // a warning message. Don't display it twice.
       if ($modified && !$_SESSION['messages']['warning']) {
         drupal_set_message($this->t('You have unsaved changes.'), 'warning', FALSE);
       }
       $display_options['settings'] = $plugin_settings[$field_type]['settings'];
     }
+
+    $plugin_options['hidden'] = $this->t('- Don\'t compare -');
 
     $field_row['plugin'] = array(
       'type' => array(
@@ -199,7 +210,6 @@ class FieldTypesSettingsForm extends FormBase {
         '#attributes' => array(
           'class' => array('field-plugin-type'),
         ),
-        '#empty_option' => array('hidden' => $this->t('- Don\'t compare -')),
         '#default_value' => $display_options ? $display_options['type'] : 'hidden',
         '#ajax' => array(
           'callback' => array($this, 'multistepAjax'),
@@ -256,7 +266,7 @@ class FieldTypesSettingsForm extends FormBase {
         $field_row['settings_edit'] = $base_button + array(
           '#type' => 'image_button',
           '#name' => $field_type . '_settings_edit',
-          '#src' => 'core/misc/configure-dark.png',
+          '#src' => 'core/misc/icons/787878/pencil.svg',
           '#attributes' => array('class' => array('field-plugin-settings-edit'), 'alt' => $this->t('Edit')),
           '#op' => 'edit',
           // Do not check errors for the 'Edit' button, but make sure we get

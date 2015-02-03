@@ -22,6 +22,15 @@ class GeneralSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  protected function getEditableConfigNames() {
+    return [
+      'diff.settings',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state, $field_type = NULL) {
     $config = $this->config('diff.settings');
 
@@ -72,7 +81,6 @@ class GeneralSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('diff.settings');
-    $values = $form_state->getValues();
 
     $keys = array(
       'theme',
@@ -81,7 +89,7 @@ class GeneralSettingsForm extends ConfigFormBase {
       'context_lines_trailing',
     );
     foreach ($keys as $key) {
-      $config->set('general_settings.' . $key, $values[$key]);
+      $config->set('general_settings.' . $key, $form_state->getValue($key));
     }
     $config->save();
 

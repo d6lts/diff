@@ -5,11 +5,12 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
  */
-function diff_form_node_type_edit_form_alter(&$form, $form_state) {
+function diff_form_node_type_edit_form_alter(&$form, FormStateInterface $form_state) {
   // @todo Follow this issue: https://www.drupal.org/node/1728788.
   $type = $form_state->getFormObject()->getEntity();
   if ($type->id()) {
@@ -71,7 +72,7 @@ function diff_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<dt>' . t('Control field visibility settings') . '</dt>';
       $output .= '<dd>' . t('Fields visibility can be controlled from view modes for configurable fields and from Diff settings page for entity base fields. Diff field types specific settings can also be configured from Diff settings page') . '</dd>';
       $output .= '<dt>' . t('Configure diff field type settings') . '</dt>';
-      $output .= '<dd>' . t('Every field type has specific diff settings (display or not the title of the field, markdown format, etc.). These settings can be configured from Diff settings page') . '</dd>';
+      $output .= '<dd>' . t('Every field type has specific diff settings (display or not the field title, markdown format or other settings). These settings can be configured from Diff settings page') . '</dd>';
       $output .= '</dl>';
       return $output;
 
