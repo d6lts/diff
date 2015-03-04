@@ -21,7 +21,7 @@ image:
     property_separator: nl
     show_header: 1
     markdown: drupal_html_to_text
-list_text:
+list_string:
   type: list_field_diff_builder
   settings:
     compare: key

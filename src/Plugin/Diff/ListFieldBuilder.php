@@ -16,10 +16,9 @@ use Drupal\Core\Form\FormStateInterface;
  *   id = "list_field_diff_builder",
  *   label = @Translation("List Field Diff"),
  *   field_types = {
- *     "list_boolean",
- *     "list_text",
- *     "list_float",
- *     "list_integer"
+ *     "list_string",
+ *     "list_integer",
+ *     "list_float"
  *   },
  * )
  */
