@@ -14,6 +14,6 @@ services:
 
   diff.breadcrumb:
       class: Drupal\diff\DiffBreadcrumbBuilder
-      parent: system.breadcrumb.default
+      arguments: ['@router.request_context', '@access_manager', '@router', '@path_processor_manager', '@config.factory',  '@title_resolver', '@current_user']
       tags:
         - { name: breadcrumb_builder, priority: 1000 }

@@ -7,6 +7,7 @@
 
 namespace Drupal\diff;
 
+use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\system\PathBasedBreadcrumbBuilder;
 use Drupal\Core\Routing\RouteMatchInterface;
 
