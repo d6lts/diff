@@ -152,3 +152,10 @@ link:
     compare_uri: '1'
     show_header: '1'
     markdown: drupal_html_to_text
+comment:
+  type: comment_field_diff_builder
+  settings:
+    compare_key: 0
+    compare_string: '1'
+    show_header: '1'
+    markdown: drupal_html_to_text
