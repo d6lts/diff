@@ -145,3 +145,10 @@ decimal:
   settings:
     show_header: 1
     markdown: drupal_html_to_text
+link:
+  type: link_field_diff_builder
+  settings:
+    compare_title: '0'
+    compare_uri: '1'
+    show_header: '1'
+    markdown: drupal_html_to_text

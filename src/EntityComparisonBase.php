@@ -200,9 +200,9 @@ class EntityComparisonBase extends ControllerBase {
     // Fields which exist only on the right entity.
     foreach ($right_values as $field_name => $values) {
       $field_definition = $right_entity->getFieldDefinition($field_name);
-      $compare_settings = $this->config->get('field_types.' . $field_definition->getType());
+      $compare_settings = $this->pluginsConfig->get($field_definition->getType());
       $result[$field_name] = array(
-        '#name' => ($compare_settings['show_header'] == 1) ? $field_definition->getLabel() : '',
+        '#name' => ($compare_settings['settings']['show_header'] == 1) ? $field_definition->getLabel() : '',
         '#settings' => $compare_settings,
       );
       $result[$field_name] += $this->combineFields(array(), $right_values[$field_name]);
@@ -211,17 +211,17 @@ class EntityComparisonBase extends ControllerBase {
     // Field rows. Recurse through all child elements.
     foreach (Element::children($result) as $key) {
       $result[$key]['#states'] = array();
-
       // Ensure that the element follows the #states format.
       if (isset($result[$key]['#left'])) {
-        $result[$key]['#states']['raw']['#left'] = $result[$key]['#left'];
+        // We need to trim spaces and new lines from the end of the string
+        // otherwise in some cases we have a blank not needed line.
+        $result[$key]['#states']['raw']['#left'] = trim($result[$key]['#left']);
         unset($result[$key]['#left']);
       }
       if (isset($result[$key]['#right'])) {
-        $result[$key]['#states']['raw']['#right'] = $result[$key]['#right'];
+        $result[$key]['#states']['raw']['#right'] = trim($result[$key]['#right']);
         unset($result[$key]['#right']);
       }
-
       $field_settings = $result[$key]['#settings'];
 
       if (!empty($field_settings['settings']['markdown'])) {
