@@ -34,6 +34,13 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
   protected $entityManager;
 
   /**
+   * The entity parser.
+   *
+   * @var \Drupal\diff\DiffEntityParser
+   */
+  protected $entityParser;
+
+  /**
    * Constructs a FieldDiffBuilderBase object.
    *
    * @param array $configuration
@@ -46,10 +53,13 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
    *   The configuration factory object.
    * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
    *   The entity manager.
+   * @param \Drupal\diff\DiffEntityParser $entityParser
+   *   The entity manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityManagerInterface $entityManager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityManagerInterface $entityManager, DiffEntityParser $entityParser) {
     $this->configFactory = $config;
     $this->entityManager = $entityManager;
+    $this->entityParser = $entityParser;
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->configuration += $this->defaultConfiguration();
@@ -64,7 +74,8 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
       $plugin_id,
       $plugin_definition,
       $container->get('config.factory'),
-      $container->get('entity.manager')
+      $container->get('entity.manager'),
+      $container->get('diff.entity_parser')
     );
   }
 
