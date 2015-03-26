@@ -12,6 +12,10 @@ services:
       class: Drupal\diff\DiffBuilderManager
       parent: default_plugin_manager
 
+  diff.entity_parser:
+    class: Drupal\diff\DiffEntityParser
+    arguments: ['@plugin.manager.diff.builder', '@entity.manager', '@config.factory']
+
   diff.breadcrumb:
       class: Drupal\diff\DiffBreadcrumbBuilder
       parent: system.breadcrumb.default

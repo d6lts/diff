@@ -41,13 +41,6 @@ class EntityComparisonBase extends ControllerBase {
   protected $date;
 
   /**
-   * The diff field builder plugin manager.
-   *
-   * @var \Drupal\diff\DiffBuilderManager
-   */
-  protected $diffBuilderManager;
-
-  /**
    * Wrapper object for writing/reading simple configuration from diff.settings.yml
    */
   protected $config;
@@ -68,6 +61,11 @@ class EntityComparisonBase extends ControllerBase {
   protected $nonBreakingSpace;
 
   /**
+   * The entity parser service for diff.
+   */
+  protected $entityParser;
+
+  /**
    * Constructs an EntityComparisonBase object.
    *
    * @param DiffFormatter $diff_formatter
@@ -76,17 +74,17 @@ class EntityComparisonBase extends ControllerBase {
    *   DateFormatter service.
    * @param PluginManagerInterface $plugin_manager
    *   The Plugin manager service.
-   * @param DiffBuilderManager $diffBuilderManager
+   * @param DiffEntityParser $entityParser
    *   The diff field builder plugin manager.
    */
-  public function __construct(DiffFormatter $diff_formatter, DateFormatter $date, PluginManagerInterface $plugin_manager, DiffBuilderManager $diffBuilderManager) {
+  public function __construct(DiffFormatter $diff_formatter, DateFormatter $date, PluginManagerInterface $plugin_manager, DiffEntityParser $entityParser) {
     $this->diffFormatter = $diff_formatter;
     $this->date = $date;
     $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
     $this->config = $this->config('diff.settings');
     $this->pluginsConfig = $this->config('diff.plugins');
     $this->nonBreakingSpace = SafeMarkup::set('&nbsp');
-    $this->diffBuilderManager = $diffBuilderManager;
+    $this->entityParser = $entityParser;
   }
 
   /**
@@ -97,65 +95,8 @@ class EntityComparisonBase extends ControllerBase {
       $container->get('diff.diff.formatter'),
       $container->get('date.formatter'),
       $container->get('plugin.manager.field.field_type'),
-      $container->get('plugin.manager.diff.builder')
+      $container->get('diff.entity_parser')
     );
-  }
-
-  /**
-   * Transforms an entity into an array of strings.
-   *
-   * Parses an entity's fields and for every field it builds an array of string
-   * to be compared. Basically this function transforms an entity into an array
-   * of strings.
-   *
-   * @param ContentEntityInterface $entity
-   *   An entity containing fields.
-   *
-   * @return array
-   *   Array of strings resulted by parsing the entity.
-   */
-  private function parseEntity(ContentEntityInterface $entity) {
-    $result = array();
-    $entity_type_id = $entity->getEntityTypeId();
-    // Load all entity base fields.
-    $entity_base_fields = $this->entityManager()->getBaseFieldDefinitions($entity_type_id);
-    // Loop through entity fields and transform every FieldItemList object
-    // into an array of strings according to field type specific settings.
-    foreach ($entity as $field_items) {
-      $field_type = $field_items->getFieldDefinition()->getType();
-      $plugin_config = $this->pluginsConfig->get($field_type);
-      $plugin = NULL;
-      if ($plugin_config && $plugin_config['type'] != 'hidden') {
-        $plugin = $this->diffBuilderManager->createInstance($plugin_config['type'], $plugin_config['settings']);
-      }
-      if ($plugin) {
-        // Configurable field. It is the responsibility of the class extending
-        // this class to hide some configurable fields from comparison. This
-        // class compares all configurable fields.
-        if (!array_key_exists($field_items->getName(), $entity_base_fields)) {
-          $build = $plugin->build($field_items);
-          if (!empty($build)) {
-            $result[$field_items->getName()] = $build;
-          }
-        }
-        // If field is one of the entity base fields take visibility settings from
-        // diff admin config page. This means that the visibility of these fields
-        // is controlled per entity type.
-        else {
-          // Check if this field needs to be compared.
-          $config_key = 'entity.' . $entity_type_id . '.' . $field_items->getName();
-          $enabled = $this->config->get($config_key);
-          if ($enabled) {
-            $build = $plugin->build($field_items);
-            if (!empty($build)) {
-              $result[$field_items->getName()] = $build;
-            }
-          }
-        }
-      }
-    }
-
-    return $result;
   }
 
   /**
@@ -172,8 +113,8 @@ class EntityComparisonBase extends ControllerBase {
   public function compareRevisions(ContentEntityInterface $left_entity, ContentEntityInterface $right_entity) {
     $result = array();
 
-    $left_values = $this->parseEntity($left_entity);
-    $right_values = $this->parseEntity($right_entity);
+    $left_values = $this->entityParser->parseEntity($left_entity);
+    $right_values = $this->entityParser->parseEntity($right_entity);
 
     foreach ($left_values as $field_name => $values) {
       $field_definition = $left_entity->getFieldDefinition($field_name);
@@ -354,7 +295,7 @@ class EntityComparisonBase extends ControllerBase {
    *   One of drupal_html_to_text, filter_xss, filter_xss_all.
    * @param $items
    *   String to be processed.
-   * 
+   *
    * @return array|string
    *   Result after markdown was applied on $items.
    */
