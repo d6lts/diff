@@ -107,6 +107,8 @@ class RevisionOverviewForm extends FormBase {
     $account = $this->currentUser;
     $node_storage = $this->entityManager->getStorage('node');
     $type = $node->getType();
+    $vids = array_reverse($node_storage->revisionIds($node));
+    $revision_count = count($vids);
 
     $build = array(
       '#title' => $this->t('Revisions for %title', array('%title' => $node->label())),
@@ -118,10 +120,16 @@ class RevisionOverviewForm extends FormBase {
 
     $table_header = array(
       'revision' => $this->t('Revision'),
-      'select_column_one' => '',
-      'select_column_two' => '',
       'operations' => $this->t('Operations'),
     );
+
+    // Allow comparisons only if there are 2 or more revisions.
+    if ($revision_count > 1) {
+      $table_header += array(
+        'select_column_one' => '',
+        'select_column_two' => '',
+      );
+    }
 
     $rev_revert_perm = $account->hasPermission("revert $type revisions") ||
       $account->hasPermission('revert all revisions') ||
@@ -142,7 +150,6 @@ class RevisionOverviewForm extends FormBase {
     $build['node_revisions_table']['#attached']['library'][] = 'diff/diff.general';
     $build['node_revisions_table']['#attached']['drupalSettings']['diffRevisionRadios'] = $this->config->get('general_settings.radio_behavior');
 
-    $vids = array_reverse($node_storage->revisionIds($node));
     // Add rows to the table.
     foreach ($vids as $vid) {
       if ($revision = $node_storage->loadRevision($vid)) {
@@ -172,20 +179,6 @@ class RevisionOverviewForm extends FormBase {
             'revision' => array(
               '#markup' => $date_username_markup . $revision_log,
             ),
-            'select_column_one' => array(
-              '#type' => 'radio',
-              '#title_display' => 'invisible',
-              '#name' => 'radios_left',
-              '#return_value' => $vid,
-              '#default_value' => FALSE,
-            ),
-            'select_column_two' => array(
-              '#type' => 'radio',
-              '#title_display' => 'invisible',
-              '#name' => 'radios_right',
-              '#default_value' => $vid,
-              '#return_value' => $vid,
-            ),
             'operations' => array(
               '#markup' => String::placeholder($this->t('current revision')),
             ),
@@ -193,6 +186,26 @@ class RevisionOverviewForm extends FormBase {
               'class' => array('revision-current'),
             ),
           );
+
+          // Allow comparisons only if there are 2 or more revisions.
+          if ($revision_count > 1) {
+            $row += array(
+              'select_column_one' => array(
+                '#type' => 'radio',
+                '#title_display' => 'invisible',
+                '#name' => 'radios_left',
+                '#return_value' => $vid,
+                '#default_value' => FALSE,
+              ),
+              'select_column_two' => array(
+                '#type' => 'radio',
+                '#title_display' => 'invisible',
+                '#name' => 'radios_right',
+                '#default_value' => $vid,
+                '#return_value' => $vid,
+              ),
+            );
+          }
         }
         else {
           $route_params = array(
@@ -219,6 +232,9 @@ class RevisionOverviewForm extends FormBase {
             )
           );
 
+          // Here we don't have to deal with 'only one revision' case because
+          // if there's only one revision it will also be the default one,
+          // entering on the first branch of this if else statement.
           $row = array(
             'revision' => array(
               '#markup' => $date_username_markup . $revision_log,
@@ -248,15 +264,18 @@ class RevisionOverviewForm extends FormBase {
       }
     }
 
-    $build['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Compare'),
-      '#attributes' => array(
-        'class' => array(
-          'diff-button',
+    // Allow comparisons only if there are 2 or more revisions.
+    if ($revision_count > 1) {
+      $build['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Compare'),
+        '#attributes' => array(
+          'class' => array(
+            'diff-button',
+          ),
         ),
-      ),
-    );
+      );
+    }
 
     return $build;
   }

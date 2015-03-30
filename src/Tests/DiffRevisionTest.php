@@ -138,6 +138,23 @@ class DiffRevisionTest extends WebTestBase {
     // Make sure two revisions are available.
     $rows = $this->xpath('//tbody/tr');
     $this->assertEqual(count($rows), 2);
+
+    // Delete one revision so that we are left with only 1 revision.
+    $this->clickLink(t('Delete'), 1);
+    $this->drupalPostForm(NULL, NULL, t('Delete'));
+    $this->assertText(t('Revision from @date of Article @title has been deleted.', array(
+        '@date' => date('D, m/d/Y - H:i', $created),
+        '@title' => $title
+    )));
+
+    // Make sure we only have 1 revision now.
+    $rows = $this->xpath('//tbody/tr');
+    $this->assertEqual(count($rows), 1);
+
+    // Assert that there are no radio buttons for revision selection.
+    $this->assertNoFieldByXPath('//input[@type="radio"]');
+    // Assert that there is no submit button.
+    $this->assertNoFieldByXPath('//input[@type="submit"]');
   }
 
 }
