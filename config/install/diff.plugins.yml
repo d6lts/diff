@@ -68,7 +68,7 @@ text_with_summary:
   settings:
     compare_format: 0
     compare_summary: 0
-    show_header: '1'
+    show_header: 1
     markdown: drupal_html_to_text
 email:
   type: core_field_diff_builder
@@ -148,14 +148,14 @@ decimal:
 link:
   type: link_field_diff_builder
   settings:
-    compare_title: '0'
-    compare_uri: '1'
-    show_header: '1'
+    compare_title: 0
+    compare_uri: 1
+    show_header: 1
     markdown: drupal_html_to_text
 comment:
   type: comment_field_diff_builder
   settings:
     compare_key: 0
-    compare_string: '1'
-    show_header: '1'
+    compare_string: 1
+    show_header: 1
     markdown: drupal_html_to_text

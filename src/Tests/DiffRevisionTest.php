@@ -21,11 +21,6 @@ use Drupal\simpletest\WebTestBase;
 class DiffRevisionTest extends WebTestBase {
 
   /**
-   * Disabled config schema checking temporarily until all errors are resolved.
-   */
-  protected $strictConfigSchema = FALSE;
-
-  /**
    * Modules to enable.
    *
    * @var array

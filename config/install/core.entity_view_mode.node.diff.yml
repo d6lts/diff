@@ -6,3 +6,6 @@ targetEntityType: node
 dependencies:
   module:
     - node
+  enforced:
+    module:
+      - diff
