@@ -116,8 +116,8 @@ class DiffRevisionTest extends WebTestBase {
     // Revert the revision, confirm.
     $this->clickLink(t('Revert'));
     $this->drupalPostForm(NULL, NULL, t('Revert'));
-    $this->assertText(t('Article @title has been reverted back to the revision from @date.', array(
-      '@date' => date('D, m/d/Y - H:i', $created),
+    $this->assertText(t('Article @title has been reverted to the revision from @revision-date.', array(
+      '@revision-date' => format_date($created),
       '@title' => $title
     )));
 
