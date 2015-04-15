@@ -10,13 +10,13 @@
 
 namespace Drupal\diff\Form;
 
+use Drupal\Component\Utility\SafeMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Datetime\DateFormatter;
-use Drupal\Component\Utility\String;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Render\RendererInterface;
@@ -180,7 +180,7 @@ class RevisionOverviewForm extends FormBase {
               '#markup' => $date_username_markup . $revision_log,
             ),
             'operations' => array(
-              '#markup' => String::placeholder($this->t('current revision')),
+              '#markup' => SafeMarkup::placeholder($this->t('current revision')),
             ),
             '#attributes' => array(
               'class' => array('revision-current'),
