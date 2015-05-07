@@ -227,7 +227,7 @@ class RevisionOverviewForm extends FormBase {
           }
 
           $date_username_markup = $this->t('!date by !username', array(
-            '!date' => $this->l($revision_date, Url::fromRoute('node.revision_show', $route_params)),
+            '!date' => $this->l($revision_date, Url::fromRoute('entity.node.revision', $route_params)),
             '!username' => $this->renderer->render($username),
             )
           );

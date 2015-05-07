@@ -201,7 +201,7 @@ class NodeRevisionController extends EntityComparisonBase {
       );
       $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
       $revision_link = $this->t($revision_log . '!date', array(
-        '!date' => $this->l($revision_date, Url::fromRoute('node.revision_show', array(
+        '!date' => $this->l($revision_date, Url::fromRoute('entity.node.revision', array(
           'node' => $revision->id(),
           'node_revision' => $revision->getRevisionId(),
         ))),
