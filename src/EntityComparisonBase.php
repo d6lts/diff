@@ -119,7 +119,7 @@ class EntityComparisonBase extends ControllerBase {
     foreach ($left_values as $field_name => $values) {
       $field_definition = $left_entity->getFieldDefinition($field_name);
       // Get the compare settings for this field type.
-      $compare_settings = $this->pluginsConfig->get($field_definition->getType());
+      $compare_settings = $this->pluginsConfig->get('field_types.' . $field_definition->getType());
       $result[$field_name] = array(
         '#name' => ($compare_settings['settings']['show_header'] == 1) ? $field_definition->getLabel() : '',
         '#settings' => $compare_settings,
@@ -141,7 +141,7 @@ class EntityComparisonBase extends ControllerBase {
     // Fields which exist only on the right entity.
     foreach ($right_values as $field_name => $values) {
       $field_definition = $right_entity->getFieldDefinition($field_name);
-      $compare_settings = $this->pluginsConfig->get($field_definition->getType());
+      $compare_settings = $this->pluginsConfig->get('field_types.' . $field_definition->getType());
       $result[$field_name] = array(
         '#name' => ($compare_settings['settings']['show_header'] == 1) ? $field_definition->getLabel() : '',
         '#settings' => $compare_settings,

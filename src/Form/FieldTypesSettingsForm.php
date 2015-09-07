@@ -146,7 +146,7 @@ class FieldTypesSettingsForm extends ConfigFormBase {
    *   A table row for the field type listing table.
    */
   protected function buildFieldRow($field_type, $field_definition, $plugins, $diff_plugin_definitions, FormStateInterface $form_state) {
-    $display_options = $this->config->get($field_type);
+    $display_options = $this->config->get('field_types.' . $field_type);
     $field_type_label = $this->t('@field_label (%field_type)', array(
         '@field_label' => $field_definition['label'],
         '%field_type' => $field_type,

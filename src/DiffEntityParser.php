@@ -76,7 +76,7 @@ class DiffEntityParser {
     // into an array of strings according to field type specific settings.
     foreach ($entity as $field_items) {
       $field_type = $field_items->getFieldDefinition()->getType();
-      $plugin_config = $this->pluginsConfig->get($field_type);
+      $plugin_config = $this->pluginsConfig->get('field_types.' . $field_type);
       $plugin = NULL;
       if ($plugin_config && $plugin_config['type'] != 'hidden') {
         $plugin = $this->diffBuilderManager->createInstance($plugin_config['type'], $plugin_config['settings']);
