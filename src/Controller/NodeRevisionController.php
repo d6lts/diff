@@ -105,19 +105,6 @@ class NodeRevisionController extends EntityComparisonBase {
           $field['#states'][$filter]['#right']
         );
 
-        // @todo This might be removed. It is just a temporary solution for
-        //   displaying the diff data. This needs to be solved from diff formatter.
-        foreach ($field_diff_rows as &$field_diff_row) {
-          foreach ($field_diff_row as &$field_diff_column) {
-            if (is_array($field_diff_column)) {
-              $field_diff_column['data'] = SafeMarkup::set($field_diff_column['data']);
-            }
-            else {
-              $field_diff_column = SafeMarkup::set($field_diff_column);
-            }
-          }
-        }
-
         // Add the field label to the table only if there are changes to that field.
         if (!empty($field_diff_rows) && !empty($field_label_row)) {
           $diff_rows[] = array($field_label_row);
@@ -200,8 +187,8 @@ class NodeRevisionController extends EntityComparisonBase {
         '#account' => $revision->uid->entity,
       );
       $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
-      $revision_link = $this->t($revision_log . '!date', array(
-        '!date' => $this->l($revision_date, Url::fromRoute('entity.node.revision', array(
+      $revision_link = $this->t($revision_log . '@date', array(
+        '@date' => $this->l($revision_date, Url::fromRoute('entity.node.revision', array(
           'node' => $revision->id(),
           'node_revision' => $revision->getRevisionId(),
         ))),
@@ -214,11 +201,11 @@ class NodeRevisionController extends EntityComparisonBase {
       //   'colspan' => 1,
       // );
       $header[] = array(
-        'data' => $this->nonBreakingSpace,
+        'data' => array('#markup' => $this->nonBreakingSpace),
         'colspan' => 1,
       );
       $header[] = array(
-        'data' => $revision_link,
+        'data' => array('#markup' => $revision_link),
         'colspan' => 1,
       );
     }

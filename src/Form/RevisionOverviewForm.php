@@ -180,7 +180,7 @@ class RevisionOverviewForm extends FormBase {
               '#markup' => $date_username_markup . $revision_log,
             ),
             'operations' => array(
-              '#markup' => SafeMarkup::placeholder($this->t('current revision')),
+              '#markup' => SafeMarkup::format('%placeholder', array('%placeholder' => $this->t('current revision'))),
             ),
             '#attributes' => array(
               'class' => array('revision-current'),

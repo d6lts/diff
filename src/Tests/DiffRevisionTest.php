@@ -25,13 +25,14 @@ class DiffRevisionTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('node', 'diff', 'diff_test');
+  public static $modules = array('node', 'diff', 'diff_test', 'block');
 
   /**
    * Tests the revision diff overview.
    */
   public function testRevisionDiffOverview() {
-
+    $this->drupalPlaceBlock('local_tasks_block');
+    $this->drupalPlaceBlock('local_actions_block');
     $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
 
     $admin_user = $this->drupalCreateUser(array(
@@ -123,7 +124,7 @@ class DiffRevisionTest extends WebTestBase {
     $this->assertText(t('Copy of the revision from @date', array('@date' => date('D, m/d/Y - H:i', $created))));
 
     // Delete the first revision (last entry in table).
-    $this->clickLink(t('Delete'), 2);
+    $this->clickLink(t('Delete'), 0);
     $this->drupalPostForm(NULL, NULL, t('Delete'));
     $this->assertText(t('Revision from @date of Article @title has been deleted.', array(
       '@date' => date('D, m/d/Y - H:i', $created),
@@ -135,7 +136,7 @@ class DiffRevisionTest extends WebTestBase {
     $this->assertEqual(count($rows), 2);
 
     // Delete one revision so that we are left with only 1 revision.
-    $this->clickLink(t('Delete'), 1);
+    $this->clickLink(t('Delete'), 0);
     $this->drupalPostForm(NULL, NULL, t('Delete'));
     $this->assertText(t('Revision from @date of Article @title has been deleted.', array(
         '@date' => date('D, m/d/Y - H:i', $created),
