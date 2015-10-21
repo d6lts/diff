@@ -8,4 +8,5 @@ dependencies:
     - node
   enforced:
     module:
+      - node
       - diff
