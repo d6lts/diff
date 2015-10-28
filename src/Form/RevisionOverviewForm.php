@@ -10,7 +10,6 @@
 
 namespace Drupal\diff\Form;
 
-use Drupal\Component\Utility\SafeMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
@@ -179,14 +178,7 @@ class RevisionOverviewForm extends FormBase {
             'revision' => array(
               '#markup' => $date_username_markup . $revision_log,
             ),
-            'operations' => array(
-              '#markup' => SafeMarkup::format('%placeholder', array('%placeholder' => $this->t('current revision'))),
-            ),
-            '#attributes' => array(
-              'class' => array('revision-current'),
-            ),
           );
-
           // Allow comparisons only if there are 2 or more revisions.
           if ($revision_count > 1) {
             $row += array(
@@ -206,6 +198,14 @@ class RevisionOverviewForm extends FormBase {
               ),
             );
           }
+          $row['operations'] = array(
+            '#prefix' => '<em>',
+            '#markup' => $this->t('Current revision'),
+            '#suffix' => '</em>',
+            '#attributes' => array(
+              'class' => array('revision-current'),
+            )
+          );
         }
         else {
           $route_params = array(
