@@ -10,6 +10,8 @@
 
 namespace Drupal\diff\Form;
 
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
@@ -53,6 +55,12 @@ class RevisionOverviewForm extends FormBase {
    */
   protected $renderer;
 
+  /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   */
+  protected $languageManager;
 
   /**
    * Wrapper object for writing/reading simple configuration from diff.settings.yml
@@ -71,12 +79,15 @@ class RevisionOverviewForm extends FormBase {
    *   The date service.
    * @param  \Drupal\Core\Render\RendererInterface
    *   The renderer service.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager.
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, DateFormatter $date, RendererInterface $renderer) {
+  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, DateFormatter $date, RendererInterface $renderer, LanguageManagerInterface $language_manager) {
     $this->entityManager = $entityManager;
     $this->currentUser = $currentUser;
     $this->date = $date;
     $this->renderer = $renderer;
+    $this->languageManager = $language_manager;
     $this->config = $this->config('diff.settings');
   }
 
@@ -88,7 +99,8 @@ class RevisionOverviewForm extends FormBase {
       $container->get('entity.manager'),
       $container->get('current_user'),
       $container->get('date.formatter'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('language_manager')
     );
   }
 
@@ -104,17 +116,20 @@ class RevisionOverviewForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, $node = NULL) {
     $account = $this->currentUser;
+    $langcode = $this->languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
+    $langname = $this->languageManager->getLanguageName($langcode);
+    // @todo This doesn't seem to return the correct languages for the node.
+    $languages = $node->getTranslationLanguages();
+    $has_translations = (count($languages) > 1);
     $node_storage = $this->entityManager->getStorage('node');
     $type = $node->getType();
     $vids = array_reverse($node_storage->revisionIds($node));
     $revision_count = count($vids);
 
-    $build = array(
-      '#title' => $this->t('Revisions for %title', array('%title' => $node->label())),
-      'nid' => array(
-        '#type' => 'hidden',
-        '#value' => $node->nid->value,
-      ),
+    $build['#title'] = $has_translations ? $this->t('@langname revisions for %title', ['@langname' => $langname, '%title' => $node->label()]) : $this->t('Revisions for %title', ['%title' => $node->label()]);
+    $build['nid'] = array(
+      '#type' => 'hidden',
+      '#value' => $node->id(),
     );
 
     $table_header = array(
@@ -152,115 +167,118 @@ class RevisionOverviewForm extends FormBase {
     // Add rows to the table.
     foreach ($vids as $vid) {
       if ($revision = $node_storage->loadRevision($vid)) {
-        // Markup for revision log.
-        if ($revision->revision_log->value != '') {
-          $revision_log = '<p class="revision-log">' . Xss::filter($revision->revision_log->value) . '</p>';
-        }
-        else {
-          $revision_log = '';
-        }
-        // Username to be rendered.
-        $username = array(
-          '#theme' => 'username',
-          '#account' => $revision->uid->entity,
-        );
-        $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
-
-        // Default revision.
-        if ($revision->isDefaultRevision()) {
-          $date_username_markup = $this->t('!date by !username', array(
-            '!date' => $this->l($revision_date, Url::fromRoute('entity.node.canonical', array('node' => $node->id()))),
-            '!username' => $this->renderer->render($username),
-            )
+        if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)->isRevisionTranslationAffected()) {
+          // Username to be rendered.
+          $username = array(
+            '#theme' => 'username',
+            '#account' => $revision->uid->entity,
           );
+          $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
+          // Use revision link to link to revisions that are not active.
+          if ($vid != $node->getRevisionId()) {
+            $link = $this->l($revision_date, new Url('entity.node.revision', ['node' => $node->id(), 'node_revision' => $vid]));
+          }
+          else {
+            $link = $node->link($revision_date);
+          }
 
-          $row = array(
-            'revision' => array(
-              '#markup' => $date_username_markup . $revision_log,
-            ),
-          );
-          // Allow comparisons only if there are 2 or more revisions.
-          if ($revision_count > 1) {
-            $row += array(
+          // Default revision.
+          if ($revision->isDefaultRevision()) {
+            $row = array(
+              'revision' => array(
+                '#type' => 'inline_template',
+                '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
+                '#context' => [
+                  'date' => $link,
+                  'username' => $this->renderer->renderPlain($username),
+                  'message' => ['#markup' => $revision->revision_log->value, '#allowed_tags' => Xss::getHtmlTagList()],
+                ],
+              ),
+            );
+            // Allow comparisons only if there are 2 or more revisions.
+            if ($revision_count > 1) {
+              $row += array(
+                'select_column_one' => array(
+                  '#type' => 'radio',
+                  '#title_display' => 'invisible',
+                  '#name' => 'radios_left',
+                  '#return_value' => $vid,
+                  '#default_value' => FALSE,
+                ),
+                'select_column_two' => array(
+                  '#type' => 'radio',
+                  '#title_display' => 'invisible',
+                  '#name' => 'radios_right',
+                  '#default_value' => $vid,
+                  '#return_value' => $vid,
+                ),
+              );
+            }
+            $row['operations'] = array(
+              '#prefix' => '<em>',
+              '#markup' => $this->t('Current revision'),
+              '#suffix' => '</em>',
+              '#attributes' => array(
+                'class' => array('revision-current'),
+              )
+            );
+          }
+          else {
+            $route_params = array(
+              'node' => $node->id(),
+              'node_revision' => $vid,
+              'langcode' => $langcode,
+            );
+            // Add links based on permissions.
+            if ($revert_permission) {
+              $links['revert'] = array(
+                'title' => $this->t('Revert'),
+                'url' => Url::fromRoute('node.revision_revert_confirm', $route_params)
+              );
+            }
+            if ($delete_permission) {
+              $links['delete'] = array(
+                'title' => $this->t('Delete'),
+                'url' => Url::fromRoute('node.revision_delete_confirm', $route_params)
+              );
+            }
+
+            // Here we don't have to deal with 'only one revision' case because
+            // if there's only one revision it will also be the default one,
+            // entering on the first branch of this if else statement.
+            $row = array(
+              'revision' => array(
+                '#type' => 'inline_template',
+                '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
+                '#context' => [
+                  'date' => $link,
+                  'username' => $this->renderer->renderPlain($username),
+                  'message' => ['#markup' => $revision->revision_log->value, '#allowed_tags' => Xss::getHtmlTagList()],
+                ],
+              ),
               'select_column_one' => array(
                 '#type' => 'radio',
                 '#title_display' => 'invisible',
                 '#name' => 'radios_left',
                 '#return_value' => $vid,
-                '#default_value' => FALSE,
+                '#default_value' => isset ($vids[1]) ? $vids[1] : FALSE,
               ),
               'select_column_two' => array(
                 '#type' => 'radio',
                 '#title_display' => 'invisible',
                 '#name' => 'radios_right',
-                '#default_value' => $vid,
                 '#return_value' => $vid,
+                '#default_value' => FALSE,
+              ),
+              'operations' => array(
+                '#type' => 'operations',
+                '#links' => $links,
               ),
             );
           }
-          $row['operations'] = array(
-            '#prefix' => '<em>',
-            '#markup' => $this->t('Current revision'),
-            '#suffix' => '</em>',
-            '#attributes' => array(
-              'class' => array('revision-current'),
-            )
-          );
+          // Add the row to the table.
+          $build['node_revisions_table'][] = $row;
         }
-        else {
-          $route_params = array(
-            'node' => $node->id(),
-            'node_revision' => $vid,
-          );
-          // Add links based on permissions.
-          if ($revert_permission) {
-            $links['revert'] = array(
-              'title' => $this->t('Revert'),
-              'url' => Url::fromRoute('node.revision_revert_confirm', $route_params)
-            );
-          }
-          if ($delete_permission) {
-            $links['delete'] = array(
-              'title' => $this->t('Delete'),
-              'url' => Url::fromRoute('node.revision_delete_confirm', $route_params)
-            );
-          }
-
-          $date_username_markup = $this->t('!date by !username', array(
-            '!date' => $this->l($revision_date, Url::fromRoute('entity.node.revision', $route_params)),
-            '!username' => $this->renderer->render($username),
-            )
-          );
-
-          // Here we don't have to deal with 'only one revision' case because
-          // if there's only one revision it will also be the default one,
-          // entering on the first branch of this if else statement.
-          $row = array(
-            'revision' => array(
-              '#markup' => $date_username_markup . $revision_log,
-            ),
-            'select_column_one' => array(
-              '#type' => 'radio',
-              '#title_display' => 'invisible',
-              '#name' => 'radios_left',
-              '#return_value' => $vid,
-              '#default_value' => isset ($vids[1]) ? $vids[1] : FALSE,
-            ),
-            'select_column_two' => array(
-              '#type' => 'radio',
-              '#title_display' => 'invisible',
-              '#name' => 'radios_right',
-              '#return_value' => $vid,
-              '#default_value' => FALSE,
-            ),
-            'operations' => array(
-              '#type' => 'operations',
-              '#links' => $links,
-            ),
-          );
-        }
-        // Add the row to the table.
-        $build['node_revisions_table'][] = $row;
       }
     }
 
