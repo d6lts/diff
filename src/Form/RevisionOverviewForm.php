@@ -118,7 +118,6 @@ class RevisionOverviewForm extends FormBase {
     $account = $this->currentUser;
     $langcode = $this->languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
     $langname = $this->languageManager->getLanguageName($langcode);
-    // @todo This doesn't seem to return the correct languages for the node.
     $languages = $node->getTranslationLanguages();
     $has_translations = (count($languages) > 1);
     $node_storage = $this->entityManager->getStorage('node');
@@ -164,11 +163,12 @@ class RevisionOverviewForm extends FormBase {
     $build['node_revisions_table']['#attached']['library'][] = 'diff/diff.general';
     $build['node_revisions_table']['#attached']['drupalSettings']['diffRevisionRadios'] = $this->config->get('general_settings.radio_behavior');
 
+    $latest_revision = TRUE;
+
     // Add rows to the table.
     foreach ($vids as $vid) {
       if ($revision = $node_storage->loadRevision($vid)) {
         if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)->isRevisionTranslationAffected()) {
-          // Username to be rendered.
           $username = array(
             '#theme' => 'username',
             '#account' => $revision->uid->entity,
@@ -183,7 +183,7 @@ class RevisionOverviewForm extends FormBase {
           }
 
           // Default revision.
-          if ($revision->isDefaultRevision()) {
+          if ($latest_revision) {
             $row = array(
               'revision' => array(
                 '#type' => 'inline_template',
@@ -222,6 +222,7 @@ class RevisionOverviewForm extends FormBase {
                 'class' => array('revision-current'),
               )
             );
+            $latest_revision = FALSE;
           }
           else {
             $route_params = array(
@@ -229,12 +230,13 @@ class RevisionOverviewForm extends FormBase {
               'node_revision' => $vid,
               'langcode' => $langcode,
             );
-            // Add links based on permissions.
             if ($revert_permission) {
-              $links['revert'] = array(
+              $links['revert'] = [
                 'title' => $this->t('Revert'),
-                'url' => Url::fromRoute('node.revision_revert_confirm', $route_params)
-              );
+                'url' => $has_translations ?
+                  Url::fromRoute('node.revision_revert_translation_confirm', ['node' => $node->id(), 'node_revision' => $vid, 'langcode' => $langcode]) :
+                  Url::fromRoute('node.revision_revert_confirm', ['node' => $node->id(), 'node_revision' => $vid]),
+              ];
             }
             if ($delete_permission) {
               $links['delete'] = array(
