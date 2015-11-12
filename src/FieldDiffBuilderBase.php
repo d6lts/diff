@@ -155,7 +155,7 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
       'type' => $this->pluginId,
       'settings' => $field_type_settings,
     );
-    $config->set($field_type, $settings);
+    $config->set('field_types.' . $field_type, $settings);
     $config->save();
   }
 

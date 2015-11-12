@@ -318,30 +318,31 @@ class FieldTypesSettingsForm extends ConfigFormBase {
    */
   public function multistepAjax(array $form, FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
-    $op = $trigger['#op'];
+    if (isset($trigger['#op'])) {
+      $op = $trigger['#op'];
 
-    // Pick the elements that need to receive the ajax-new-content effect.
-    switch ($op) {
-      case 'edit':
-        $updated_rows = array($trigger['#field_type']);
-        $updated_columns = array('plugin');
-        break;
+      // Pick the elements that need to receive the ajax-new-content effect.
+      switch ($op) {
+        case 'edit':
+          $updated_rows = array($trigger['#field_type']);
+          $updated_columns = array('plugin');
+          break;
 
-      case 'update':
-      case 'cancel':
-        $updated_rows = array($trigger['#field_type']);
-        $updated_columns = array('plugin', 'settings_edit');
-        break;
-    }
+        case 'update':
+        case 'cancel':
+          $updated_rows = array($trigger['#field_type']);
+          $updated_columns = array('plugin', 'settings_edit');
+          break;
+      }
 
-    foreach ($updated_rows as $name) {
-      foreach ($updated_columns as $key) {
-        $element = &$form['fields'][$name][$key];
-        $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
-        $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+      foreach ($updated_rows as $name) {
+        foreach ($updated_columns as $key) {
+          $element = &$form['fields'][$name][$key];
+          $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
+          $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+        }
       }
     }
-
     // Return the whole table.
     return $form['fields'];
   }
@@ -405,7 +406,7 @@ class FieldTypesSettingsForm extends ConfigFormBase {
     foreach ($field_types as $field_type => $field_type_values) {
       // If there is no plugin selected remove the key from config file.
       if ($field_type_values['plugin']['type'] == 'hidden') {
-        $this->config->clear($field_type);
+        $this->config->clear('field_types.' . $field_type);
       }
     }
     $this->config->save();
