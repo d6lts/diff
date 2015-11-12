@@ -36,27 +36,27 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
         // Compare file names.
         if (isset($values['target_id'])) {
           $image = $fileManager->load($values['target_id']);
-          $result[$field_key][] = $this->t('Image: !image', array('!image' => $image->getFilename()));
+          $result[$field_key][] = $this->t('Image: @image', array('@image' => $image->getFilename()));
         }
 
         // Compare Alt fields.
         if ($this->configuration['compare_alt_field']) {
           if (isset($values['alt'])) {
-            $result[$field_key][] = $this->t('Alt: !alt', array('!alt' => $values['alt']));
+            $result[$field_key][] = $this->t('Alt: @alt', array('@alt' => $values['alt']));
           }
         }
 
         // Compare Title fields.
         if ($this->configuration['compare_title_field']) {
           if (isset($values['title'])) {
-            $result[$field_key][] = $this->t('Title: !title', array('!title' => $values['title']));
+            $result[$field_key][] = $this->t('Title: @title', array('@title' => $values['title']));
           }
         }
 
         // Compare file id.
         if ($this->configuration['show_id']) {
           if (isset($values['target_id'])) {
-            $result[$field_key][] = $this->t('File ID: !fid', array('!fid' => $values['target_id']));
+            $result[$field_key][] = $this->t('File ID: @fid', array('@fid' => $values['target_id']));
           }
         }
 
