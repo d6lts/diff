@@ -152,3 +152,12 @@ diff.plugin.settings.comment_field_diff_builder:
       label: 'Compare the status key of the comments'
     compare_string:
       type: integer
+      label: 'Compare the status string of the comments'
+
+diff.plugin.settings.entity_reference_field_diff_builder:
+  type: diff.plugin.settings_base
+  label: 'Settings for entity reference field diff builder plugin'
+  mapping:
+    compare_entity_reference:
+      type: integer
+      label: 'Entity reference component to compare'
