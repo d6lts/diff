@@ -230,6 +230,7 @@ class RevisionOverviewForm extends FormBase {
               'node_revision' => $vid,
               'langcode' => $langcode,
             );
+            $links = array();
             if ($revert_permission) {
               $links['revert'] = [
                 'title' => $this->t('Revert'),
