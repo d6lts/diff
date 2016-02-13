@@ -16,7 +16,7 @@ use Drupal\Component\Diff\Diff;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Mail\MailFormatHelper;
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Render\FormattableMarkup;
 
 /**
  * Builds an array of data out of entity fields.
@@ -83,7 +83,7 @@ class EntityComparisonBase extends ControllerBase {
     $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
     $this->config = $this->config('diff.settings');
     $this->pluginsConfig = $this->config('diff.plugins');
-    $this->nonBreakingSpace = SafeMarkup::format('&nbsp', array());
+    $this->nonBreakingSpace = new FormattableMarkup('&nbsp;', array());
     $this->entityParser = $entityParser;
   }
 

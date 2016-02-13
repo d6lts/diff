@@ -11,7 +11,6 @@ use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\diff\EntityComparisonBase;
 use Drupal\Component\Utility\Xss;
-use Drupal\Component\Utility\SafeMarkup;
 
 /**
  * Returns responses for Node Revision routes.
