@@ -10,6 +10,7 @@ namespace Drupal\diff;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Language\LanguageInterface;
 
 class DiffEntityParser {
 
@@ -69,6 +70,12 @@ class DiffEntityParser {
    */
   public function parseEntity(ContentEntityInterface $entity) {
     $result = array();
+    $langcode = \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
+    // Load entity of current language, otherwise fields are always compared by
+    // their default language.
+    if ($entity->hasTranslation($langcode)) {
+      $entity = $entity->getTranslation($langcode);
+    }
     $entity_type_id = $entity->getEntityTypeId();
     // Load all entity base fields.
     $entity_base_fields = $this->entityManager->getBaseFieldDefinitions($entity_type_id);
