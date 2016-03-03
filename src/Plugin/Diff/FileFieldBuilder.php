@@ -37,20 +37,20 @@ class FileFieldBuilder extends FieldDiffBuilderBase {
         // Add file name to the comparison.
         if (isset($values['target_id'])) {
           $file = $fileManager->load($values['target_id']);
-          $result[$field_key][] = $this->t('File: !image', array('!image' => $file->getFilename()));;
+          $result[$field_key][] = $this->t('File: :image', array(':image' => $file->getFilename()));
         }
 
         // Add file id to the comparison.
         if ($this->configuration['show_id']) {
           if (isset($values['target_id'])) {
-            $result[$field_key][] = $this->t('File ID: !fid', array('!fid' => $values['target_id']));;
+            $result[$field_key][] = $this->t('File ID: :fid', array(':fid' => $values['target_id']));
           }
         }
 
         // Compare file description fields.
         if ($this->configuration['compare_description_field']) {
           if (isset($values['description'])) {
-            $result[$field_key][] = $this->t('Description: !description', array('!description' => $values['description']));;
+            $result[$field_key][] = $this->t('Description: @description', array('@description' => $values['description']));
           }
         }
 
