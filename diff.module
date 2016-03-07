@@ -32,8 +32,8 @@ function diff_form_node_type_edit_form_alter(&$form, FormStateInterface $form_st
 
     $form['diff']['view_mode'] = array(
       '#type' => 'select',
-      '#title' => t('Standard comparison preview'),
-      '#description' => t('Governs the <em>Current revision</em> view mode when doing comparisons.'),
+      '#title' => t('View mode to use to compare revisions'),
+      '#description' => t('This view mode will be used to compare revisions. You can select which fields should be shown at the Manage display tab.'),
       '#options' => $options,
       '#weight' => 13,
       '#default_value' => $config->get('content_type_settings.' . $type->id() . '.view_mode'),
