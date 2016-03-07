@@ -1,6 +1,6 @@
 (function ($, Drupal, drupalSettings) {
 
-  "use strict";
+  'use strict';
 
   Drupal.behaviors.diffRevisions = {
     attach: function (context, settings) {
