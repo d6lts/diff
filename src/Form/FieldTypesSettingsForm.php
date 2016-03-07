@@ -194,7 +194,7 @@ class FieldTypesSettingsForm extends ConfigFormBase {
       }
       // In case settings are not identical to the ones in the config display
       // a warning message. Don't display it twice.
-      if ($modified && !$_SESSION['messages']['warning']) {
+      if ($modified && empty($_SESSION['messages']['warning'])) {
         drupal_set_message($this->t('You have unsaved changes.'), 'warning', FALSE);
       }
       $display_options['settings'] = $plugin_settings[$field_type]['settings'];
