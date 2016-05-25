@@ -200,12 +200,12 @@ class FieldTypesSettingsForm extends ConfigFormBase {
       $display_options['settings'] = $plugin_settings[$field_type]['settings'];
     }
 
-    $plugin_options['hidden'] = $this->t('- Don\'t compare -');
-
     $field_row['plugin'] = array(
       'type' => array(
         '#type' => 'select',
         '#options' => $plugin_options,
+        '#empty_option' => $this->t("- Don't compare -"),
+        '#empty_value' => 'hidden',
         '#title_display' => 'invisible',
         '#attributes' => array(
           'class' => array('field-plugin-type'),
