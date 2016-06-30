@@ -69,6 +69,7 @@ class DiffLocaleTest extends WebTestBase {
     $this->clickLink(t('Add'));
     $edit = array(
       'title[0][value]' => 'French node',
+      'revision' => FALSE,
     );
     $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
     $this->rebuildContainer();

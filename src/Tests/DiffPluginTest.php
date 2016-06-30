@@ -236,7 +236,7 @@ class DiffPluginTest extends WebTestBase {
 
     // Replace the file by a different one.
     $this->drupalPostForm('node/' . $node->id() . '/edit', [], 'Remove');
-    $this->drupalPostForm(NULL, [], t('Save and keep published'));
+    $this->drupalPostForm(NULL, ['revision' => FALSE], t('Save and keep published'));
     $edit['files[field_file_0]'] = drupal_realpath($test_files['1']->uri);
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, 'Upload');
     $edit['revision'] = TRUE;
@@ -310,7 +310,7 @@ class DiffPluginTest extends WebTestBase {
 
     // Replace the image by a different one.
     $this->drupalPostForm('node/' . $node->id() . '/edit', [], 'Remove');
-    $this->drupalPostForm(NULL, [], t('Save and keep published'));
+    $this->drupalPostForm(NULL, ['revision' => FALSE], t('Save and keep published'));
     $edit = ['files[field_image_0]' => drupal_realpath($test_files['1']->uri)];
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $edit = [
