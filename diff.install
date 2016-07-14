@@ -1,0 +1,17 @@
+<?php
+/**
+ * @file
+ * Installation hooks for diff module.
+ */
+
+/**
+ * Delete stale field diff configuration. Please reconfigure diff plugins.
+ */
+function diff_update_8001() {
+  $config = \Drupal::configFactory()->getEditable('diff.settings');
+  $config->clear('entity');
+  $config->save();
+  $config = \Drupal::configFactory()->getEditable('diff.plugins');
+  $config->clear('field_types');
+  $config->save();
+}

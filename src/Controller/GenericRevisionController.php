@@ -101,7 +101,8 @@ class GenericRevisionController extends EntityComparisonBase {
         if ($view_mode == NULL) {
           $view_mode = 'default';
         }
-        $visible = entity_get_display($entity_type_id, $entity->bundle(), $view_mode)->getComponent($field_name);
+        list(, $field_machine_name) = explode('.', $field_name);
+        $visible = entity_get_display($entity_type_id, $entity->bundle(), $view_mode)->getComponent($field_machine_name);
         if ($visible == NULL && !array_key_exists($field_name, $entity_base_fields)) {
           unset($fields[$field_name]);
         }

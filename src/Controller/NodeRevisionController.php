@@ -83,7 +83,8 @@ class NodeRevisionController extends EntityComparisonBase {
         if ($view_mode == NULL) {
           $view_mode = 'default';
         }
-        $visible = entity_get_display('node', $node->getType(), $view_mode)->getComponent($field_name);
+        list(, $field_machine_name) = explode('.', $field_name);
+        $visible = entity_get_display('node', $node->getType(), $view_mode)->getComponent($field_machine_name);
         if ($visible == NULL && !array_key_exists($field_name, $node_base_fields)) {
           unset($fields[$field_name]);
         }

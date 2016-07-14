@@ -369,9 +369,9 @@ class DiffPluginTest extends WebTestBase {
 
     // Enable the comparison of the link's title field.
     $config = \Drupal::configFactory()->getEditable('diff.plugins');
-    $settings = $config->get('field_types.link.settings');
     $settings['compare_title'] = TRUE;
-    $config->set('field_types.link.settings', $settings);
+    $config->set('fields.node.field_link.type', 'link_field_diff_builder');
+    $config->set('fields.node.field_link.settings', $settings);
     $config->save();
 
     // Create an article, setting values on the link field.
@@ -539,9 +539,9 @@ class DiffPluginTest extends WebTestBase {
   public function testTextWithSummaryPlugin() {
     // Enable the comparison of the summary.
     $config = \Drupal::configFactory()->getEditable('diff.plugins');
-    $settings = $config->get('field_types.text_with_summary.settings');
     $settings['compare_summary'] = TRUE;
-    $config->set('field_types.text_with_summary.settings', $settings);
+    $config->set('fields.node.body.type', 'text_summary_field_diff_builder');
+    $config->set('fields.node.body.settings', $settings);
     $config->save();
 
     // Create an article, setting the body field.

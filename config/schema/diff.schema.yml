@@ -40,12 +40,15 @@ diff.settings:
 
 diff.plugins:
   type: config_object
-  label: 'Field Type'
+  label: 'Entity Type'
   mapping:
-    field_types:
+    fields:
       type: sequence
+      label: 'Field'
       sequence:
-        - type: mapping
+        type: sequence
+        sequence:
+          type: mapping
           label: 'Diff configuration for a field type'
           mapping:
             type:
