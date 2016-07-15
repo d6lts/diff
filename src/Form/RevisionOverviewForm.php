@@ -116,8 +116,8 @@ class RevisionOverviewForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, $node = NULL) {
     $account = $this->currentUser;
-    $langcode = $this->languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
-    $langname = $this->languageManager->getLanguageName($langcode);
+    $langcode = $node->language()->getId();
+    $langname = $node->language()->getName();
     $languages = $node->getTranslationLanguages();
     $has_translations = (count($languages) > 1);
     $node_storage = $this->entityManager->getStorage('node');
