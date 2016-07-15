@@ -18,6 +18,9 @@ diff.settings:
         context_lines_trailing:
           type: integer
           label: 'Number of trailing context lines'
+        revision_pager_limit:
+          type: integer
+          label: 'Revisions per page to be displayed in diff pager'
     entity:
       type: sequence
       label: 'Entities'
