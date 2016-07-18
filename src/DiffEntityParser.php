@@ -1,15 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\DiffEntityParser.
- */
-
 namespace Drupal\diff;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageInterface;
 
 class DiffEntityParser {

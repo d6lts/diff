@@ -8,9 +8,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\diff\EntityComparisonBase;
-use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\node\NodeInterface;
-use Drupal\Core\Language\LanguageInterface;
 
 class GenericRevisionController extends EntityComparisonBase {
 

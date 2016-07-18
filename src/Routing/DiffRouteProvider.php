@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Routing\DiffRouteProvider.
- */
-
 namespace Drupal\diff\Routing;
 
 use Drupal\Core\Entity\EntityTypeInterface;

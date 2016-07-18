@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Tests\DiffViewsTest.
- */
-
 namespace Drupal\diff\Tests;
 
 use Drupal\Core\Url;

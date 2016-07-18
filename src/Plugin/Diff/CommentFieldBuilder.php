@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Plugin\Diff\CommentFieldBuilder
- */
-
 namespace Drupal\diff\Plugin\Diff;
 
 use Drupal\diff\FieldDiffBuilderBase;

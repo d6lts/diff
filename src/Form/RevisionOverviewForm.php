@@ -1,16 +1,7 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Form\RevisionOverviewForm
- *
- * This form displays all the revisions of a node and allows the selection
- * of two of them for comparison.
- */
-
 namespace Drupal\diff\Form;
 
-use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;

@@ -1,8 +1,5 @@
 <?php
 /**
- * @file
- * Contains \Drupal\diff\ViewModeTest.
- *
  * @ingroup diff
  */
 

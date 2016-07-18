@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Form\GeneralSettingsForm.
- */
-
 namespace Drupal\diff\Form;
 
 use Drupal\Core\Form\ConfigFormBase;

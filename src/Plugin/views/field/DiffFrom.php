@@ -1,16 +1,10 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Plugin\views\field\DiffFrom.
- */
-
 namespace Drupal\diff\Plugin\views\field;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\node\NodeInterface;
-use Drupal\views\Plugin\views\field\FieldPluginBase;
 
 /**
  * @ViewsField("diff__from")

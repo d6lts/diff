@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Plugin\views\field\DiffPluginBase.
- */
-
 namespace Drupal\diff\Plugin\views\field;
 
 use Drupal\Component\Serialization\Json;

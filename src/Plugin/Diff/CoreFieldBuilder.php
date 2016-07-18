@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Plugin\Diff\CoreFieldBuilder
- */
-
 namespace Drupal\diff\Plugin\Diff;
 
 use Drupal\diff\FieldDiffBuilderBase;

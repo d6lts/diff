@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Annotation\FieldDiffBuilder.
- */
-
 namespace Drupal\diff\Annotation;
 
 use Drupal\Component\Annotation\Plugin;

@@ -1,17 +1,11 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Controller\NodeRevisionController.
- */
-
 namespace Drupal\diff\Controller;
 
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\diff\EntityComparisonBase;
 use Drupal\Component\Utility\Xss;
-use Drupal\Core\Language\LanguageInterface;
 
 /**
  * Returns responses for Node Revision routes.

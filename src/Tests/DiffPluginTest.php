@@ -1,9 +1,6 @@
 <?php
 
 /**
- * @file
- * Contains \Drupal\diff\DiffPluginTest.
- *
  * @ingroup diff
  */
 

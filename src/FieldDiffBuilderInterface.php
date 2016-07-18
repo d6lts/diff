@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\FieldDiffBuilderInterface.
- */
-
 namespace Drupal\diff;
 
 use Drupal\Core\Field\FieldItemListInterface;

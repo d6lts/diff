@@ -1,11 +1,6 @@
 <?php
+
 /**
- * @file
- * Contains \Drupal\diff\DiffRevisionTest.
- *
- * @file
- * Diff overview test functions.
- *
  * @ingroup diff
  */
 

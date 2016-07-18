@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\DiffBuilderManager.
- */
-
 namespace Drupal\diff;
 
 use Drupal\Core\Cache\CacheBackendInterface;

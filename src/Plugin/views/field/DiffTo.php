@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\Plugin\views\field\DiffFrom.
- */
-
 namespace Drupal\diff\Plugin\views\field;
 
 /**

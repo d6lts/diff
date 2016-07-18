@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\EntityComparisonBase.
- */
-
 namespace Drupal\diff;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;

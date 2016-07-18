@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\diff\DiffBreadcrumbBuilder.
- */
-
 namespace Drupal\diff;
 
 use Drupal\system\PathBasedBreadcrumbBuilder;
