@@ -41,7 +41,7 @@ class DiffRevisionTest extends WebTestBase {
     $this->drupalLogin($admin_user);
 
     // Create an article.
-    $title = $this->randomMachineName();
+    $title = 'test_title';
     $edit = array(
       'title[0][value]' => $title,
       'body[0][value]' => '<p>Revision 1</p>',
