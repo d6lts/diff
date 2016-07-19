@@ -97,9 +97,11 @@ class DiffEntityParser {
           foreach ($plugins[$field_items->getFieldDefinition()->getType()] as $id) {
             $plugin_options[$id] = $diff_plugin_definitions[$id]['label'];
           }
+          if (!empty($plugin_options)) {
+            $default_plugin['type'] = array_keys($plugin_options)[0];
+            $plugin = $this->diffBuilderManager->createInstance($default_plugin['type'], []);
+          }
         }
-        $default_plugin['type'] = array_keys($plugin_options)[0];
-        $plugin = $this->diffBuilderManager->createInstance($default_plugin['type'], []);
       }
       // If there is a plugin defined create an instance of it.
       if ($plugin_config && $plugin_config['type'] != 'hidden') {

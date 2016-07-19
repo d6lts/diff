@@ -138,6 +138,33 @@ class DiffPluginTest extends WebTestBase {
   }
 
   /**
+   * Tests the changed field without plugins.
+   */
+  public function testFieldWithNoPlugin() {
+    // Create an article.
+    $node = $this->drupalCreateNode([
+      'type' => 'article',
+    ]);
+
+    // Update the article and add a new revision, the "changed" field should be
+    // updated which does not have plugins provided by diff.
+    $edit = array(
+      'revision' => TRUE,
+    );
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+
+    // Check the difference between the last two revisions.
+    $this->clickLink(t('Revisions'));
+    $this->drupalPostForm(NULL, NULL, t('Compare'));
+
+    // "changed" field is not displayed since there is no plugin for it. This
+    // should not break the revisions comparison display.
+    $this->assertResponse(200);
+    $this->assertLink(t('Back to Revision Overview'));
+    $this->assertLink(t('Standard'));
+  }
+
+  /**
    * Tests the EntityReference plugin.
    */
   public function testEntityReferencePlugin() {

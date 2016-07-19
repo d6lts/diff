@@ -10,7 +10,7 @@ use Drupal\Core\Field\FieldItemListInterface;
  *   id = "core_field_diff_builder",
  *   label = @Translation("Core Field Diff"),
  *   field_types = {"decimal", "integer", "float", "email", "telephone",
- *     "path", "date", "changed", "uri", "string", "timestamp", "created",
+ *     "date", "uri", "string", "timestamp", "created",
  *     "string_long", "language", "uuid", "map", "datetime", "boolean"
  *   },
  * )
