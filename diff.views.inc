@@ -1,7 +1,5 @@
 <?php
 
-use Drupal\Core\Entity\EntityTypeInterface;
-
 /**
  * Implements hook_views_data().
  */
