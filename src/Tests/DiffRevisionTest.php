@@ -6,6 +6,7 @@
 
 namespace Drupal\diff\Tests;
 
+use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\simpletest\WebTestBase;
 
 /**
@@ -20,7 +21,15 @@ class DiffRevisionTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('node', 'diff', 'diff_test', 'block');
+  public static $modules = [
+    'node',
+    'diff',
+    'diff_test',
+    'block',
+    'field_ui',
+    'language',
+    'content_translation',
+  ];
 
   /**
    * Tests the revision diff overview.
@@ -181,6 +190,97 @@ class DiffRevisionTest extends WebTestBase {
     $this->assertEqual(count($element), 6);
     $this->assertRaw('page=0');
     $this->clickLinkPartialName('Previous page');
+  }
+
+  /**
+   * Tests the revisions overview error messages.
+   */
+  public function testRevisionOverviewErrorMessages() {
+    $this->drupalPlaceBlock('local_tasks_block');
+    $this->drupalPlaceBlock('local_actions_block');
+    $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
+    // Enable some languages for this test.
+    $language = ConfigurableLanguage::createFromLangcode('de');
+    $language->save();
+
+    $admin_user = $this->drupalCreateUser([
+      'administer site configuration',
+      'administer nodes',
+      'administer node form display',
+      'create article content',
+      'edit any article content',
+      'delete any article content',
+      'view article revisions',
+      'administer languages',
+      'administer content translation',
+      'create content translations',
+      'translate any entity',
+    ]);
+    $this->drupalLogin($admin_user);
+
+    // Make article content translatable.
+    $edit = [
+      'entity_types[node]' => TRUE,
+      'settings[node][article][translatable]' => TRUE,
+      'settings[node][article][settings][language][language_alterable]' => TRUE,
+    ];
+    $this->drupalPostForm('admin/config/regional/content-language', $edit, t('Save configuration'));
+
+    // Enable the language select field in article 'Manage form display' page.
+    $language_field = [
+      'fields[langcode][type]' => 'language_select',
+      'fields[langcode][weight]' => 2,
+    ];
+    $this->drupalGet('admin/structure/types/manage/article/form-display');
+    //$this->drupalPostForm(NULL, $language_field, 'Save');
+
+    // Create an article.
+    $title = 'test_title';
+    $edit = [
+      'title[0][value]' => $title,
+      'body[0][value]' => '<p>Revision 1</p>',
+      'revision' => TRUE,
+    ];
+    $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
+    $node = $this->drupalGetNodeByTitle($title);
+
+    // Create a revision, changing the node language to german.
+    $edit = [
+      'langcode[0][value]' => 'de',
+      'body[0][value]' => '<p>Revision 2</p>',
+      'revision' => TRUE,
+    ];
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+
+    // Check the revisions overview, ensure only one revisions is available.
+    $this->clickLink(t('Revisions'));
+    $rows = $this->xpath('//tbody/tr');
+    $this->assertEqual(count($rows), 1);
+
+    // Compare the revisions in standard mode.
+    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->assertText('Multiple revisions are needed for comparison.');
+
+    // Create another revision, changing the node language back to english.
+    $edit = [
+      'langcode[0][value]' => 'en',
+      'body[0][value]' => '<p>Revision 3</p>',
+      'revision' => TRUE,
+    ];
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+
+    // Check the revisions overview, ensure two revisions are available.
+    $this->clickLink(t('Revisions'));
+    $rows = $this->xpath('//tbody/tr');
+    $this->assertEqual(count($rows), 2);
+    $this->assertNoFieldChecked('edit-node-revisions-table-0-select-column-one');
+    $this->assertFieldChecked('edit-node-revisions-table-0-select-column-two');
+    $this->assertNoFieldChecked('edit-node-revisions-table-1-select-column-one');
+    $this->assertNoFieldChecked('edit-node-revisions-table-1-select-column-two');
+
+    // Compare the revisions in standard mode.
+    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->assertText('Select two revisions to compare.');
   }
 
 }

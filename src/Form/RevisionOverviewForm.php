@@ -311,9 +311,14 @@ class RevisionOverviewForm extends FormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $input = $form_state->getUserInput();
-    $vid_left = $input['radios_left'];
-    $vid_right = $input['radios_right'];
-    if ($vid_left == $vid_right || !$vid_left || !$vid_right) {
+
+    if (count($form_state->getValue('node_revisions_table')) <= 1) {
+      $form_state->setErrorByName('node_revisions_table', $this->t('Multiple revisions are needed for comparison.'));
+    }
+    elseif (!isset($input['radios_left']) || !isset($input['radios_right'])) {
+      $form_state->setErrorByName('node_revisions_table', $this->t('Select two revisions to compare.'));
+    }
+    elseif ($input['radios_left'] == $input['radios_right']) {
       // @todo Radio-boxes selection resets if there are errors.
       $form_state->setErrorByName('node_revisions_table', $this->t('Select different revisions to compare.'));
     }
