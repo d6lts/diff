@@ -27,7 +27,6 @@ class DiffRevisionTest extends WebTestBase {
     'diff_test',
     'block',
     'field_ui',
-    'language',
     'content_translation',
   ];
 
@@ -209,7 +208,6 @@ class DiffRevisionTest extends WebTestBase {
       'administer node form display',
       'create article content',
       'edit any article content',
-      'delete any article content',
       'view article revisions',
       'administer languages',
       'administer content translation',
@@ -226,14 +224,6 @@ class DiffRevisionTest extends WebTestBase {
     ];
     $this->drupalPostForm('admin/config/regional/content-language', $edit, t('Save configuration'));
 
-    // Enable the language select field in article 'Manage form display' page.
-    $language_field = [
-      'fields[langcode][type]' => 'language_select',
-      'fields[langcode][weight]' => 2,
-    ];
-    $this->drupalGet('admin/structure/types/manage/article/form-display');
-    //$this->drupalPostForm(NULL, $language_field, 'Save');
-
     // Create an article.
     $title = 'test_title';
     $edit = [
@@ -244,7 +234,7 @@ class DiffRevisionTest extends WebTestBase {
     $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
     $node = $this->drupalGetNodeByTitle($title);
 
-    // Create a revision, changing the node language to german.
+    // Create a revision, changing the node language to German.
     $edit = [
       'langcode[0][value]' => 'de',
       'body[0][value]' => '<p>Revision 2</p>',
@@ -261,7 +251,7 @@ class DiffRevisionTest extends WebTestBase {
     $this->drupalPostForm(NULL, NULL, t('Compare'));
     $this->assertText('Multiple revisions are needed for comparison.');
 
-    // Create another revision, changing the node language back to english.
+    // Create another revision, changing the node language back to English.
     $edit = [
       'langcode[0][value]' => 'en',
       'body[0][value]' => '<p>Revision 3</p>',
