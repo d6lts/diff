@@ -247,7 +247,7 @@ class DiffRevisionTest extends WebTestBase {
     $rows = $this->xpath('//tbody/tr');
     $this->assertEqual(count($rows), 1);
 
-    // Compare the revisions in standard mode.
+    // Compare the revisions and assert the first error message.
     $this->drupalPostForm(NULL, NULL, t('Compare'));
     $this->assertText('Multiple revisions are needed for comparison.');
 
@@ -268,9 +268,26 @@ class DiffRevisionTest extends WebTestBase {
     $this->assertNoFieldChecked('edit-node-revisions-table-1-select-column-one');
     $this->assertNoFieldChecked('edit-node-revisions-table-1-select-column-two');
 
-    // Compare the revisions in standard mode.
+    // Compare the revisions and assert the second error message.
     $this->drupalPostForm(NULL, NULL, t('Compare'));
     $this->assertText('Select two revisions to compare.');
+
+    // Check the same revisions twice and compare.
+    $edit = [
+      'radios_left' => 3,
+      'radios_right' => 3,
+    ];
+    $this->drupalPostForm('/node/' . $node->id() . '/revisions', $edit, 'Compare');
+    // Assert the third error message.
+    $this->assertText('Select different revisions to compare.');
+
+    // Check different revisions and compare. This time should work correctly.
+    $edit = [
+      'radios_left' => 3,
+      'radios_right' => 1,
+    ];
+    $this->drupalPostForm('/node/' . $node->id() . '/revisions', $edit, 'Compare');
+    $this->assertLinkByHref('node/1/revisions/view/1/3');
   }
 
 }
