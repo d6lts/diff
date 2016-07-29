@@ -6,30 +6,25 @@
 
 namespace Drupal\diff\Tests;
 
-use Drupal\simpletest\WebTestBase;
-
 /**
  * Tests the Diff admin forms.
  *
  * @group diff
  */
-class AdminFormsTest extends WebTestBase {
+class AdminFormsTest extends DiffTestBase {
 
   /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = ['node', 'field_ui', 'diff'];
+  public static $modules = ['field_ui'];
 
   /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
-
-    // Create Article node type.
-    $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
 
     $this->drupalLogin($this->rootUser);
   }

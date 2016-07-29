@@ -2,30 +2,28 @@
 
 namespace Drupal\diff\Tests;
 
-use Drupal\simpletest\WebTestBase;
-
 /**
  * Test diff functionality with localization and translation.
  *
  * @group diff
  */
-class DiffLocaleTest extends WebTestBase {
+class DiffLocaleTest extends DiffTestBase {
 
   /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = array('node', 'diff', 'locale', 'content_translation');
+  public static $modules = [
+    'locale',
+    'content_translation',
+  ];
 
   /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
-
-    // Create the Article content type.
-    $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
 
     $this->drupalLogin($this->rootUser);
   }

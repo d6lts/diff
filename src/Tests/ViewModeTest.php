@@ -6,42 +6,25 @@
 
 namespace Drupal\diff\Tests;
 
-use Drupal\simpletest\WebTestBase;
-
 /**
  * Tests field visibility when using a custom view mode.
  *
  * @group diff
  */
-class ViewModeTest extends WebTestBase {
+class ViewModeTest extends DiffTestBase {
 
   /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = array('node', 'diff', 'field_ui', 'block');
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp() {
-    parent::setUp();
-
-    // Create the Article content type.
-    $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
-
-    // Place the blocks that Diff module uses.
-    $this->drupalPlaceBlock('local_tasks_block');
-    $this->drupalPlaceBlock('local_actions_block');
-
-    $this->drupalLogin($this->rootUser);
-  }
+  public static $modules = ['field_ui'];
 
   /**
    * Tests field visibility using a cutom view mode.
    */
   public function testViewMode() {
+    $this->drupalLogin($this->rootUser);
     // Set the Article content type to use the diff view mode.
     $edit = [
       'view_mode' => 'diff',

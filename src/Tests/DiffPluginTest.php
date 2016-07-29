@@ -12,14 +12,13 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 use Drupal\link\LinkItemInterface;
-use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests the Diff module plugins.
  *
  * @group diff
  */
-class DiffPluginTest extends WebTestBase {
+class DiffPluginTest extends DiffTestBase {
 
   use CommentTestTrait;
   use FieldUiTestTrait;
@@ -29,7 +28,15 @@ class DiffPluginTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('node', 'diff', 'diff_test', 'block', 'comment', 'field_ui', 'file', 'image', 'link', 'options');
+  public static $modules = [
+    'diff_test',
+    'comment',
+    'file',
+    'image',
+    'link',
+    'options',
+    'field_ui',
+  ];
 
   /**
    * {@inheritdoc}
@@ -37,19 +44,12 @@ class DiffPluginTest extends WebTestBase {
   protected function setUp() {
     parent::setUp();
 
-    // Create Article node type.
-    $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
     // Add the comment field to articles.
     $this->addDefaultCommentField('node', 'article');
-
-    // Place the blocks that Diff module uses.
-    $this->drupalPlaceBlock('local_tasks_block');
-    $this->drupalPlaceBlock('local_actions_block');
 
     // FieldUiTestTrait checks the breadcrumb when adding a field, so we need
     // to show the breadcrumb block.
     $this->drupalPlaceBlock('system_breadcrumb_block');
-
     $this->drupalLogin($this->rootUser);
   }
 

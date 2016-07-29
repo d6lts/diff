@@ -7,14 +7,13 @@
 namespace Drupal\diff\Tests;
 
 use Drupal\language\Entity\ConfigurableLanguage;
-use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests the diff revisions overview.
  *
  * @group diff
  */
-class DiffRevisionTest extends WebTestBase {
+class DiffRevisionTest extends DiffTestBase {
 
   /**
    * Modules to enable.
@@ -22,31 +21,17 @@ class DiffRevisionTest extends WebTestBase {
    * @var array
    */
   public static $modules = [
-    'node',
-    'diff',
     'diff_test',
-    'block',
-    'field_ui',
     'content_translation',
+    'field_ui'
   ];
 
   /**
    * Tests the revision diff overview.
    */
   public function testRevisionDiffOverview() {
-    $this->drupalPlaceBlock('local_tasks_block');
-    $this->drupalPlaceBlock('local_actions_block');
-    $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
-
-    $admin_user = $this->drupalCreateUser(array(
-      'administer nodes',
-      'administer site configuration',
-      'create article content',
-      'edit any article content',
-      'view article revisions',
-      'delete any article content',
-    ));
-    $this->drupalLogin($admin_user);
+    // Login as admin with the required permission.
+    $this->loginAsAdmin(['delete any article content']);
 
     // Create an article.
     $title = 'test_title';
@@ -159,12 +144,7 @@ class DiffRevisionTest extends WebTestBase {
   public function testOverviewPager() {
     $config = \Drupal::configFactory()->getEditable('diff.settings');
     $config->set('general_settings.revision_pager_limit', 10)->save();
-    $this->drupalPlaceBlock('local_tasks_block');
-    $this->drupalPlaceBlock('local_actions_block');
-    $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
-    $admin_user = $this->drupalCreateUser([
-      'view article revisions',
-    ]);
+    $admin_user = $this->drupalCreateUser(['view article revisions']);
     $this->drupalLogin($admin_user);
     $node = $this->drupalCreateNode([
       'type' => 'article',
@@ -195,26 +175,18 @@ class DiffRevisionTest extends WebTestBase {
    * Tests the revisions overview error messages.
    */
   public function testRevisionOverviewErrorMessages() {
-    $this->drupalPlaceBlock('local_tasks_block');
-    $this->drupalPlaceBlock('local_actions_block');
-    $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
     // Enable some languages for this test.
     $language = ConfigurableLanguage::createFromLangcode('de');
     $language->save();
 
-    $admin_user = $this->drupalCreateUser([
-      'administer site configuration',
-      'administer nodes',
+    // Login as admin with the required permissions.
+    $this->loginAsAdmin([
       'administer node form display',
-      'create article content',
-      'edit any article content',
-      'view article revisions',
       'administer languages',
       'administer content translation',
       'create content translations',
       'translate any entity',
     ]);
-    $this->drupalLogin($admin_user);
 
     // Make article content translatable.
     $edit = [
