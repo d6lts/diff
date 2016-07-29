@@ -346,8 +346,8 @@ class RevisionOverviewForm extends FormBase {
       'diff.revisions_diff',
       array(
         'node' => $nid,
-        'left_vid' => $vid_left,
-        'right_vid' => $vid_right,
+        'left_revision' => $vid_left,
+        'right_revision' => $vid_right,
       )
     );
     $form_state->setRedirectUrl($redirect_url);

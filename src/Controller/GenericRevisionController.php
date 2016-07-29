@@ -210,8 +210,9 @@ class GenericRevisionController extends EntityComparisonBase {
           '#account' => $revision->uid->entity,
         );
         $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
+        $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff": 'entity.node.revision';
         $revision_link = $this->t($revision_log . '@date', array(
-            '@date' => $this->l($revision_date, Url::fromRoute("entity.$entity_type_id.revision", array(
+            '@date' => $this->l($revision_date, Url::fromRoute($route_name, array(
               $entity_type_id => $revision->id(),
               $entity_type_id . '_revision' => $revision->getRevisionId(),
           ))),
@@ -245,8 +246,6 @@ class GenericRevisionController extends EntityComparisonBase {
    * Returns the navigation row for diff table.
    */
   protected function buildRevisionsNavigation(EntityInterface $entity, $vids, $left_vid, $right_vid) {
-    $entity_type_id = $entity->getEntityTypeId();
-    $entity_id = $entity->id();
     $revisions_count = count($vids);
     $i = 0;
 
@@ -259,13 +258,7 @@ class GenericRevisionController extends EntityComparisonBase {
       // Second column.
       $row[] = array(
         'data' => $this->l(
-          $this->t('< Previous difference'),
-          Url::fromRoute("entity.$entity_type_id.revisions_diff",
-            array(
-              $entity_type_id => $entity_id,
-              'left_revision' => $vids[$i - 1],
-              'right_revision' => $left_vid,
-            ))
+          $this->t('< Previous difference'), $this->diffRoute($entity, $vids[$i - 1], $left_vid)
         ),
         'colspan' => 2,
         'class' => 'rev-navigation',
@@ -286,13 +279,7 @@ class GenericRevisionController extends EntityComparisonBase {
       // Forth column.
       $row[] = array(
         'data' => $this->l(
-          $this->t('Next difference >'),
-          Url::fromRoute("entity.$entity_type_id.revisions_diff",
-            array(
-              $entity_type_id => $entity_id,
-              'left_revision' => $right_vid,
-              'right_revision' => $vids[$i],
-            ))
+          $this->t('Next difference >'), $this->diffRoute($entity, $right_vid, $vids[$i])
         ),
         'colspan' => 2,
         'class' => 'rev-navigation',
@@ -316,24 +303,13 @@ class GenericRevisionController extends EntityComparisonBase {
    * Builds a table row with navigation between raw and raw-plain formats.
    */
   protected function buildMarkdownNavigation(EntityInterface $entity, $left_vid, $right_vid, $active_filter) {
-    $entity_type_id = $entity->getEntityTypeId();
-
     $links['raw'] = array(
       'title' => $this->t('Standard'),
-      'url' => Url::fromRoute("entity.$entity_type_id.revisions_diff", array(
-        $entity_type_id => $entity->id(),
-        'left_revision' => $left_vid,
-        'right_revision' => $right_vid,
-      )),
+      'url' => $this->diffRoute($entity, $left_vid, $right_vid),
     );
     $links['raw_plain'] = array(
       'title' => $this->t('Markdown'),
-      'url' => Url::fromRoute("entity.$entity_type_id.revisions_diff", array(
-        $entity_type_id => $entity->id(),
-        'left_revision' => $left_vid,
-        'right_revision' => $right_vid,
-        'filter' => 'raw-plain',
-      )),
+      'url' => $this->diffRoute($entity, $left_vid, $right_vid, 'raw-plain'),
     );
 
     // Set as the first element the current filter.
@@ -350,5 +326,40 @@ class GenericRevisionController extends EntityComparisonBase {
     );
 
     return $row;
+  }
+
+  /**
+   * Creates an url object for diff.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity to be compared.
+   * @param $left_vid
+   *   Vid of the left revision.
+   * @param $right_vid
+   *   Vid of the right revision.
+   * @param $filter
+   *   (optional) The filter added to the route.
+   *
+   * @return \Drupal\Core\Url
+   *   The URL object.
+   */
+  protected function diffRoute(EntityInterface $entity, $left_vid, $right_vid, $filter = NULL) {
+    $entity_type_id = $entity->getEntityTypeId();
+    // @todo Remove the diff.revisions_diff route so we avoid adding extra cases.
+    if ($entity->getEntityTypeId() == 'node') {
+      $route_name = 'diff.revisions_diff';
+    }
+    else {
+      $route_name = "entity.$entity_type_id.revisions_diff";
+    }
+    $route_parameters = [
+      $entity_type_id => $entity->id(),
+      'left_revision' => $left_vid,
+      'right_revision' => $right_vid,
+    ];
+    if ($filter) {
+      $route_parameters['filter'] = $filter;
+    }
+    return Url::fromRoute($route_name, $route_parameters);
   }
 }

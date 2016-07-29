@@ -60,8 +60,8 @@ class DiffViewsTest extends ViewTestBase {
       // Route parameters
       [
         'node' => $node->id(),
-        'left_vid' => 1,
-        'right_vid' => 2,
+        'left_revision' => 1,
+        'right_revision' => 2,
       ],
       // Additional route options
       [

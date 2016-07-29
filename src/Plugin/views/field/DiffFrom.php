@@ -71,7 +71,7 @@ class DiffFrom extends DiffPluginBase {
       $entity_type_id = $diff_from_entity->getEntityTypeId();
 
       if ($diff_from_entity instanceof NodeInterface) {
-        $form_state->setRedirect('diff.revisions_diff', [$entity_type_id => $diff_from_entity->id(),'left_vid' => $diff_from_entity->getRevisionId(), 'right_vid' => $diff_to_entity->getRevisionId()], $options);
+        $form_state->setRedirect('diff.revisions_diff', [$entity_type_id => $diff_from_entity->id(),'left_revision' => $diff_from_entity->getRevisionId(), 'right_revision' => $diff_to_entity->getRevisionId()], $options);
       }
       else {
         $route_name = 'entity.' . $entity_type_id . '.revisions_diff';
