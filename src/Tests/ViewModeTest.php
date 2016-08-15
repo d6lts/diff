@@ -63,7 +63,7 @@ class ViewModeTest extends DiffTestBase {
     // Check the difference between the last two revisions.
     $this->clickLink(t('Revisions'));
     $this->drupalPostForm(NULL, NULL, t('Compare'));
-    $this->assertNoText('Changes to Body');
+    $this->assertNoText('Body');
     $this->assertNoText('Foo');
     $this->assertNoText('Fighters');
   }

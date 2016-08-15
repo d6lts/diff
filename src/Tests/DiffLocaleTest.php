@@ -81,12 +81,12 @@ class DiffLocaleTest extends DiffTestBase {
     // View differences between revisions. Check that they don't mix up.
     $this->drupalGet('node/' . $english_node->id() . '/revisions');
     $this->drupalGet('node/' . $english_node->id() . '/revisions/view/1/2');
-    $this->assertText('Changes to Title');
+    $this->assertText('Title');
     $this->assertText('English node');
     $this->assertText('Updated title');
     $this->drupalGet('fr/node/' . $english_node->id() . '/revisions');
     $this->drupalGet('fr/node/' . $english_node->id() . '/revisions/view/1/3');
-    $this->assertText('Changes to Title');
+    $this->assertText('Title');
     $this->assertNoText('English node');
     $this->assertNoText('Updated title');
     $this->assertText('French node');

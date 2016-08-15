@@ -77,7 +77,7 @@ class DiffPluginTest extends DiffTestBase {
     // Check the difference between the last two revisions.
     $this->clickLink(t('Revisions'));
     $this->drupalPostForm(NULL, NULL, t('Compare'));
-    $this->assertText('Changes to Comments');
+    $this->assertText('Comments');
     $this->assertText('Comments for this entity are open.');
     $this->assertText('Comments for this entity are closed.');
   }
@@ -132,7 +132,7 @@ class DiffPluginTest extends DiffTestBase {
     // Check the difference between the last two revisions.
     $this->clickLink(t('Revisions'));
     $this->drupalPostForm(NULL, NULL, t('Compare'));
-    $this->assertText('Changes to Email');
+    $this->assertText('Email');
     $this->assertText('foo@example.com');
     $this->assertText('bar@example.com');
   }
@@ -207,7 +207,7 @@ class DiffPluginTest extends DiffTestBase {
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
     $this->drupalPostForm(NULL, NULL, t('Compare'));
-    $this->assertText('Changes to Reference');
+    $this->assertText('Reference');
     $this->assertText('Article B');
     $this->assertText('Article C');
   }
@@ -273,7 +273,7 @@ class DiffPluginTest extends DiffTestBase {
       'radios_right' => 3,
     ];
     $this->drupalPostForm(NULL, $edit, t('Compare'));
-    $this->assertText('Changes to File');
+    $this->assertText('File');
     $this->assertText('File: text-1.txt');
     $this->assertText('File ID: 4');
   }
@@ -350,7 +350,7 @@ class DiffPluginTest extends DiffTestBase {
       'radios_right' => 3,
     ];
     $this->drupalPostForm(NULL, $edit, t('Compare'));
-    $this->assertText('Changes to Image');
+    $this->assertText('Image');
     $this->assertText('Image: image-test-transparent-indexed.gif');
     $this->assertText('File ID: 2');
   }
@@ -419,7 +419,7 @@ class DiffPluginTest extends DiffTestBase {
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
     $this->drupalPostForm(NULL, [], t('Compare'));
-    $this->assertText('Changes to Link');
+    $this->assertText('Link');
     $this->assertText('Google');
     $this->assertText('http://www.google.com');
     $this->assertText('Guguel');
@@ -482,7 +482,7 @@ class DiffPluginTest extends DiffTestBase {
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
     $this->drupalPostForm(NULL, [], t('Compare'));
-    $this->assertText('Changes to List');
+    $this->assertText('List');
     $this->assertText('value_a');
     $this->assertText('value_b');
   }
@@ -514,8 +514,8 @@ class DiffPluginTest extends DiffTestBase {
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
     $this->drupalPostForm(NULL, [], t('Compare'));
-    $this->assertText('Changes to Text Field');
-    $this->assertText('Changes to Text Long Field');
+    $this->assertText('Text Field');
+    $this->assertText('Text Long Field');
     $this->assertText('Foo');
     $this->assertText('Fighters');
     $this->assertText('Bar');
@@ -589,7 +589,7 @@ class DiffPluginTest extends DiffTestBase {
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
     $this->drupalPostForm(NULL, [], t('Compare'));
-    $this->assertText('Changes to Body');
+    $this->assertText('Body');
     $this->assertText('Foo value');
     $this->assertText('Foo summary');
     $this->assertText('Bar value');

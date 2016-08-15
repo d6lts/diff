@@ -11,7 +11,7 @@ services:
   plugin.manager.diff.builder:
     class: Drupal\diff\DiffBuilderManager
     parent: default_plugin_manager
-    arguments: ['@entity_type.manager']
+    arguments: ['@entity_type.manager', '@config.factory']
 
   diff.entity_parser:
     class: Drupal\diff\DiffEntityParser

@@ -68,7 +68,7 @@ class DiffRevisionTest extends DiffTestBase {
     $this->drupalPostForm(NULL, NULL, t('Compare'));
     $this->clickLink('Standard');
     // Extract the changes.
-    $this->assertText('Changes to Body');
+    $this->assertText('Body');
     $rows = $this->xpath('//tbody/tr');
     $head = $this->xpath('//thead/tr');
     $diff_row = $rows[3]->td;

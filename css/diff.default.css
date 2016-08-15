@@ -46,7 +46,7 @@ td.diff-addedline {
 }
 td.field-name,
 td.rev-navigation {
-  text-align: center;
+  text-align: left;
   vertical-align: middle;
 }
 span.diffchange {

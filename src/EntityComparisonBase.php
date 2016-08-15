@@ -111,39 +111,37 @@ class EntityComparisonBase extends ControllerBase {
     $left_values = $this->entityParser->parseEntity($left_entity);
     $right_values = $this->entityParser->parseEntity($right_entity);
 
-    foreach ($left_values as $field_name => $values) {
-      $field_definition = $left_entity->getFieldDefinition($field_name);
-      $left_key = $left_entity->getEntityTypeId() . '.' . $field_definition->getName();
+    foreach ($left_values as $left_key => $values) {
+      list (, $field_key) = explode(':', $left_key);
       // Get the compare settings for this field type.
-      $compare_settings = $this->pluginsConfig->get('fields.' . $left_key);
+      $compare_settings = $this->pluginsConfig->get('fields.' . $field_key);
       $result[$left_key] = [
-        '#name' => (isset($compare_settings['settings']['show_header']) && $compare_settings['settings']['show_header'] == 0) ? '' : $field_definition->getLabel(),
+        '#name' => (isset($compare_settings['settings']['show_header']) && $compare_settings['settings']['show_header'] == 0) ? '' : $values['label'],
         '#settings' => $compare_settings,
       ];
 
       // Fields which exist on the right entity also.
-      if (isset($right_values[$field_name])) {
-        $result[$left_key] += $this->combineFields($left_values[$field_name], $right_values[$field_name]);
+      if (isset($right_values[$left_key])) {
+        $result[$left_key] += $this->combineFields($left_values[$left_key], $right_values[$left_key]);
         // Unset the field from the right entity so that we know if the right
         // entity has any fields that left entity doesn't have.
-        unset($right_values[$field_name]);
+        unset($right_values[$left_key]);
       }
       // This field exists only on the left entity.
       else {
-        $result[$left_key] += $this->combineFields($left_values[$field_name], []);
+        $result[$left_key] += $this->combineFields($left_values[$left_key], []);
       }
     }
 
     // Fields which exist only on the right entity.
-    foreach ($right_values as $field_name => $values) {
-      $field_definition = $right_entity->getFieldDefinition($field_name);
-      $right_key = $right_entity->getEntityTypeId() . '.' . $field_definition->getName();
-      $compare_settings = $this->pluginsConfig->get('fields.' . $right_key);
+    foreach ($right_values as $right_key => $values) {
+      list (, $field_key) = explode(':', $right_key);
+      $compare_settings = $this->pluginsConfig->get('fields.' . $field_key);
       $result[$right_key] = [
-        '#name' => (isset($compare_settings['settings']['show_header']) && $compare_settings['settings']['show_header'] == 0) ? '' : $field_definition->getLabel(),
+        '#name' => (isset($compare_settings['settings']['show_header']) && $compare_settings['settings']['show_header'] == 0) ? '' : $values['label'],
         '#settings' => $compare_settings,
       ];
-      $result[$right_key] += $this->combineFields([], $right_values[$field_name]);
+      $result[$right_key] += $this->combineFields([], $right_values[$right_key]);
     }
 
     // Field rows. Recurse through all child elements.

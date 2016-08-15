@@ -53,7 +53,7 @@ class GenericRevisionController extends EntityComparisonBase {
     $entity = $route_match->getParameter($entity_type_id);
     $diff_rows = array();
     $build = array(
-      '#title' => $this->t('Revisions for %title', array('%title' => $entity->label())),
+      '#title' => $this->t('Changes to %title', ['%title' => $entity->label()]),
     );
     if (!in_array($filter, array('raw', 'raw-plain'))) {
       $filter = 'raw';
@@ -88,30 +88,13 @@ class GenericRevisionController extends EntityComparisonBase {
     // Perform comparison only if both entity revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
       $fields = $this->compareRevisions($left_revision, $right_revision);
-      $entity_base_fields = $this->entityManager()->getBaseFieldDefinitions($entity_type_id);
-      // Check to see if we need to display certain fields or not based on
-      // selected view mode display settings.
-      foreach ($fields as $field_name => $field) {
-        // If we are dealing with entities only compare those fields
-        // set as visible from the selected view mode.
-        $view_mode = $this->config->get('content_type_settings.' . $entity->bundle() . '.view_mode');
-        // If no view mode is selected use the default view mode.
-        if ($view_mode == NULL) {
-          $view_mode = 'default';
-        }
-        list(, $field_machine_name) = explode('.', $field_name);
-        $visible = entity_get_display($entity_type_id, $entity->bundle(), $view_mode)->getComponent($field_machine_name);
-        if ($visible == NULL && !array_key_exists($field_name, $entity_base_fields)) {
-          unset($fields[$field_name]);
-        }
-      }
       // Build the diff rows for each field and append the field rows
       // to the table rows.
       foreach ($fields as $field) {
         $field_label_row = '';
         if (!empty($field['#name'])) {
           $field_label_row = array(
-            'data' => $this->t('Changes to %name', array('%name' => $field['#name'])),
+            'data' => $this->t('%name', ['%name' => $field['#name']]),
             'colspan' => 4,
             'class' => array('field-name'),
           );
