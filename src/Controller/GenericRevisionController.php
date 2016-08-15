@@ -126,7 +126,7 @@ class GenericRevisionController extends EntityComparisonBase {
       }
       // If the setting could not be loaded or is missing use the default theme.
       elseif ($theme == NULL) {
-        $build['#attached']['library'][] = 'diff/diff.github';
+        $build['#attached']['library'][] = 'diff/diff.default';
       }
 
       $build['diff'] = array(
