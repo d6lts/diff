@@ -2,15 +2,69 @@
 
 namespace Drupal\diff\Controller;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Datetime\DateFormatter;
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\diff\DiffEntityComparison;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
-use Drupal\diff\EntityComparisonBase;
 use Drupal\node\NodeInterface;
 
-class GenericRevisionController extends EntityComparisonBase {
+/**
+ * Base class for controllers that return responses on entity revision routes.
+ */
+class GenericRevisionController extends ControllerBase {
+
+  /**
+   * The date service.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatter
+   */
+  protected $date;
+
+  /**
+   * Wrapper object for writing/reading configuration from diff.plugins.yml
+   */
+  protected $config;
+
+  /**
+   * Represents non breaking space HTML character entity marked as safe markup.
+   */
+  protected $nonBreakingSpace;
+
+  /**
+   * The diff entity comparison service.
+   */
+  protected $entityComparison;
+
+  /**
+   * Constructs a GenericRevisionController object.
+   *
+   * @param DateFormatter $date
+   *   DateFormatter service.
+   * @param DiffEntityComparison $entityComparison
+   *   DiffEntityComparison service.
+   */
+  public function __construct(DateFormatter $date, DiffEntityComparison $entityComparison) {
+    $this->date = $date;
+    $this->config = $this->config('diff.settings');
+    $this->nonBreakingSpace = new FormattableMarkup('&nbsp;', array());
+    $this->entityComparison = $entityComparison;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+        $container->get('date.formatter'),
+        $container->get('diff.entity_comparison')
+    );
+  }
 
   /**
    * Get all the revision ids of given entity id.
@@ -38,7 +92,7 @@ class GenericRevisionController extends EntityComparisonBase {
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match.
    * @param \Drupal\Core\Entity\EntityInterface $left_revision
-   *   The left revision
+   *   The left revision.
    * @param \Drupal\Core\Entity\EntityInterface $right_revision
    *   The right revision.
    * @param string $filter
@@ -87,7 +141,7 @@ class GenericRevisionController extends EntityComparisonBase {
 
     // Perform comparison only if both entity revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
-      $fields = $this->compareRevisions($left_revision, $right_revision);
+      $fields = $this->entityComparison->compareRevisions($left_revision, $right_revision);
       // Build the diff rows for each field and append the field rows
       // to the table rows.
       foreach ($fields as $field) {
@@ -99,7 +153,7 @@ class GenericRevisionController extends EntityComparisonBase {
             'class' => array('field-name'),
           );
         }
-        $field_diff_rows = $this->getRows(
+        $field_diff_rows = $this->entityComparison->getRows(
           $field['#states'][$filter]['#left'],
           $field['#states'][$filter]['#right']
         );
@@ -193,12 +247,12 @@ class GenericRevisionController extends EntityComparisonBase {
           '#account' => $revision->uid->entity,
         );
         $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
-        $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff": 'entity.node.revision';
+        $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
         $revision_link = $this->t($revision_log . '@date', array(
-            '@date' => $this->l($revision_date, Url::fromRoute($route_name, array(
-              $entity_type_id => $revision->id(),
-              $entity_type_id . '_revision' => $revision->getRevisionId(),
-          ))),
+          '@date' => $this->l($revision_date, Url::fromRoute($route_name, [
+            $entity_type_id => $revision->id(),
+            $entity_type_id . '_revision' => $revision->getRevisionId(),
+          ])),
         ));
       }
       else {

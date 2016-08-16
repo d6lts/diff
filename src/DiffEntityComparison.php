@@ -2,43 +2,25 @@
 
 namespace Drupal\diff;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Config\ConfigFactory;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Render\Element;
 use Drupal\Component\Diff\Diff;
-use Drupal\Core\Datetime\DateFormatter;
-use Drupal\Component\Utility\Xss;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Mail\MailFormatHelper;
-use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Utility\Xss;
 
 /**
- * Builds an array of data out of entity fields.
- *
- * The resulted data is then passed through the Diff component and
- * displayed on the UI and represents the differences between two entities.
+ * Entity comparison service that prepares a diff of a pair of entities.
  */
-class EntityComparisonBase extends ControllerBase {
+class DiffEntityComparison {
 
   /**
-   * DiffFormatter service.
+   * Contains the configuration object factory.
    *
-   * @var \Drupal\diff\DiffFormatter
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
-  protected $diffFormatter;
-
-  /**
-   * The date service.
-   *
-   * @var \Drupal\Core\Datetime\DateFormatter
-   */
-  protected $date;
-
-  /**
-   * Wrapper object for writing/reading simple configuration from diff.settings.yml
-   */
-  protected $config;
+  protected $configFactory;
 
   /**
    * Wrapper object for writing/reading simple configuration from diff.plugins.yml
@@ -46,61 +28,51 @@ class EntityComparisonBase extends ControllerBase {
   protected $pluginsConfig;
 
   /**
+   * The diff formatter.
+   *
+   * @var \Drupal\Core\Diff\DiffFormatter
+   */
+  protected $diffFormatter;
+
+  /**
    * A list of all the field types from the system and their definitions.
    */
   protected $fieldTypeDefinitions;
 
   /**
-   * Represents non breaking space HTML character entity marked as safe markup.
-   */
-  protected $nonBreakingSpace;
-
-  /**
-   * The entity parser service for diff.
+   * The entity parser.
+   *
+   * @var \Drupal\diff\DiffEntityParser
    */
   protected $entityParser;
 
   /**
-   * Constructs an EntityComparisonBase object.
+   * Constructs a DiffEntityComparison object.
    *
+   * @param ConfigFactory $config_factory
+   *   Diff formatter service.
    * @param DiffFormatter $diff_formatter
    *   Diff formatter service.
-   * @param DateFormatter $date
-   *   DateFormatter service.
    * @param PluginManagerInterface $plugin_manager
    *   The Plugin manager service.
-   * @param DiffEntityParser $entityParser
+   * @param DiffEntityParser $entity_parser
    *   The diff field builder plugin manager.
    */
-  public function __construct(DiffFormatter $diff_formatter, DateFormatter $date, PluginManagerInterface $plugin_manager, DiffEntityParser $entityParser) {
+  public function __construct(ConfigFactory $config_factory, DiffFormatter $diff_formatter, PluginManagerInterface $plugin_manager, DiffEntityParser $entity_parser) {
+    $this->configFactory = $config_factory;
+    $this->pluginsConfig = $this->configFactory->get('diff.plugins');
     $this->diffFormatter = $diff_formatter;
-    $this->date = $date;
     $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
-    $this->config = $this->config('diff.settings');
-    $this->pluginsConfig = $this->config('diff.plugins');
-    $this->nonBreakingSpace = new FormattableMarkup('&nbsp;', array());
-    $this->entityParser = $entityParser;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('diff.diff.formatter'),
-      $container->get('date.formatter'),
-      $container->get('plugin.manager.field.field_type'),
-      $container->get('diff.entity_parser')
-    );
+    $this->entityParser = $entity_parser;
   }
 
   /**
    * This method should return an array of items ready to be compared.
    *
    * @param ContentEntityInterface $left_entity
-   *   The left entity
+   *   The left entity.
    * @param ContentEntityInterface $right_entity
-   *   The right entity
+   *   The right entity.
    *
    * @return array
    *   Items ready to be compared by the Diff component.
@@ -229,7 +201,7 @@ class EntityComparisonBase extends ControllerBase {
    * @return array
    *   Array of rows usable with theme('table').
    */
-  protected function getRows($a, $b, $show_header = FALSE, &$line_stats = NULL) {
+  public function getRows($a, $b, $show_header = FALSE, &$line_stats = NULL) {
     $a = is_array($a) ? $a : explode("\n", $a);
     $b = is_array($b) ? $b : explode("\n", $b);
 
@@ -259,7 +231,7 @@ class EntityComparisonBase extends ControllerBase {
    * @param $diff
    *   Array of strings.
    */
-  function processStateLine(&$diff) {
+  protected function processStateLine(&$diff) {
     foreach ($diff['#states'] as $state => $data) {
       if (isset($data['#left'])) {
         if (is_string($data['#left'])) {
