@@ -237,11 +237,11 @@ class GenericRevisionController extends ControllerBase {
     //   'colspan' => 1,
     // );
 
-    $header['left'] = [
+    $header[] = [
       'data' => ['#markup' => $this->buildRevisionLink($left_revision)],
       'colspan' => 2,
     ];
-    $header['right'] = [
+    $header[] = [
       'data' => ['#markup' => $this->buildRevisionLink($right_revision)],
       'colspan' => 2,
     ];
