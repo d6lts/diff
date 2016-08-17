@@ -228,55 +228,64 @@ class GenericRevisionController extends ControllerBase {
    *   Header for Diff table.
    */
   protected function buildTableHeader(EntityInterface $left_revision, EntityInterface $right_revision) {
-    $entity_type_id = $left_revision->getEntityTypeId();
-    $revisions = array($left_revision, $right_revision);
-    $header = array();
+    $header = [];
+    // @todo When theming think about where in the table to integrate this
+    //   link to the revision user. There is some issue about multi-line headers
+    //   for theme table.
+    // $header[] = array(
+    //   'data' => $this->t('by' . '!username', array('!username' => drupal_render($username))),
+    //   'colspan' => 1,
+    // );
 
-    foreach ($revisions as $revision) {
-      if ($revision instanceof EntityRevisionLogInterface || $revision instanceof NodeInterface) {
-        $revision_log = $this->nonBreakingSpace;
-
-        if ($revision instanceof EntityRevisionLogInterface) {
-          $revision_log = Xss::filter($revision->getRevisionLogMessage());
-        }
-        elseif ($revision instanceof NodeInterface) {
-          $revision_log = $revision->revision_log->value;
-        }
-        $username = array(
-          '#theme' => 'username',
-          '#account' => $revision->uid->entity,
-        );
-        $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
-        $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
-        $revision_link = $this->t($revision_log . '@date', array(
-          '@date' => $this->l($revision_date, Url::fromRoute($route_name, [
-            $entity_type_id => $revision->id(),
-            $entity_type_id . '_revision' => $revision->getRevisionId(),
-          ])),
-        ));
-      }
-      else {
-        $revision_link = $this->l($revision->label(), $revision->toUrl('revision'));
-      }
-
-      // @todo When theming think about where in the table to integrate this
-      //   link to the revision user. There is some issue about multi-line headers
-      //   for theme table.
-      // $header[] = array(
-      //   'data' => $this->t('by' . '!username', array('!username' => drupal_render($username))),
-      //   'colspan' => 1,
-      // );
-      $header[] = array(
-        'data' => array('#markup' => $this->nonBreakingSpace),
-        'colspan' => 1,
-      );
-      $header[] = array(
-        'data' => array('#markup' => $revision_link),
-        'colspan' => 1,
-      );
-    }
+    $header['left'] = [
+      'data' => ['#markup' => $this->buildRevisionLink($left_revision)],
+      'colspan' => 2,
+    ];
+    $header['right'] = [
+      'data' => ['#markup' => $this->buildRevisionLink($right_revision)],
+      'colspan' => 2,
+    ];
 
     return $header;
+  }
+
+  /**
+   * Build the revision link for a revision.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $revision
+   *   A revision where to add a link.
+   *
+   * @return \Drupal\Core\GeneratedLink
+   *   Header link for a revision in the table.
+   */
+  protected function buildRevisionLink(EntityInterface $revision) {
+    $entity_type_id = $revision->getEntityTypeId();
+    if ($revision instanceof EntityRevisionLogInterface || $revision instanceof NodeInterface) {
+      $revision_log = $this->nonBreakingSpace;
+
+      if ($revision instanceof EntityRevisionLogInterface) {
+        $revision_log = Xss::filter($revision->getRevisionLogMessage());
+      }
+      elseif ($revision instanceof NodeInterface) {
+        $revision_log = $revision->revision_log->value;
+      }
+      $username = [
+        '#theme' => 'username',
+        '#account' => $revision->uid->entity,
+      ];
+      $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
+      $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
+      $revision_link = $this->t($revision_log . '@date', [
+        '@date' => $this->l($revision_date, Url::fromRoute($route_name, [
+          $entity_type_id => $revision->id(),
+          $entity_type_id . '_revision' => $revision->getRevisionId(),
+        ])),
+      ]);
+    }
+    else {
+      $revision_link = $this->l($revision->label(), $revision->toUrl('revision'));
+    }
+    return $revision_link;
   }
 
   /**
