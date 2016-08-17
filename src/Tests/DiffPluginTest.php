@@ -138,6 +138,67 @@ class DiffPluginTest extends DiffTestBase {
   }
 
   /**
+   * Tests the Core plugin with a timestamp field.
+   */
+  public function testCorePluginTimestampField() {
+    // Add a timestamp field (supported by the Diff core plugin) to the Article
+    // content type.
+    $field_name = 'field_timestamp';
+    $this->fieldStorage = FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'type' => 'timestamp',
+    ]);
+    $this->fieldStorage->save();
+    $this->field = FieldConfig::create([
+      'field_storage' => $this->fieldStorage,
+      'bundle' => 'article',
+      'label' => 'Timestamp test',
+    ]);
+    $this->field->save();
+
+    // Add the timestamp field to the article form.
+    entity_get_form_display('node', 'article', 'default')
+      ->setComponent($field_name, array(
+        'type' => 'datetime_timestamp',
+      ))
+      ->save();
+
+    // Add the timestamp field to the default display
+    entity_get_display('node', 'article', 'default')
+      ->setComponent($field_name, array(
+        'type' => 'timestamp',
+      ))
+      ->save();
+
+    $old_timestamp = '321321321';
+    $new_timestamp = '123123123';
+
+    // Create an article with an timestamp.
+    $this->drupalCreateNode([
+      'title' => 'timestamp_test',
+      'type' => 'article',
+      'field_timestamp' => $old_timestamp,
+    ]);
+
+    // Create a new revision with an updated timestamp.
+    $node = $this->drupalGetNodeByTitle('timestamp_test');
+    $node->field_timestamp = $new_timestamp;
+    $node->setNewRevision(TRUE);
+    $node->save();
+
+    // Compare the revisions.
+    $this->drupalGet('node/' . $node->id() . '/revisions');
+    $this->drupalPostForm(NULL, NULL, t('Compare'));
+
+    // Assert that the timestamp field does not show a unix time format.
+    $this->assertText('Timestamp test');
+    $date_formatter = \Drupal::service('date.formatter');
+    $this->assertText($date_formatter->format($old_timestamp));
+    $this->assertText($date_formatter->format($new_timestamp));
+  }
+
+  /**
    * Tests the changed field without plugins.
    */
   public function testFieldWithNoPlugin() {
