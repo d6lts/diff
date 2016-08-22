@@ -163,28 +163,11 @@ class DiffBuilderManager extends DefaultPluginManager {
    *   The selected plugin for the field.
    */
   public function getSelectedPluginForFieldStorageDefinition(FieldStorageDefinitionInterface $field_definition) {
+    $plugin_options = $this->getApplicablePluginOptions($field_definition);
     $field_key = $field_definition->getTargetEntityTypeId() . '.' . $field_definition->getName();
     $selected_plugin = $this->pluginsConfig->get('fields.' . $field_key);
-    if (!$selected_plugin) {
-      // Get the definition of all FieldDiffBuilder plugins.
-      $plugins = [];
-      foreach ($this->getDefinitions() as $plugin_definition) {
-        if (isset($plugin_definition['field_types'])) {
-          // Iterate through all the field types this plugin supports
-          // and for every such field type add the id of the plugin.
-          foreach ($plugin_definition['field_types'] as $id) {
-            $plugins[$id][] = $plugin_definition['id'];
-          }
-        }
-      }
-
-      // Build a list of all diff plugins supporting the field type of the field.
-      $plugin_options = [];
-      if (isset($plugins[$field_definition->getType()])) {
-        foreach ($plugins[$field_definition->getType()] as $id) {
-          $plugin_options[$id] = $this->getDefinitions()[$id]['label'];
-        }
-      }
+    // Check if the plugin stored to the fields is still applicable.
+    if (!$selected_plugin || !in_array($selected_plugin['type'], array_keys($plugin_options))) {
       if (!empty($plugin_options)) {
         $selected_plugin['type'] = array_keys($plugin_options)[0];
       }
@@ -193,5 +176,50 @@ class DiffBuilderManager extends DefaultPluginManager {
       }
     }
     return $selected_plugin;
+  }
+
+  /**
+   * Gets the applicable plugin options for a given field.
+   *
+   * Loop over the plugins that can be applied to the field and builds an array
+   * of possible plugins based on each plugin weight.
+   *
+   * @param FieldStorageDefinitionInterface $field_definition
+   *   The field storage definition.
+   *
+   * @return array
+   *   The plugin option for the given field based on plugin weight.
+   */
+  public function getApplicablePluginOptions(FieldStorageDefinitionInterface $field_definition) {
+    // Get the definition of all the FieldDiffBuilder plugins.
+    $plugins = [];
+    foreach ($this->getDefinitions() as $plugin_definition) {
+      if (isset($plugin_definition['field_types'])) {
+        // Iterate through all the field types this plugin supports
+        // and for every such field type add the id of the plugin.
+        if(!isset($plugin_definition['weight'])) {
+          $plugin_definition['weight'] = 0;
+        };
+        $plugin['id'] = $plugin_definition['id'];
+        foreach ($plugin_definition['field_types'] as $id) {
+          $plugins[$id][$plugin_definition['id']]['weight'] = $plugin_definition['weight'];
+        }
+      }
+    }
+
+    // Build a list of all diff plugins supporting the field type of the field.
+    $plugin_options = [];
+    if (isset($plugins[$field_definition->getType()])) {
+      // Sort the plugins based on their weight.
+      asort($plugins[$field_definition->getType()]);
+      foreach ($plugins[$field_definition->getType()] as $id => $weight) {
+        $definition = $this->getDefinition($id, FALSE);
+        // Check if the plugin is applicable.
+        if (isset($definition['class']) && in_array($field_definition->getType(), $definition['field_types']) && $definition['class']::isApplicable($field_definition)) {
+          $plugin_options[$id] = $this->getDefinitions()[$id]['label'];
+        }
+      }
+    }
+    return $plugin_options;
   }
 }

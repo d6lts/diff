@@ -657,4 +657,53 @@ class DiffPluginTest extends DiffTestBase {
     $this->assertText('Bar summary');
   }
 
+  /**
+   * Tests plugin applicability and weight relevance.
+   */
+  public function testApplicablePlugin() {
+    // Add three text fields to the article.
+    $this->addTextField('test_field', 'Test Applicable', 'text', 'text_textfield');
+    $this->addTextField('test_field_lighter', 'Test Lighter Applicable', 'text', 'text_textfield');
+    $this->addTextField('test_field_non_applicable', 'Test Not Applicable', 'text', 'text_textfield');
+
+    // Create an article, setting values on fields.
+    $node = $this->drupalCreateNode([
+      'type' => 'article',
+      'title' => 'Test article',
+      'test_field' => 'first_nice_applicable',
+      'test_field_lighter' => 'second_nice_applicable',
+      'test_field_non_applicable' => 'not_applicable',
+    ]);
+
+    // Edit the article and update these fields, creating a new revision.
+    $edit = [
+      'test_field[0][value]' => 'first_nicer_applicable',
+      'test_field_lighter[0][value]' => 'second_nicer_applicable',
+      'test_field_non_applicable[0][value]' => 'nicer_not_applicable',
+      'revision' => TRUE,
+    ];
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+
+    // Check differences between revisions.
+    $this->clickLink(t('Revisions'));
+    $this->drupalPostForm(NULL, [], t('Compare'));
+
+    // Check diff for an applicable field of testTextPlugin.
+    $this->assertText('Test Applicable');
+    $this->assertText('first_nice_heavier_test_plugin');
+    $this->assertText('first_nicer_heavier_test_plugin');
+
+    // Check diff for an applicable field of testTextPlugin and
+    // testLighterTextPlugin. The plugin selected for this field should be the
+    // lightest one.
+    $this->assertText('Test Lighter Applicable');
+    $this->assertText('second_nice_lighter_test_plugin');
+    $this->assertText('second_nicer_lighter_test_plugin');
+
+    // Check diff for a non applicable field of both test plugins.
+    $this->assertText('Test Not Applicable');
+    $this->assertText('not_applicable');
+    $this->assertText('nicer_not_applicable');
+  }
+
 }
