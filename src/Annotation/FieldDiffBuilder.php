@@ -42,4 +42,10 @@ class FieldDiffBuilder extends Plugin {
    */
   public $field_types = array();
 
+  /**
+   * The weight of the plugin that defines its importance when applied.
+   *
+   * @var int
+   */
+  public $weight = 0;
 }
