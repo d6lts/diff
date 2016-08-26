@@ -135,6 +135,7 @@ class FieldsSettingsForm extends ConfigFormBase {
       }
     }
 
+    $this->diffBuilderManager->clearCachedDefinitions();
     // Submit button for the form.
     $form['actions'] = array('#type' => 'actions');
     $form['actions']['submit'] = array(

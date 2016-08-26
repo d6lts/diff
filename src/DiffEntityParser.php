@@ -61,19 +61,6 @@ class DiffEntityParser {
       $entity = $entity->getTranslation($langcode);
     }
     $entity_type_id = $entity->getEntityTypeId();
-
-    // Load the diff plugin definitions.
-    $diff_plugin_definitions = $this->diffBuilderManager->getDefinitions();
-    $plugins = [];
-    foreach ($diff_plugin_definitions as $plugin_definition) {
-      if (isset($plugin_definition['field_types'])) {
-        // Add the plugin's ID to each field type this plugin supports.
-        foreach ($plugin_definition['field_types'] as $id) {
-          $plugins[$id][] = $plugin_definition['id'];
-        }
-      }
-    }
-
     // Loop through entity fields and transform every FieldItemList object
     // into an array of strings according to field type specific settings.
     foreach ($entity as $field_items) {
@@ -105,6 +92,7 @@ class DiffEntityParser {
       }
     }
 
+    $this->diffBuilderManager->clearCachedDefinitions();
     return $result;
   }
 }

@@ -36,6 +36,13 @@ class DiffBuilderManager extends DefaultPluginManager {
   protected $pluginsConfig;
 
   /**
+   * Static cache of field definitions per bundle and entity type.
+   *
+   * @var array
+   */
+  protected $pluginDefinitions;
+
+  /**
    * Constructs a FieldDiffBuilderManager object.
    *
    * @param \Traversable $namespaces
@@ -191,27 +198,12 @@ class DiffBuilderManager extends DefaultPluginManager {
    *   The plugin option for the given field based on plugin weight.
    */
   public function getApplicablePluginOptions(FieldStorageDefinitionInterface $field_definition) {
-    // Get the definition of all the FieldDiffBuilder plugins.
-    $plugins = [];
-    foreach ($this->getDefinitions() as $plugin_definition) {
-      if (isset($plugin_definition['field_types'])) {
-        // Iterate through all the field types this plugin supports
-        // and for every such field type add the id of the plugin.
-        if(!isset($plugin_definition['weight'])) {
-          $plugin_definition['weight'] = 0;
-        };
-        $plugin['id'] = $plugin_definition['id'];
-        foreach ($plugin_definition['field_types'] as $id) {
-          $plugins[$id][$plugin_definition['id']]['weight'] = $plugin_definition['weight'];
-        }
-      }
-    }
-
+    $plugins = $this->getPluginDefinitions();
     // Build a list of all diff plugins supporting the field type of the field.
     $plugin_options = [];
     if (isset($plugins[$field_definition->getType()])) {
       // Sort the plugins based on their weight.
-      asort($plugins[$field_definition->getType()]);
+      uasort($plugins[$field_definition->getType()], 'Drupal\Component\Utility\SortArray::sortByWeightElement');
       foreach ($plugins[$field_definition->getType()] as $id => $weight) {
         $definition = $this->getDefinition($id, FALSE);
         // Check if the plugin is applicable.
@@ -221,5 +213,41 @@ class DiffBuilderManager extends DefaultPluginManager {
       }
     }
     return $plugin_options;
+  }
+
+  /**
+   * Initializes the local pluginDefinitions property.
+   *
+   * Loop over the plugin definitions and build an array keyed by the field type
+   * that plugins can be applied to.
+   *
+   * @return array
+   *   The initialized plugins array sort by field type.
+   */
+  public function getPluginDefinitions() {
+    if (!isset($this->pluginDefinitions)) {
+      // Get the definition of all the FieldDiffBuilder plugins.
+      foreach ($this->getDefinitions() as $plugin_definition) {
+        if (isset($plugin_definition['field_types'])) {
+          // Iterate through all the field types this plugin supports
+          // and for every such field type add the id of the plugin.
+          if (!isset($plugin_definition['weight'])) {
+            $plugin_definition['weight'] = 0;
+          };
+
+          foreach ($plugin_definition['field_types'] as $id) {
+            $this->pluginDefinitions[$id][$plugin_definition['id']]['weight'] = $plugin_definition['weight'];
+          }
+        }
+      }
+    }
+    return $this->pluginDefinitions;
+  }
+
+  /**
+   * Clear the pluginDefinitions local property array.
+   */
+  public function clearCachedDefinitions() {
+    unset($this->pluginDefinitions);
   }
 }
