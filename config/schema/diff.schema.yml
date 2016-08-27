@@ -6,9 +6,6 @@ diff.settings:
       type: mapping
       label: 'General Settings'
       mapping:
-        theme:
-          type: label
-          label: 'Theme'
         radio_behavior:
           type: label
           label: 'Radio button behaviour'

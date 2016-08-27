@@ -177,19 +177,7 @@ class GenericRevisionController extends ControllerBase {
 
       // Add the CSS for the diff.
       $build['#attached']['library'][] = 'diff/diff.general';
-      $theme = $this->config->get('general_settings.theme');
-      if ($theme) {
-        if ($theme == 'default') {
-          $build['#attached']['library'][] = 'diff/diff.default';
-        }
-        elseif ($theme == 'github') {
-          $build['#attached']['library'][] = 'diff/diff.github';
-        }
-      }
-      // If the setting could not be loaded or is missing use the default theme.
-      elseif ($theme == NULL) {
-        $build['#attached']['library'][] = 'diff/diff.default';
-      }
+      $build['#attached']['library'][] = 'diff/diff.github';
 
       $build['diff'] = array(
         '#type' => 'table',

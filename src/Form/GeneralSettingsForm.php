@@ -29,16 +29,6 @@ class GeneralSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $field_type = NULL) {
     $config = $this->config('diff.settings');
 
-    $form['theme'] = array(
-      '#type' => 'select',
-      '#title' => $this->t('CSS options'),
-      '#default_value' => $config->get('general_settings.theme'),
-      '#options' => array(
-        'default' => $this->t('Classic'),
-        'github' => $this->t('Github theme'),
-      ),
-      '#description' => $this->t('Alter the CSS used when displaying diff results.'),
-    );
     $form['radio_behavior'] = array(
       '#type' => 'select',
       '#title' => $this->t('Diff radio behavior'),
@@ -78,7 +68,6 @@ class GeneralSettingsForm extends ConfigFormBase {
     $config = $this->config('diff.settings');
 
     $keys = array(
-      'theme',
       'radio_behavior',
       'context_lines_leading',
       'context_lines_trailing',

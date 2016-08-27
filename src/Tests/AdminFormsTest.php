@@ -34,7 +34,6 @@ class AdminFormsTest extends DiffTestBase {
    */
   public function testSettingsTab() {
     $edit = [
-      'theme' => 'github',
       'radio_behavior' => 'linear',
       'context_lines_leading' => 10,
       'context_lines_trailing' => 5,

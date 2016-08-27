@@ -26,3 +26,12 @@ function diff_update_8002() {
   $config->set('general_settings.revision_pager_limit', 50);
   $config->save(TRUE);
 }
+
+/**
+ * Delete stale theme configuration.
+ */
+function diff_update_8003() {
+  $config = \Drupal::configFactory()->getEditable('diff.settings');
+  $config->clear('general_settings.theme');
+  $config->save();
+}
