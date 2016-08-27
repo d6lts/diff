@@ -71,7 +71,7 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertText('Body');
     $rows = $this->xpath('//tbody/tr');
     $head = $this->xpath('//thead/tr');
-    $diff_row = $rows[3]->td;
+    $diff_row = $rows[1]->td;
     $comment = $head[0]->th[1];
     // Assert the revision comment.
     $this->assertEqual((string) $comment, 'Revision 2 comment');
@@ -86,7 +86,7 @@ class DiffRevisionTest extends DiffTestBase {
     // Compare the revisions in markdown mode.
     $this->clickLink('Markdown');
     $rows = $this->xpath('//tbody/tr');
-    $diff_row = $rows[3]->td;
+    $diff_row = $rows[1]->td;
     // Assert changes made to the body, text 1 changed to 2.
     $this->assertEqual((string) ($diff_row[0]), '-');
     $this->assertEqual((string) (($diff_row[1]->span)), '1');

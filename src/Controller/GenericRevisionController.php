@@ -135,9 +135,17 @@ class GenericRevisionController extends ControllerBase {
         $vids[] = $vid;
       }
     }
-    $diff_rows[] = $this->buildRevisionsNavigation($entity, $vids, $left_revision->getRevisionId(), $right_revision->getRevisionId());
-    $diff_rows[] = $this->buildMarkdownNavigation($entity, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter);
     $diff_header = $this->buildTableHeader($left_revision, $right_revision);
+
+    // Build the layout filter.
+    $build['diff_layout'] = [
+      '#type' => 'item',
+      '#title' => $this->t('Layout'),
+    ];
+    $build['diff_layout']['filter'] = $this->buildMarkdownNavigation($entity, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter);
+
+    // Build the navigation links.
+    $build['diff_navigation'] = $this->buildRevisionsNavigation($entity, $vids, $left_revision->getRevisionId(), $right_revision->getRevisionId());
 
     // Perform comparison only if both entity revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
@@ -293,55 +301,47 @@ class GenericRevisionController extends ControllerBase {
    */
   protected function buildRevisionsNavigation(EntityInterface $entity, $vids, $left_vid, $right_vid) {
     $revisions_count = count($vids);
-    $i = 0;
-
-    $row = array();
-    // Find the previous revision.
-    while ($left_vid > $vids[$i]) {
-      $i += 1;
-    }
-    if ($i != 0) {
-      // Second column.
-      $row[] = array(
-        'data' => $this->l(
-          $this->t('< Previous difference'), $this->diffRoute($entity, $vids[$i - 1], $left_vid)
-        ),
-        'colspan' => 2,
-        'class' => 'rev-navigation',
-      );
-    }
-    else {
-      // Second column.
-      $row[] = $this->nonBreakingSpace;
-    }
-    // Third column.
-    $row[] = $this->nonBreakingSpace;
-    // Find the next revision.
-    $i = 0;
-    while ($i < $revisions_count && $right_vid >= $vids[$i]) {
-      $i += 1;
-    }
-    if ($revisions_count != $i && $vids[$i - 1] != $vids[$revisions_count - 1]) {
-      // Forth column.
-      $row[] = array(
-        'data' => $this->l(
-          $this->t('Next difference >'), $this->diffRoute($entity, $right_vid, $vids[$i])
-        ),
-        'colspan' => 2,
-        'class' => 'rev-navigation',
-      );
-    }
-    else {
-      // Forth column.
-      $row[] = $this->nonBreakingSpace;
-    }
-
     // If there are only 2 revision return an empty row.
     if ($revisions_count == 2) {
-      return array();
+      return [];
     }
     else {
-      return $row;
+      $left_link = $right_link = '';
+      $element['diff_navigation'] = [
+        '#type' => 'item',
+        '#title' => $this->t('Navigation'),
+      ];
+      $i = 0;
+      // Find the previous revision.
+      while ($left_vid > $vids[$i]) {
+        $i += 1;
+      }
+      if ($i != 0) {
+        // build the left link.
+        $left_link = $this->l($this->t('< Previous difference'), $this->diffRoute($entity, $vids[$i - 1], $left_vid));
+      }
+      $element['diff_navigation']['left'] = [
+        '#type' => 'markup',
+        '#markup' => $left_link,
+        '#prefix' => '<span class="navigation-link">',
+        '#suffix' => '</span>',
+      ];
+      // Find the next revision.
+      $i = 0;
+      while ($i < $revisions_count && $right_vid >= $vids[$i]) {
+        $i += 1;
+      }
+      if ($revisions_count != $i && $vids[$i - 1] != $vids[$revisions_count - 1]) {
+        // Build the right link.
+        $right_link = $this->l($this->t('Next difference >'), $this->diffRoute($entity, $right_vid, $vids[$i]));
+      }
+      $element['diff_navigation']['right'] = [
+        '#type' => 'markup',
+        '#markup' => $right_link,
+        '#prefix' => '<span class="navigation-link">',
+        '#suffix' => '</span>',
+      ];
+      return $element;
     }
   }
 
@@ -363,15 +363,14 @@ class GenericRevisionController extends ControllerBase {
     unset($links[$active_filter]);
     array_unshift($links, $filter);
 
-    $row[] = array(
-      'data' => array(
-        '#type' => 'operations',
-        '#links' => $links,
-      ),
-      'colspan' => 4,
-    );
+    $filter = [
+      '#type' => 'dropbutton',
+      '#links' => $links,
+      '#prefix' => '<div class="diff-filter">',
+      '#suffix' => '</div>',
+    ];
 
-    return $row;
+    return $filter;
   }
 
   /**
