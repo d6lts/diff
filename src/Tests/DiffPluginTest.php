@@ -221,7 +221,6 @@ class DiffPluginTest extends DiffTestBase {
     // "changed" field is not displayed since there is no plugin for it. This
     // should not break the revisions comparison display.
     $this->assertResponse(200);
-    $this->assertLink(t('Back to Revision Overview'));
     $this->assertLink(t('Standard'));
   }
 

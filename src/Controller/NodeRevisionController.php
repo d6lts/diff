@@ -10,7 +10,7 @@ use Drupal\Component\Utility\Xss;
 /**
  * Returns responses for Node Revision routes.
  */
-class NodeRevisionController extends GenericRevisionController {
+class NodeRevisionController extends PluginRevisionController {
 
   /**
    * Returns a form for revision overview page.

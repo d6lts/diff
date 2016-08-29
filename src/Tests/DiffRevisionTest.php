@@ -95,8 +95,8 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertEqual((string) (($diff_row[3]->span)), '2');
     $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[3]->asXML()))), 'Revision 2');
 
-    // Go back to revision overview.
-    $this->clickLink(t('Back to Revision Overview'));
+    $this->drupalGet('node/' . $node->id());
+    $this->clickLink(t('Revisions'));
     // Revert the revision, confirm.
     $this->clickLink(t('Revert'));
     $this->drupalPostForm(NULL, NULL, t('Revert'));

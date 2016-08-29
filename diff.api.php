@@ -43,5 +43,18 @@ function hook_field_diff_builder_info_alter(&$diff_builders) {
 }
 
 /**
+ * Alter the information provided in \Drupal\diff\Annotation\DiffLayoutBuilder.
+ *
+ * @param $diff_layouts
+ *   The array of diff layout builders plugins, keyed on the machine-readable
+ *   plugin name.
+ */
+function hook_diff_layout_builder_info_alter(&$diff_layouts) {
+  // Set a new label for the text_field_diff_builder plugin
+  // instead of the one provided in the annotation.
+  $diff_layouts['my_layout']['label'] = t('New label');
+}
+
+/**
  * @} End of "addtogroup hooks".
  */

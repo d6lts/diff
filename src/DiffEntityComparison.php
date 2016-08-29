@@ -90,18 +90,19 @@ class DiffEntityComparison {
       $result[$left_key] = [
         '#name' => (isset($compare_settings['settings']['show_header']) && $compare_settings['settings']['show_header'] == 0) ? '' : $values['label'],
         '#settings' => $compare_settings,
+        '#data' => [],
       ];
 
       // Fields which exist on the right entity also.
       if (isset($right_values[$left_key])) {
-        $result[$left_key] += $this->combineFields($left_values[$left_key], $right_values[$left_key]);
+        $result[$left_key]['#data'] += $this->combineFields($left_values[$left_key], $right_values[$left_key]);
         // Unset the field from the right entity so that we know if the right
         // entity has any fields that left entity doesn't have.
         unset($right_values[$left_key]);
       }
       // This field exists only on the left entity.
       else {
-        $result[$left_key] += $this->combineFields($left_values[$left_key], []);
+        $result[$left_key]['#data'] += $this->combineFields($left_values[$left_key], []);
       }
     }
 
@@ -112,41 +113,23 @@ class DiffEntityComparison {
       $result[$right_key] = [
         '#name' => (isset($compare_settings['settings']['show_header']) && $compare_settings['settings']['show_header'] == 0) ? '' : $values['label'],
         '#settings' => $compare_settings,
+        '#data' => [],
       ];
-      $result[$right_key] += $this->combineFields([], $right_values[$right_key]);
+      $result[$right_key]['#data'] += $this->combineFields([], $right_values[$right_key]);
     }
 
     // Field rows. Recurse through all child elements.
     foreach (Element::children($result) as $key) {
-      $result[$key]['#states'] = array();
       // Ensure that the element follows the #states format.
-      if (isset($result[$key]['#left'])) {
+      if (isset($result[$key]['#data']['#left'])) {
         // We need to trim spaces and new lines from the end of the string
         // otherwise in some cases we have a blank not needed line.
-        $result[$key]['#states']['raw']['#left'] = trim($result[$key]['#left']);
-        unset($result[$key]['#left']);
+        $result[$key]['#data']['#left'] = trim($result[$key]['#data']['#left']);
       }
-      if (isset($result[$key]['#right'])) {
-        $result[$key]['#states']['raw']['#right'] = trim($result[$key]['#right']);
-        unset($result[$key]['#right']);
-      }
-      $field_settings = $result[$key]['#settings'];
-
-      if (!empty($field_settings['settings']['markdown'])) {
-        $result[$key]['#states']['raw_plain']['#left'] = $this->applyMarkdown($field_settings['settings']['markdown'], $result[$key]['#states']['raw']['#left']);
-        $result[$key]['#states']['raw_plain']['#right'] = $this->applyMarkdown($field_settings['settings']['markdown'], $result[$key]['#states']['raw']['#right']);
-      }
-      // In case the settings are not loaded correctly use drupal_html_to_text
-      // to avoid any possible notices when a user clicks on markdown.
-      else {
-        $result[$key]['#states']['raw_plain']['#left'] = $this->applyMarkdown('drupal_html_to_text', $result[$key]['#states']['raw']['#left']);
-        $result[$key]['#states']['raw_plain']['#right'] = $this->applyMarkdown('drupal_html_to_text', $result[$key]['#states']['raw']['#right']);
+      if (isset($result[$key]['#data']['#right'])) {
+        $result[$key]['#data']['#right'] = trim($result[$key]['#data']['#right']);
       }
     }
-
-    // Process the array (split the strings into single line strings)
-    // and get line counts per field.
-    array_walk($result, array($this, 'processStateLine'));
 
     return $result;
   }
@@ -231,57 +214,25 @@ class DiffEntityComparison {
    * @param $diff
    *   Array of strings.
    */
-  protected function processStateLine(&$diff) {
-    foreach ($diff['#states'] as $state => $data) {
-      if (isset($data['#left'])) {
-        if (is_string($data['#left'])) {
-          $diff['#states'][$state]['#left'] = explode("\n", $data['#left']);
-        }
-        $diff['#states'][$state]['#count_left'] = count($diff['#states'][$state]['#left']);
+  public function processStateLine(&$diff) {
+    $data = $diff['#data'];
+    if (isset($data['#left'])) {
+      if (is_string($data['#left'])) {
+        $diff['#data']['#left'] = explode("\n", $data['#left']);
       }
-      else {
-        $diff['#states'][$state]['#count_left'] = 0;
-      }
-      if (isset($data['#right'])) {
-        if (is_string($data['#right'])) {
-          $diff['#states'][$state]['#right'] = explode("\n", $data['#right']);
-        }
-        $diff['#states'][$state]['#count_right'] = count($diff['#states'][$state]['#right']);
-      }
-      else {
-        $diff['#states'][$state]['#count_right'] = 0;
-      }
-    }
-  }
-
-  /**
-   * Applies a markdown function to a string.
-   *
-   * @param $markdown
-   *   Key of the markdown function to be applied to the items.
-   *   One of drupal_html_to_text, filter_xss, filter_xss_all.
-   * @param $items
-   *   String to be processed.
-   *
-   * @return array|string
-   *   Result after markdown was applied on $items.
-   */
-  protected function applyMarkdown($markdown, $items) {
-    if (!$markdown) {
-      return $items;
-    }
-
-    if ($markdown == 'drupal_html_to_text') {
-      return trim(MailFormatHelper::htmlToText($items), "\n");
-    }
-    elseif ($markdown == 'filter_xss') {
-      return trim(Xss::filter($items), "\n");
-    }
-    elseif ($markdown == 'filter_xss_all') {
-      return trim(Xss::filter($items, array()), "\n");
+      $diff['#data']['#count_left'] = count($diff['#data']['#left']);
     }
     else {
-      return $items;
+      $diff['#data']['#count_left'] = 0;
+    }
+    if (isset($data['#right'])) {
+      if (is_string($data['#right'])) {
+        $diff['#data']['#right'] = explode("\n", $data['#right']);
+      }
+      $diff['#data']['#count_right'] = count($diff['#data']['#right']);
+    }
+    else {
+      $diff['#data']['#count_right'] = 0;
     }
   }
 
