@@ -14,11 +14,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @DiffLayoutBuilder(
- *   id = "classic",
- *   label = @Translation("Standard"),
+ *   id = "single_column",
+ *   label = @Translation("Single Column"),
  * )
  */
-class ClassicDiffLayout extends DiffLayoutBase {
+class SingleColumnDiffLayout extends DiffLayoutBase {
 
   /**
    * The renderer.
@@ -81,7 +81,7 @@ class ClassicDiffLayout extends DiffLayoutBase {
    * {@inheritdoc}
    */
   public function build(EntityInterface $left_revision, EntityInterface $right_revision, EntityInterface $entity) {
-    $diff_header = $this->buildTableHeader($left_revision, $right_revision);
+    $diff_header = $this->buildTableHeader($right_revision);
     // Perform comparison only if both entity revisions loaded successfully.
     $fields = $this->entityComparison->compareRevisions($left_revision, $right_revision);
     // Build the diff rows for each field and append the field rows
@@ -91,7 +91,7 @@ class ClassicDiffLayout extends DiffLayoutBase {
       $field_label_row = '';
       if (!empty($field['#name'])) {
         $field_label_row = [
-          'data' => $this->t('%name', ['%name' => $field['#name']]),
+          'data' => $this->t('@name', ['@name' => $field['#name']]),
           'colspan' => 4,
           'class' => ['field-name'],
         ];
@@ -106,13 +106,40 @@ class ClassicDiffLayout extends DiffLayoutBase {
         $field['#data']['#right']
       );
 
+      $final_diff = [];
+      foreach ($field_diff_rows as $key => $value) {
+        if (trim($field_diff_rows[$key][1]['data']['#markup']) != '') {
+          $final_diff[] = [
+            $field_diff_rows[$key][0],
+            [
+              'data' => $field_diff_rows[$key][1]['data'],
+              'colspan' => 2,
+              'class' => $field_diff_rows[$key][1]['class'],
+            ]
+          ];
+        }
+        if (trim($field_diff_rows[$key][3]['data']['#markup']) != '') {
+          $final_diff[] = [
+            $field_diff_rows[$key][2],
+            [
+              'data' => $field_diff_rows[$key][3]['data'],
+              'colspan' => 2,
+              'class' => $field_diff_rows[$key][3]['class'],
+            ]
+          ];
+        }
+        if ($field_diff_rows[$key][1]['data'] == $field_diff_rows[$key][3]['data']) {
+          unset($final_diff[2]);
+        }
+      }
+
       // Add the field label to the table only if there are changes to that field.
-      if (!empty($field_diff_rows) && !empty($field_label_row)) {
+      if (!empty($final_diff) && !empty($field_label_row)) {
         $diff_rows[] = [$field_label_row];
       }
 
       // Add field diff rows to the table rows.
-      $diff_rows = array_merge($diff_rows, $field_diff_rows);
+      $diff_rows = array_merge($diff_rows, $final_diff);
     }
 
     $build['diff'] = [
@@ -125,31 +152,24 @@ class ClassicDiffLayout extends DiffLayoutBase {
       ],
     ];
 
-    $build['#attached']['library'][] = 'diff/diff.github';
+    $build['#attached']['library'][] = 'diff/diff.single_column';
     return $build;
   }
-
 
   /**
    * Build the header for the diff table.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $left_revision
-   *   Revision from the left hand side.
    * @param \Drupal\Core\Entity\EntityInterface $right_revision
    *   Revision from the right hand side.
    *
    * @return array
    *   Header for Diff table.
    */
-  protected function buildTableHeader(EntityInterface $left_revision, EntityInterface $right_revision) {
+  protected function buildTableHeader(EntityInterface $right_revision) {
     $header = [];
     $header[] = [
-      'data' => ['#markup' => $this->buildRevisionLink($left_revision)],
-      'colspan' => 2,
-    ];
-    $header[] = [
       'data' => ['#markup' => $this->buildRevisionLink($right_revision)],
-      'colspan' => 2,
+      'colspan' => 4,
     ];
 
     return $header;

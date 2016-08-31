@@ -95,6 +95,19 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertEqual((string) (($diff_row[3]->span)), '2');
     $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[3]->asXML()))), 'Revision 2');
 
+    // Compare the revisions in single column mode.
+    $this->clickLink('Single Column');
+    $rows = $this->xpath('//tbody/tr');
+    $diff_row = $rows[1]->td;
+    // Assert changes made to the body, text 1 changed to 2.
+    $this->assertEqual((string) ($diff_row[0]), '-');
+    $this->assertEqual((string) (($diff_row[1]->span)), '1');
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[1]->asXML())), '<p>Revision 1</p>');
+    $diff_row = $rows[2]->td;
+    $this->assertEqual((string) (($diff_row[0])), '+');
+    $this->assertEqual((string) (($diff_row[1]->span)), '2');
+    $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[1]->asXML()))), '<p>Revision 2</p>');
+
     $this->drupalGet('node/' . $node->id());
     $this->clickLink(t('Revisions'));
     // Revert the revision, confirm.

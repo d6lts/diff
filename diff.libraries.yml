@@ -11,3 +11,9 @@ diff.github:
   css:
     theme:
       css/diff.github.css: {}
+
+diff.single_column:
+  version: 1.x
+  css:
+    theme:
+      css/diff.single-column.css: {}

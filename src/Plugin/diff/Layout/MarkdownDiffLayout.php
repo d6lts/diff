@@ -9,11 +9,9 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\Core\Url;
 use Drupal\diff\DiffEntityComparison;
 use Drupal\diff\DiffEntityParser;
 use Drupal\diff\DiffLayoutBase;
-use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -37,13 +35,6 @@ class MarkdownDiffLayout extends DiffLayoutBase {
   protected $entityComparison;
 
   /**
-   * The date service.
-   *
-   * @var \Drupal\Core\Datetime\DateFormatter
-   */
-  protected $date;
-
-  /**
    * Constructs a FieldDiffBuilderBase object.
    *
    * @param array $configuration
@@ -56,16 +47,19 @@ class MarkdownDiffLayout extends DiffLayoutBase {
    *   The configuration factory object.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity manager.
-   * @param \Drupal\diff\DiffEntityParser $entityParser
+   * @param \Drupal\diff\DiffEntityParser $entity_parser
    *   The entity manager.
+   * @param \Drupal\Core\DateTime\DateFormatter $date
+   *   The date service.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer.
+   * @param \Drupal\diff\DiffEntityComparison $entity_comparison
+   *   The diff entity comparison service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityTypeManagerInterface $entity_type_manager, DiffEntityParser $entityParser, RendererInterface $renderer, DiffEntityComparison $entityComparison, DateFormatter $date) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $config, $entity_type_manager, $entityParser);
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityTypeManagerInterface $entity_type_manager, DiffEntityParser $entity_parser, DateFormatter $date, RendererInterface $renderer, DiffEntityComparison $entity_comparison) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $config, $entity_type_manager, $entity_parser, $date);
     $this->renderer = $renderer;
-    $this->entityComparison = $entityComparison;
-    $this->date = $date;
+    $this->entityComparison = $entity_comparison;
   }
 
   /**
@@ -79,9 +73,9 @@ class MarkdownDiffLayout extends DiffLayoutBase {
       $container->get('config.factory'),
       $container->get('entity.manager'),
       $container->get('diff.entity_parser'),
+      $container->get('date.formatter'),
       $container->get('renderer'),
-      $container->get('diff.entity_comparison'),
-      $container->get('date.formatter')
+      $container->get('diff.entity_comparison')
     );
   }
 
@@ -173,42 +167,6 @@ class MarkdownDiffLayout extends DiffLayoutBase {
 
     return $header;
   }
-
-  /**
-   * Build the revision link for a revision.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $revision
-   *   A revision where to add a link.
-   *
-   * @return \Drupal\Core\GeneratedLink
-   *   Header link for a revision in the table.
-   */
-  protected function buildRevisionLink(EntityInterface $revision) {
-    $entity_type_id = $revision->getEntityTypeId();
-    if ($revision instanceof EntityRevisionLogInterface || $revision instanceof NodeInterface) {
-      $revision_log = '';
-
-      if ($revision instanceof EntityRevisionLogInterface) {
-        $revision_log = Xss::filter($revision->getRevisionLogMessage());
-      }
-      elseif ($revision instanceof NodeInterface) {
-        $revision_log = $revision->revision_log->value;
-      }
-      $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
-      $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
-      $revision_link = $this->t($revision_log . '@date', [
-        '@date' => \Drupal::l($revision_date, Url::fromRoute($route_name, [
-          $entity_type_id => $revision->id(),
-          $entity_type_id . '_revision' => $revision->getRevisionId(),
-        ])),
-      ]);
-    }
-    else {
-      $revision_link = \Drupal::l($revision->label(), $revision->toUrl('revision'));
-    }
-    return $revision_link;
-  }
-
 
   /**
    * Applies a markdown function to a string.
