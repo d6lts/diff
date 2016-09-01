@@ -25,7 +25,7 @@ interface FieldDiffBuilderInterface extends PluginFormInterface, ConfigurablePlu
    * )
    * @endcode
    *
-   * @see \Drupal\diff\Plugin\Diff\TextFieldBuilder
+   * @see \Drupal\diff\Plugin\diff\Field\TextFieldBuilder
    *
    * @param FieldItemListInterface $field_items
    *   Represents an entity field.

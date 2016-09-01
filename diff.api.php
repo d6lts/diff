@@ -17,7 +17,7 @@
  * \Drupal\diff\FieldDiffBuilderInterface. Field diff builders plugins are
  * managed by the \Drupal\diff\DiffBuilderManager class. Field diff builders
  * classes usually extend base class \Drupal\diff\FieldDiffBuilderBase and need
- * to be in the namespace \Drupal\{your_module}\Plugin\Diff\. See the
+ * to be in the namespace \Drupal\{your_module}\Plugin\diff\Field\. See the
  * @link plugin_api Plugin API topic @endlink for more information on how to
  * define plugins.
  *

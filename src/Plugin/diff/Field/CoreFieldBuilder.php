@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\diff\Plugin\Diff;
+namespace Drupal\diff\Plugin\diff\Field;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
