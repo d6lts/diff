@@ -234,6 +234,13 @@ class DiffEntityComparison {
     else {
       $diff['#data']['#count_right'] = 0;
     }
+    // Do an extra trim for removing whitespaces after explode the data.
+    foreach ($diff['#data']['#left'] as $key => $value) {
+      $diff['#data']['#left'][$key] = trim($diff['#data']['#left'][$key]);
+    }
+    foreach ($diff['#data']['#right'] as $key => $value) {
+      $diff['#data']['#right'][$key] = trim($diff['#data']['#right'][$key]);
+    }
   }
 
 }

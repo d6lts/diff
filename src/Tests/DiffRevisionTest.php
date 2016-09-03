@@ -37,7 +37,9 @@ class DiffRevisionTest extends DiffTestBase {
     $title = 'test_title';
     $edit = array(
       'title[0][value]' => $title,
-      'body[0][value]' => '<p>Revision 1</p>',
+      'body[0][value]' => '<p>Revision 1</p>
+      <p>first_unique_text</p>
+      <p>second_unique_text</p>',
       'revision' => TRUE,
     );
     $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
@@ -50,7 +52,9 @@ class DiffRevisionTest extends DiffTestBase {
 
     // Create a second revision, with a comment.
     $edit = array(
-      'body[0][value]' => '<p>Revision 2</p>',
+      'body[0][value]' => '<p>Revision 2</p>
+      <p>first_unique_text</p>
+      <p>second_unique_text</p>',
       'revision' => TRUE,
       'revision_log[0][value]' => 'Revision 2 comment'
     );
@@ -107,6 +111,8 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertEqual((string) (($diff_row[0])), '+');
     $this->assertEqual((string) (($diff_row[1]->span)), '2');
     $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[1]->asXML()))), '<p>Revision 2</p>');
+    $this->assertUniqueText('first_unique_text');
+    $this->assertUniqueText('second_unique_text');
 
     $this->drupalGet('node/' . $node->id());
     $this->clickLink(t('Revisions'));

@@ -118,18 +118,17 @@ class SingleColumnDiffLayout extends DiffLayoutBase {
             ]
           ];
         }
-        if (trim($field_diff_rows[$key][3]['data']['#markup']) != '') {
-          $final_diff[] = [
-            $field_diff_rows[$key][2],
-            [
-              'data' => $field_diff_rows[$key][3]['data'],
-              'colspan' => 2,
-              'class' => $field_diff_rows[$key][3]['class'],
-            ]
-          ];
-        }
-        if ($field_diff_rows[$key][1]['data'] == $field_diff_rows[$key][3]['data']) {
-          unset($final_diff[2]);
+        if ($field_diff_rows[$key][1]['data'] != $field_diff_rows[$key][3]['data']) {
+          if (trim($field_diff_rows[$key][3]['data']['#markup']) != '') {
+            $final_diff[] = [
+              $field_diff_rows[$key][2],
+              [
+                'data' => $field_diff_rows[$key][3]['data'],
+                'colspan' => 2,
+                'class' => $field_diff_rows[$key][3]['class'],
+              ]
+            ];
+          }
         }
       }
 
