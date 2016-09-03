@@ -319,7 +319,7 @@ display:
           field_api_classes: false
       filters:
         status:
-          value: true
+          value: 'true'
           table: node_field_revision
           field: status
           plugin_id: boolean
