@@ -158,6 +158,35 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertNoFieldByXPath('//input[@type="radio"]');
     // Assert that there is no submit button.
     $this->assertNoFieldByXPath('//input[@type="submit"]');
+
+    // Create two new revisions of node.
+    $edit = [
+      'title[0][value]' => 'new test title',
+      'body[0][value]' => '<p>new body</p>',
+    ];
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, 'Save and keep published');
+
+    $edit = [
+      'title[0][value]' => 'newer test title',
+      'body[0][value]' => '<p>newer body</p>',
+    ];
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, 'Save and keep published');
+
+    $this->clickLink(t('Revisions'));
+    $edit = [
+      'radios_left' => 3,
+      'radios_right' => 4,
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Compare'));
+    $this->clickLink('Markdown');
+    // Check markdown layout is used when navigating between revisions.
+    $rows = $this->xpath('//tbody/tr');
+    $diff_row = $rows[3]->td;
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[3]->asXML())), 'new body');
+    $this->clickLink('Next difference >');
+    $rows = $this->xpath('//tbody/tr');
+    $diff_row = $rows[3]->td;
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[3]->asXML())), 'newer body');
   }
 
   public function testOverviewPager() {

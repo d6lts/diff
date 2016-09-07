@@ -128,7 +128,7 @@ class PluginRevisionController extends ControllerBase {
     $build['diff_layout']['filter'] = $this->buildLayoutNavigation($entity, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter);
 
     // Build the navigation links.
-    $build['diff_navigation'] = $this->buildRevisionsNavigation($entity, $revisions_ids, $left_revision->getRevisionId(), $right_revision->getRevisionId());
+    $build['diff_navigation'] = $this->buildRevisionsNavigation($entity, $revisions_ids, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter);
 
     // Perform comparison only if both entity revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
@@ -196,7 +196,7 @@ class PluginRevisionController extends ControllerBase {
    * @return array
    *   The revision navigation links.
    */
-  protected function buildRevisionsNavigation(EntityInterface $entity, $revision_ids, $left_revision_id, $right_revision_id) {
+  protected function buildRevisionsNavigation(EntityInterface $entity, $revision_ids, $left_revision_id, $right_revision_id, $filter) {
     $revisions_count = count($revision_ids);
     // If there are only 2 revision return an empty row.
     if ($revisions_count == 2) {
@@ -215,7 +215,7 @@ class PluginRevisionController extends ControllerBase {
       }
       if ($i != 0) {
         // build the left link.
-        $left_link = $this->l($this->t('< Previous difference'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id));
+        $left_link = $this->l($this->t('< Previous difference'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter));
       }
       $element['diff_navigation']['left'] = [
         '#type' => 'markup',
@@ -230,7 +230,7 @@ class PluginRevisionController extends ControllerBase {
       }
       if ($revisions_count != $i && $revision_ids[$i - 1] != $revision_ids[$revisions_count - 1]) {
         // Build the right link.
-        $right_link = $this->l($this->t('Next difference >'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i]));
+        $right_link = $this->l($this->t('Next difference >'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i], $filter));
       }
       $element['diff_navigation']['right'] = [
         '#type' => 'markup',
