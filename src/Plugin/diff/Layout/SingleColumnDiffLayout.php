@@ -91,7 +91,7 @@ class SingleColumnDiffLayout extends DiffLayoutBase {
       $field_label_row = '';
       if (!empty($field['#name'])) {
         $field_label_row = [
-          'data' => $this->t('@name', ['@name' => $field['#name']]),
+          'data' => $field['#name'],
           'colspan' => 4,
           'class' => ['field-name'],
         ];
