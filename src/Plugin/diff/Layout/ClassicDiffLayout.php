@@ -125,7 +125,8 @@ class ClassicDiffLayout extends DiffLayoutBase {
       ],
     ];
 
-    $build['#attached']['library'][] = 'diff/diff.github';
+    $build['#attached']['library'][] = 'diff/diff.double_column';
+    $build['#attached']['library'][] = 'diff/diff.colors';
     return $build;
   }
 

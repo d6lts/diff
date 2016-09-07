@@ -152,6 +152,7 @@ class SingleColumnDiffLayout extends DiffLayoutBase {
     ];
 
     $build['#attached']['library'][] = 'diff/diff.single_column';
+    $build['#attached']['library'][] = 'diff/diff.colors';
     return $build;
   }
 

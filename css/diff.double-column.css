@@ -15,29 +15,16 @@ td.diff-nextlink {
   text-align: right;
 }
 td.diff-deletedline {
-  width: 100%;
-  padding: 0 1em;
+  width: 50%;
 }
 td.diff-addedline {
-  width: 100%;
-  padding: 0 1em;
+  width: 50%;
 }
-td.field-name {
-  text-align: left;
-  font-weight: bold;
-}
+td.field-name,
 td.rev-navigation {
   text-align: center;
   vertical-align: middle;
 }
 td.diff-context {
-  width: 100%;
-  padding: 0.3em 1em;
-}
-td.diff-marker {
-  text-align: center;
-  padding: 0.3em 1em;
-}
-td.diff td {
-  padding: 0 1em;
+  width: 50%;
 }
