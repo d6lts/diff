@@ -583,6 +583,36 @@ class DiffPluginTest extends DiffTestBase {
   }
 
   /**
+   * Tests the access check for a field while comparing revisions.
+   */
+  public function testFieldNoAccess() {
+    // Add a text and a text field to article.
+    $this->addTextField('field_diff_deny_access', 'field_diff_deny_access', 'string', 'string_textfield');
+
+    // Create an article.
+    $this->drupalCreateNode([
+      'type' => 'article',
+      'title' => 'Test article access',
+      'field_diff_deny_access' => 'Foo',
+    ]);
+
+    // Create a revision of the article.
+    $node = $this->getNodeByTitle('Test article access');
+    $node->setTitle('Test article no access');
+    $node->set('field_diff_deny_access', 'Fighters');
+    $node->setNewRevision(TRUE);
+    $node->save();
+
+    // Check the "Text Field No Access" field is not displayed.
+    $this->drupalGet('node/'. $node->id() .'/revisions');
+    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->assertResponse(200);
+    $this->assertNoText('field_diff_deny_access');
+    $rows = $this->xpath('//tbody/tr');
+    $this->assertEqual(count($rows), 2);
+  }
+
+  /**
    * Adds a text field.
    *
    * @param string $field_name

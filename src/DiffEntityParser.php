@@ -66,7 +66,7 @@ class DiffEntityParser {
     foreach ($entity as $field_items) {
       // Define if the current field should be displayed as a diff change.
       $show_diff = $this->diffBuilderManager->showDiff($field_items->getFieldDefinition()->getFieldStorageDefinition());
-      if (!$show_diff) {
+      if (!$show_diff || !$entity->get($field_items->getFieldDefinition()->getName())->access('view')) {
         continue;
       }
       // Create a plugin instance for the field definition.
