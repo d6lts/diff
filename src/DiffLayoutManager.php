@@ -58,6 +58,7 @@ class DiffLayoutManager extends DefaultPluginManager {
   }
 
   /**
+<<<<<<< 9960b0b6e5fedd521b0dd013ee2fba9ef5f6b8d6
    * Gets the applicable layout plugins.
    *
    * Loop over the plugins that can be used to display the diff comparison
@@ -94,5 +95,19 @@ class DiffLayoutManager extends DefaultPluginManager {
   public function getDefaultLayout() {
     $plugins = array_keys($this->getPluginOptions());
     return reset($plugins);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function findDefinitions() {
+    $definitions = parent::findDefinitions();
+
+    // Remove plugin html_diff if library is not present.
+    $has_htmlDiffAdvanced = class_exists('\HtmlDiffAdvanced');
+    if (!$has_htmlDiffAdvanced) {
+      unset($definitions['html_diff']);
+    }
+    return $definitions;
   }
 }

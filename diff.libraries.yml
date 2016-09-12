@@ -23,3 +23,9 @@ diff.colors:
   css:
     theme:
       css/diff.colors.css: {}
+
+diff.html_diff:
+  version: VERSION
+  css:
+    base:
+      css/diff_html.css: {}
