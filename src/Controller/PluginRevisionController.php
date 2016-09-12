@@ -159,9 +159,10 @@ class PluginRevisionController extends ControllerBase {
    */
   protected function buildLayoutNavigation(EntityInterface $entity, $left_revision_id, $right_revision_id, $active_filter) {
     $links = [];
-    foreach ($this->diffLayoutManager->getDefinitions() as $key => $value) {
+    $layouts = $this->diffLayoutManager->getPluginOptions();
+    foreach ($layouts as $key => $value) {
       $links[$key] = array(
-        'title' => $value['label'],
+        'title' => $value,
         'url' => $this->diffRoute($entity, $left_revision_id, $right_revision_id, $key),
       );
     }

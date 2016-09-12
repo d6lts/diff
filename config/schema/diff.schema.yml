@@ -18,6 +18,19 @@ diff.settings:
         revision_pager_limit:
           type: integer
           label: 'Revisions per page to be displayed in diff pager'
+        layout_plugins:
+          type: sequence
+          label: 'Plugins'
+          sequence:
+            type: mapping
+            label: 'Layout plugins configuration'
+            mapping:
+              enabled:
+                type: boolean
+                label: 'Enabled'
+              weight:
+                type: integer
+                label: 'Weight'
     entity:
       type: sequence
       label: 'Entities'

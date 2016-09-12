@@ -3,7 +3,6 @@ diff.revisions_diff:
   defaults:
     _controller: '\Drupal\diff\Controller\NodeRevisionController::compareNodeRevisions'
     _title: Diff General Settings
-    filter: 'classic'
   requirements:
     _access_node_revision: 'view'
   options:

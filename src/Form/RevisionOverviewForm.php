@@ -3,6 +3,7 @@
 namespace Drupal\diff\Form;
 
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\diff\DiffLayoutManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
@@ -58,6 +59,12 @@ class RevisionOverviewForm extends FormBase {
    */
   protected $config;
 
+  /**
+   * The field diff layout plugin manager service.
+   *
+   * @var \Drupal\diff\DiffLayoutManager
+   */
+  protected $diffLayoutManager;
 
   /**
    * Constructs a RevisionOverviewForm object.
@@ -72,14 +79,17 @@ class RevisionOverviewForm extends FormBase {
    *   The renderer service.
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   The language manager.
+   * @param DiffLayoutManager $diff_layout_manager
+   *   DiffLayoutManager service.
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, DateFormatter $date, RendererInterface $renderer, LanguageManagerInterface $language_manager) {
+  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, DateFormatter $date, RendererInterface $renderer, LanguageManagerInterface $language_manager, DiffLayoutManager $diff_layout_manager) {
     $this->entityManager = $entityManager;
     $this->currentUser = $currentUser;
     $this->date = $date;
     $this->renderer = $renderer;
     $this->languageManager = $language_manager;
     $this->config = $this->config('diff.settings');
+    $this->diffLayoutManager = $diff_layout_manager;
   }
 
   /**
@@ -91,7 +101,8 @@ class RevisionOverviewForm extends FormBase {
       $container->get('current_user'),
       $container->get('date.formatter'),
       $container->get('renderer'),
-      $container->get('language_manager')
+      $container->get('language_manager'),
+      $container->get('plugin.manager.diff.layout')
     );
   }
 
@@ -348,6 +359,7 @@ class RevisionOverviewForm extends FormBase {
         'node' => $nid,
         'left_revision' => $vid_left,
         'right_revision' => $vid_right,
+        'filter' => $this->diffLayoutManager->getDefaultLayout(),
       )
     );
     $form_state->setRedirectUrl($redirect_url);

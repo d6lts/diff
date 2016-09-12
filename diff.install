@@ -35,3 +35,16 @@ function diff_update_8003() {
   $config->clear('general_settings.theme');
   $config->save();
 }
+
+/**
+ * Enable all layout plugins to be used.
+ */
+function diff_update_8004() {
+  $config = \Drupal::configFactory()->getEditable('diff.settings');
+  $plugins = \Drupal::service('plugin.manager.diff.layout')->getDefinitions();
+  foreach ($plugins as $key => $value) {
+    $plugin_options[$key] = $value['label'];
+    $config->set('general_settings.layout_plugins.' . $key . '.enabled', TRUE);
+  }
+  $config->save();
+}

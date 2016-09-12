@@ -62,6 +62,7 @@ class DiffViewsTest extends ViewTestBase {
         'node' => $node->id(),
         'left_revision' => 1,
         'right_revision' => 2,
+        'filter' => 'classic',
       ],
       // Additional route options
       [

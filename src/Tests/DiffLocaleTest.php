@@ -80,12 +80,12 @@ class DiffLocaleTest extends DiffTestBase {
 
     // View differences between revisions. Check that they don't mix up.
     $this->drupalGet('node/' . $english_node->id() . '/revisions');
-    $this->drupalGet('node/' . $english_node->id() . '/revisions/view/1/2');
+    $this->drupalGet('node/' . $english_node->id() . '/revisions/view/1/2/classic');
     $this->assertText('Title');
     $this->assertText('English node');
     $this->assertText('Updated title');
     $this->drupalGet('fr/node/' . $english_node->id() . '/revisions');
-    $this->drupalGet('fr/node/' . $english_node->id() . '/revisions/view/1/3');
+    $this->drupalGet('fr/node/' . $english_node->id() . '/revisions/view/1/3/classic');
     $this->assertText('Title');
     $this->assertNoText('English node');
     $this->assertNoText('Updated title');
@@ -147,7 +147,7 @@ class DiffLocaleTest extends DiffTestBase {
     $french_node->save();
 
     // Compare first two revisions.
-    $this->drupalGet('node/' . $node->id() . '/revisions/view/1/2');
+    $this->drupalGet('node/' . $node->id() . '/revisions/view/1/2/classic');
     $diffs = $this->xpath('//span[@class="diffchange"]');
     $this->assertEqual($diffs[0], 'english_revision_0');
     $this->assertEqual($diffs[1], 'english_revision_1');
@@ -192,7 +192,7 @@ class DiffLocaleTest extends DiffTestBase {
     $this->assertEqual(count($element), 4);
 
     // Compare the first two revisions.
-    $this->drupalGet('node/' . $node->id() . '/revisions/view/1/2');
+    $this->drupalGet('node/' . $node->id() . '/revisions/view/1/2/classic');
     $diffs = $this->xpath('//span[@class="diffchange"]');
     $this->assertEqual($diffs[0], 'undefined_language_revision_0');
     $this->assertEqual($diffs[1], 'undefined_language_revision_1');

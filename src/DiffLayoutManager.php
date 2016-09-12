@@ -57,4 +57,42 @@ class DiffLayoutManager extends DefaultPluginManager {
     $this->layoutPluginsConfig =  $configFactory->get('diff.layout_plugins');
   }
 
+  /**
+   * Gets the applicable layout plugins.
+   *
+   * Loop over the plugins that can be used to display the diff comparison
+   * sorting them by the weight.
+   *
+   * @return array
+   *   The layout plugin options.
+   */
+  public function getPluginOptions() {
+    $plugins = $this->config->get('general_settings' . '.' . 'layout_plugins');
+    $plugin_options = [];
+    // Get the plugins sorted and build an array keyed by the plugin id.
+    if ($plugins) {
+      // Sort the plugins based on their weight.
+      uasort($plugins, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
+      foreach ($plugins as $key => $value) {
+        $plugin = $this->getDefinition($key);
+        if ($value['enabled']) {
+          $plugin_options[$key] = $plugin['label'];
+        }
+      }
+    }
+    return $plugin_options;
+  }
+
+  /**
+   * Gets the default layout plugin selected.
+   *
+   * Take the first option of the array returned by getPluginOptions.
+   *
+   * @return string
+   *   The id of the default plugin.
+   */
+  public function getDefaultLayout() {
+    $plugins = array_keys($this->getPluginOptions());
+    return reset($plugins);
+  }
 }
