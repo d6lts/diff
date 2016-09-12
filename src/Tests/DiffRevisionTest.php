@@ -7,6 +7,7 @@
 namespace Drupal\diff\Tests;
 
 use Drupal\language\Entity\ConfigurableLanguage;
+use Drupal\system\Tests\Menu\AssertBreadcrumbTrait;
 
 /**
  * Tests the diff revisions overview.
@@ -14,6 +15,8 @@ use Drupal\language\Entity\ConfigurableLanguage;
  * @group diff
  */
 class DiffRevisionTest extends DiffTestBase {
+
+  use AssertBreadcrumbTrait;
 
   /**
    * Modules to enable.
@@ -30,6 +33,7 @@ class DiffRevisionTest extends DiffTestBase {
    * Tests the revision diff overview.
    */
   public function testRevisionDiffOverview() {
+    $this->drupalPlaceBlock('system_breadcrumb_block');
     // Login as admin with the required permission.
     $this->loginAsAdmin(['delete any article content']);
 
@@ -71,6 +75,16 @@ class DiffRevisionTest extends DiffTestBase {
     // Compare the revisions in standard mode.
     $this->drupalPostForm(NULL, NULL, t('Compare'));
     $this->clickLink('Standard');
+    // Assert breadcrumbs are properly displayed.
+    $this->assertRaw('<nav class="breadcrumb"');
+    $nid1 = $node->id();
+    $trail = [
+      '' => 'Home',
+      "node" => 'Node',
+      "node/$nid1" => $node->label(),
+      "node/$nid1/revisions" => 'Revisions',
+    ];
+    $this->assertBreadcrumb(NULL, $trail);
     // Extract the changes.
     $this->assertText('Body');
     $rows = $this->xpath('//tbody/tr');
@@ -90,6 +104,17 @@ class DiffRevisionTest extends DiffTestBase {
     // Compare the revisions in markdown mode.
     $this->clickLink('Markdown');
     $rows = $this->xpath('//tbody/tr');
+    // Assert breadcrumbs are properly displayed.
+    $this->assertRaw('<nav class="breadcrumb"');
+    $nid1 = $node->id();
+    $trail = [
+      '' => 'Home',
+      "node" => 'Node',
+      "node/$nid1" => $node->label(),
+      "node/$nid1/revisions" => 'Revisions',
+    ];
+    $this->assertBreadcrumb(NULL, $trail);
+    // Extract the changes.
     $diff_row = $rows[1]->td;
     // Assert changes made to the body, text 1 changed to 2.
     $this->assertEqual((string) ($diff_row[0]), '-');
@@ -101,6 +126,17 @@ class DiffRevisionTest extends DiffTestBase {
 
     // Compare the revisions in single column mode.
     $this->clickLink('Single Column');
+    // Assert breadcrumbs are properly displayed.
+    $this->assertRaw('<nav class="breadcrumb"');
+    $nid1 = $node->id();
+    $trail = [
+      '' => 'Home',
+      "node" => 'Node',
+      "node/$nid1" => $node->label(),
+      "node/$nid1/revisions" => 'Revisions',
+    ];
+    $this->assertBreadcrumb(NULL, $trail);
+    // Extract the changes.
     $rows = $this->xpath('//tbody/tr');
     $diff_row = $rows[1]->td;
     // Assert changes made to the body, text 1 changed to 2.

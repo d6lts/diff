@@ -22,12 +22,6 @@ services:
     class: Drupal\diff\DiffEntityParser
     arguments: ['@plugin.manager.diff.builder', '@config.factory']
 
-  diff.breadcrumb:
-    class: Drupal\diff\DiffBreadcrumbBuilder
-    parent: system.breadcrumb.default
-    tags:
-      - { name: breadcrumb_builder, priority: 1000 }
-
   diff.entity_comparison:
     class: Drupal\diff\DiffEntityComparison
     arguments: ['@config.factory', '@diff.diff.formatter','@plugin.manager.field.field_type', '@diff.entity_parser']
