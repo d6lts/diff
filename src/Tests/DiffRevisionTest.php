@@ -133,10 +133,7 @@ class DiffRevisionTest extends DiffTestBase {
     // Delete the first revision (last entry in table).
     $this->clickLink(t('Delete'), 0);
     $this->drupalPostForm(NULL, NULL, t('Delete'));
-    $this->assertText(t('Revision from @date of Article @title has been deleted.', array(
-      '@date' => date('D, m/d/Y - H:i', $created),
-      '@title' => $title
-    )));
+    $this->assertText('of Article ' . $title . ' has been deleted.');
 
     // Make sure two revisions are available.
     $rows = $this->xpath('//tbody/tr');
