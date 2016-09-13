@@ -151,6 +151,9 @@ class HTMLDiffLayout extends DiffLayoutBase {
     ];
 
     $view_builder = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId());
+    // Trigger exclusion of interactive items like on preview.
+    $left_revision->in_preview = TRUE;
+    $right_revision->in_preview = TRUE;
     $left_view = $view_builder->view($left_revision, $active_view_mode);
     $right_view = $view_builder->view($right_revision, $active_view_mode);
 
@@ -158,8 +161,6 @@ class HTMLDiffLayout extends DiffLayoutBase {
     unset($left_view['#cache']);
     unset($right_view['#cache']);
 
-    $left_view['#theme'] = 'node_diff';
-    $right_view['#theme'] = 'node_diff';
     $html_1= $this->renderer->render($left_view);
     $html_2 = $this->renderer->render($right_view);
 
