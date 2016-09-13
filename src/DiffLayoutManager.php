@@ -58,7 +58,6 @@ class DiffLayoutManager extends DefaultPluginManager {
   }
 
   /**
-<<<<<<< 9960b0b6e5fedd521b0dd013ee2fba9ef5f6b8d6
    * Gets the applicable layout plugins.
    *
    * Loop over the plugins that can be used to display the diff comparison
@@ -75,9 +74,11 @@ class DiffLayoutManager extends DefaultPluginManager {
       // Sort the plugins based on their weight.
       uasort($plugins, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
       foreach ($plugins as $key => $value) {
-        $plugin = $this->getDefinition($key);
-        if ($value['enabled']) {
-          $plugin_options[$key] = $plugin['label'];
+        if ($this->hasDefinition($key)) {
+          $plugin = $this->getDefinition($key);
+          if ($plugin && $value['enabled']) {
+            $plugin_options[$key] = $plugin['label'];
+          }
         }
       }
     }
