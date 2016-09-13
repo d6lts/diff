@@ -139,11 +139,11 @@ class HTMLDiffLayout extends DiffLayoutBase {
     unset($options[$active_view_mode]);
     array_unshift($options, $filter);
 
-    $build['view_modes'] = [
+    $build['view_mode'] = [
       '#type' => 'item',
-      '#title' => $this->t('View modes'),
+      '#title' => $this->t('View mode'),
     ];
-    $build['view_modes']['filter'] = [
+    $build['view_mode']['filter'] = [
       '#type' => 'operations',
       '#links' => $options,
       '#prefix' => '<div class="diff-filter">',
