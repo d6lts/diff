@@ -113,23 +113,23 @@ class HTMLDiffLayout extends DiffLayoutBase {
    */
   public function build(EntityInterface $left_revision, EntityInterface $right_revision, EntityInterface $entity) {
     $this->entityTypeManager->getStorage($entity->getEntityTypeId())->resetCache([$entity->id()]);
+    $entity_type_id = $entity->getEntityTypeId();
     // Build the view modes filter.
     $options = [];
     // Get all view modes for entity type.
-    $node_view_modes = $this->entityTypeManager->getViewModes($entity->getEntityTypeId());
-    foreach ($node_view_modes as $view_mode => $view_mode_info) {
-      if (isset($view_mode_info['status']) && $view_mode_info['status'] == TRUE) {
-        $options[$view_mode] = [
-          'title' => $view_mode_info['label'],
-          'url' => Url::fromRoute('diff.revisions_diff', [
-            $entity->getEntityTypeId() => $entity->id(),
-            'left_revision' => $left_revision->getRevisionId(),
-            'right_revision' => $right_revision->getRevisionId(),
-            'filter' => 'html_diff',
-            ['view_mode' => $view_mode]
-          ])
-        ];
-      }
+    $view_modes = $this->entityTypeManager->getViewModeOptionsByBundle($entity->getEntityTypeId(), $entity->bundle());
+    $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'diff.revisions_diff';
+    foreach ($view_modes as $view_mode => $view_mode_info) {
+      $options[$view_mode] = [
+        'title' => $view_mode_info,
+        'url' => Url::fromRoute($route_name, [
+          $entity->getEntityTypeId() => $entity->id(),
+          'left_revision' => $left_revision->getRevisionId(),
+          'right_revision' => $right_revision->getRevisionId(),
+          'filter' => 'html_diff',
+          ['view_mode' => $view_mode]
+        ])
+      ];
     }
 
     $active_option = array_keys($options);
