@@ -74,10 +74,6 @@ class AdminFormsTest extends DiffTestBase {
    * Tests the Compare Revisions vertical tab.
    */
   public function testPluginWeight() {
-    $edit = [
-      'layout_plugins[markdown][weight]' => '10',
-    ];
-    $this->drupalPostForm('admin/config/content/diff/general', $edit, t('Save configuration'));
     // Create a node with a revision.
     $edit = [
       'title[0][value]' => 'great_title',
@@ -96,8 +92,9 @@ class AdminFormsTest extends DiffTestBase {
     $this->drupalGet('node/' . $node->id() . '/revisions');
     $this->drupalPostForm(NULL, [], t('Compare'));
     $this->assertLink('Single Column');
-    $this->assertLink('Markdown');
     $this->assertLink('Standard');
+    $this->assertLink('Raw');
+    $this->assertLink('Strip tags');
     $text = $this->xpath('//tbody/tr[4]/td[2]');
     $this->assertEqual(htmlspecialchars_decode(strip_tags($text[0]->asXML())), '<p>great_body</p>');
 
@@ -113,8 +110,11 @@ class AdminFormsTest extends DiffTestBase {
     $this->drupalPostForm(NULL, [], t('Compare'));
     $this->assertResponse(200);
     $this->assertNoLink('Single Column');
-    $this->assertLink('Markdown');
     $this->assertLink('Standard');
+    $this->clickLink('Standard');
+    $this->assertLink('Raw');
+    $this->assertLink('Strip tags');
+    $this->clickLink('Strip tags');
     $text = $this->xpath('//tbody/tr[4]/td[2]');
     $this->assertEqual(htmlspecialchars_decode(strip_tags($text[0]->asXML())), 'great_body');
 
@@ -122,7 +122,6 @@ class AdminFormsTest extends DiffTestBase {
     $edit = [
       'layout_plugins[single_column][enabled]' => TRUE,
       'layout_plugins[classic][enabled]' => FALSE,
-      'layout_plugins[markdown][enabled]' => FALSE,
     ];
     $this->drupalPostForm('admin/config/content/diff/general', $edit, t('Save configuration'));
 
@@ -131,8 +130,9 @@ class AdminFormsTest extends DiffTestBase {
     $this->drupalPostForm(NULL, [], t('Compare'));
     $this->assertResponse(200);
     $this->assertLink('Single Column');
-    $this->assertNoLink('Markdown');
     $this->assertNoLink('Standard');
+    $this->assertLink('Raw');
+    $this->assertLink('Strip tags');
     $text = $this->xpath('//tbody/tr[5]/td[2]');
     $this->assertEqual(htmlspecialchars_decode(strip_tags($text[0]->asXML())), '<p>great_body</p>');
   }

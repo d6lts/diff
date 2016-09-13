@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
@@ -122,6 +123,86 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
       $revision_link = \Drupal::l($revision->label(), $revision->toUrl('revision'));
     }
     return $revision_link;
+  }
+
+  /**
+   * Build the filter navigation for the diff comparison.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity.
+   * @param \Drupal\Core\Entity\EntityInterface $left_revision
+   *   Revision from the left side.
+   * @param \Drupal\Core\Entity\EntityInterface $right_revision
+   *   Revision from the right side.
+   * @param string $layout
+   *   The layout plugin selected.
+   * @param string $active_filter
+   *   The active filter.
+   *
+   * @return array
+   *   The filter options.
+   */
+  protected function buildFilterNavigation(EntityInterface $entity, EntityInterface $left_revision, EntityInterface $right_revision, $layout, $active_filter) {
+    // Build the view modes filter.
+    $entity_type_id = $entity->getEntityTypeId();
+    $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'diff.revisions_diff';
+    $options['raw'] = [
+      'title' => $this->t('Raw'),
+      'url' => Url::fromRoute($route_name, [$entity->getEntityTypeId() => $entity->id(),
+        'left_revision' => $left_revision->getRevisionId(),
+        'right_revision' => $right_revision->getRevisionId(),
+        'filter' => $layout, ['filter' => 'raw']])
+    ];
+    $options['strip_tags'] = [
+      'title' => $this->t('Strip tags'),
+      'url' => Url::fromRoute($route_name, [$entity->getEntityTypeId() => $entity->id(),
+        'left_revision' => $left_revision->getRevisionId(),
+        'right_revision' => $right_revision->getRevisionId(),
+        'filter' => $layout, ['filter' => 'strip_tags']])
+    ];
+
+    $filter = $options[$active_filter];
+    unset($options[$active_filter]);
+    array_unshift($options, $filter);
+
+    $build['options'] = [
+      '#type' => 'operations',
+      '#links' => $options,
+      '#prefix' => '<div class="diff-filter">',
+      '#suffix' => '</div>',
+    ];
+    return $build;
+  }
+
+  /**
+   * Applies a markdown function to a string.
+   *
+   * @param $markdown
+   *   Key of the markdown function to be applied to the items.
+   *   One of drupal_html_to_text, filter_xss, filter_xss_all.
+   * @param $items
+   *   String to be processed.
+   *
+   * @return array|string
+   *   Result after markdown was applied on $items.
+   */
+  protected function applyMarkdown($markdown, $items) {
+    if (!$markdown) {
+      return $items;
+    }
+
+    if ($markdown == 'drupal_html_to_text') {
+      return trim(MailFormatHelper::htmlToText($items), "\n");
+    }
+    elseif ($markdown == 'filter_xss') {
+      return trim(Xss::filter($items), "\n");
+    }
+    elseif ($markdown == 'filter_xss_all') {
+      return trim(Xss::filter($items, []), "\n");
+    }
+    else {
+      return $items;
+    }
   }
 
   /**

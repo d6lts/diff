@@ -102,7 +102,7 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[3]->asXML()))), '<p>Revision 2</p>');
 
     // Compare the revisions in markdown mode.
-    $this->clickLink('Markdown');
+    $this->clickLink('Strip tags');
     $rows = $this->xpath('//tbody/tr');
     // Assert breadcrumbs are properly displayed.
     $this->assertRaw('<nav class="breadcrumb"');
@@ -211,12 +211,13 @@ class DiffRevisionTest extends DiffTestBase {
       'radios_right' => 4,
     ];
     $this->drupalPostForm(NULL, $edit, t('Compare'));
-    $this->clickLink('Markdown');
+    $this->clickLink('Strip tags');
     // Check markdown layout is used when navigating between revisions.
     $rows = $this->xpath('//tbody/tr');
     $diff_row = $rows[3]->td;
     $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[3]->asXML())), 'new body');
     $this->clickLink('Next difference >');
+    $this->clickLink('Strip tags');
     $rows = $this->xpath('//tbody/tr');
     $diff_row = $rows[3]->td;
     $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[3]->asXML())), 'newer body');

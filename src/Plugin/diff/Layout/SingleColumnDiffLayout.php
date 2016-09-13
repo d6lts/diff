@@ -11,6 +11,7 @@ use Drupal\diff\DiffEntityComparison;
 use Drupal\diff\DiffEntityParser;
 use Drupal\diff\DiffLayoutBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @DiffLayoutBuilder(
@@ -33,6 +34,13 @@ class SingleColumnDiffLayout extends DiffLayoutBase {
   protected $entityComparison;
 
   /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
    * Constructs a FieldDiffBuilderBase object.
    *
    * @param array $configuration
@@ -53,11 +61,14 @@ class SingleColumnDiffLayout extends DiffLayoutBase {
    *   The renderer.
    * @param \Drupal\diff\DiffEntityComparison $entity_comparison
    *   The diff entity comparison service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityTypeManagerInterface $entity_type_manager, DiffEntityParser $entity_parser, DateFormatter $date, RendererInterface $renderer, DiffEntityComparison $entity_comparison) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityTypeManagerInterface $entity_type_manager, DiffEntityParser $entity_parser, DateFormatter $date, RendererInterface $renderer, DiffEntityComparison $entity_comparison, RequestStack $request_stack) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $config, $entity_type_manager, $entity_parser, $date);
     $this->renderer = $renderer;
     $this->entityComparison = $entity_comparison;
+    $this->requestStack = $request_stack;
   }
 
   /**
@@ -73,7 +84,8 @@ class SingleColumnDiffLayout extends DiffLayoutBase {
       $container->get('diff.entity_parser'),
       $container->get('date.formatter'),
       $container->get('renderer'),
-      $container->get('diff.entity_comparison')
+      $container->get('diff.entity_comparison'),
+      $container->get('request_stack')
     );
   }
 
@@ -81,6 +93,14 @@ class SingleColumnDiffLayout extends DiffLayoutBase {
    * {@inheritdoc}
    */
   public function build(EntityInterface $left_revision, EntityInterface $right_revision, EntityInterface $entity) {
+    $active_filter = $this->requestStack->getCurrentRequest()->query->get('filter') ?: 'raw';
+    $build['filter'] = [
+      '#type' => 'item',
+      '#title' => $this->t('Filter'),
+    ];
+    $build['filter']['options'] = $this->buildFilterNavigation($entity, $left_revision, $right_revision, 'single_column', $active_filter);
+
+    // Build the diff comparison table.
     $diff_header = $this->buildTableHeader($right_revision);
     // Perform comparison only if both entity revisions loaded successfully.
     $fields = $this->entityComparison->compareRevisions($left_revision, $right_revision);
@@ -95,6 +115,20 @@ class SingleColumnDiffLayout extends DiffLayoutBase {
           'colspan' => 4,
           'class' => ['field-name'],
         ];
+      }
+
+      if ($active_filter == 'strip_tags') {
+        $field_settings = $field['#settings'];
+        if (!empty($field_settings['settings']['markdown'])) {
+          $field['#data']['#left'] = $this->applyMarkdown($field_settings['settings']['markdown'], $field['#data']['#left']);
+          $field['#data']['#right'] = $this->applyMarkdown($field_settings['settings']['markdown'], $field['#data']['#right']);
+        }
+        // In case the settings are not loaded correctly use drupal_html_to_text
+        // to avoid any possible notices when a user clicks on markdown.
+        else {
+          $field['#data']['#left'] = $this->applyMarkdown('drupal_html_to_text', $field['#data']['#left']);
+          $field['#data']['#right'] = $this->applyMarkdown('drupal_html_to_text', $field['#data']['#right']);
+        }
       }
 
       // Process the array (split the strings into single line strings)

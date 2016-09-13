@@ -7,9 +7,6 @@ general_settings:
     classic:
       enabled: true
       weight: 0
-    markdown:
-      enabled: true
-      weight: 1
     single_column:
       enabled: true
       weight: 2
