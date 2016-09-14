@@ -216,7 +216,7 @@ class PluginRevisionController extends ControllerBase {
       }
       if ($i != 0) {
         // build the left link.
-        $left_link = $this->l($this->t('< Previous difference'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter));
+        $left_link = $this->l($this->t('< Previous change'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter));
       }
       $element['diff_navigation']['left'] = [
         '#type' => 'markup',
@@ -231,7 +231,7 @@ class PluginRevisionController extends ControllerBase {
       }
       if ($revisions_count != $i && $revision_ids[$i - 1] != $revision_ids[$revisions_count - 1]) {
         // Build the right link.
-        $right_link = $this->l($this->t('Next difference >'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i], $filter));
+        $right_link = $this->l($this->t('Next change >'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i], $filter));
       }
       $element['diff_navigation']['right'] = [
         '#type' => 'markup',
