@@ -2,6 +2,7 @@
 
 namespace Drupal\diff\Controller;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -10,6 +11,7 @@ use Drupal\diff\DiffLayoutManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\diff\DiffEntityComparison;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Base class for controllers that return responses on entity revision routes.
@@ -34,17 +36,27 @@ class PluginRevisionController extends ControllerBase {
   protected $diffLayoutManager;
 
   /**
+   * The current Request object.
+   *
+   * @var \Symfony\Component\HttpFoundation\Request
+   */
+  protected $request;
+
+  /**
    * Constructs a PluginRevisionController object.
    *
    * @param DiffEntityComparison $entity_comparison
    *   DiffEntityComparison service.
    * @param DiffLayoutManager $diff_layout_manager
    *   DiffLayoutManager service.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
    */
-  public function __construct(DiffEntityComparison $entity_comparison, DiffLayoutManager $diff_layout_manager) {
+  public function __construct(DiffEntityComparison $entity_comparison, DiffLayoutManager $diff_layout_manager, Request $request) {
     $this->config = $this->config('diff.settings');
     $this->diffLayoutManager = $diff_layout_manager;
     $this->entityComparison = $entity_comparison;
+    $this->request = $request;
   }
 
   /**
@@ -53,7 +65,8 @@ class PluginRevisionController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('diff.entity_comparison'),
-      $container->get('plugin.manager.diff.layout')
+      $container->get('plugin.manager.diff.layout'),
+      $container->get('request_stack')->getCurrentRequest()
     );
   }
 
@@ -199,6 +212,10 @@ class PluginRevisionController extends ControllerBase {
    */
   protected function buildRevisionsNavigation(EntityInterface $entity, $revision_ids, $left_revision_id, $right_revision_id, $filter) {
     $revisions_count = count($revision_ids);
+    $layout_options = &drupal_static(__FUNCTION__);
+    if (!isset($layout_options)) {
+      $layout_options = UrlHelper::filterQueryParameters($this->request->query->all(), ['page']);
+    }
     // If there are only 2 revision return an empty row.
     if ($revisions_count == 2) {
       return [];
@@ -216,7 +233,7 @@ class PluginRevisionController extends ControllerBase {
       }
       if ($i != 0) {
         // build the left link.
-        $left_link = $this->l($this->t('< Previous change'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter));
+        $left_link = $this->l($this->t('< Previous change'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter, $layout_options));
       }
       $element['diff_navigation']['left'] = [
         '#type' => 'markup',
@@ -231,7 +248,7 @@ class PluginRevisionController extends ControllerBase {
       }
       if ($revisions_count != $i && $revision_ids[$i - 1] != $revision_ids[$revisions_count - 1]) {
         // Build the right link.
-        $right_link = $this->l($this->t('Next change >'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i], $filter));
+        $right_link = $this->l($this->t('Next change >'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i], $filter, $layout_options));
       }
       $element['diff_navigation']['right'] = [
         '#type' => 'markup',
@@ -254,11 +271,13 @@ class PluginRevisionController extends ControllerBase {
    *   Revision id of the right revision.
    * @param $filter
    *   (optional) The filter added to the route.
+   * @param $layout_options
+   *   (optional) The layout options provided by the selected layout.
    *
    * @return \Drupal\Core\Url
    *   The URL object.
    */
-  public function diffRoute(EntityInterface $entity, $left_revision_id, $right_revision_id, $filter = NULL) {
+  public function diffRoute(EntityInterface $entity, $left_revision_id, $right_revision_id, $filter = NULL, $layout_options = NULL) {
     $entity_type_id = $entity->getEntityTypeId();
     // @todo Remove the diff.revisions_diff route so we avoid adding extra cases.
     if ($entity->getEntityTypeId() == 'node') {
@@ -275,7 +294,13 @@ class PluginRevisionController extends ControllerBase {
     if ($filter) {
       $route_parameters['filter'] = $filter;
     }
-    return Url::fromRoute($route_name, $route_parameters);
+    $options = [];
+    if ($layout_options) {
+      $options = [
+        'query' => $layout_options,
+      ];
+    }
+    return Url::fromRoute($route_name, $route_parameters, $options);
   }
 
 }

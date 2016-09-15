@@ -211,7 +211,7 @@ class DiffRevisionTest extends DiffTestBase {
     $diff_row = $rows[3]->td;
     $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[3]->asXML())), 'new body');
     $this->clickLink('Next change >');
-    $this->clickLink('Strip tags');
+    // The filter should be the same as the previous screen.
     $rows = $this->xpath('//tbody/tr');
     $diff_row = $rows[3]->td;
     $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[3]->asXML())), 'newer body');
