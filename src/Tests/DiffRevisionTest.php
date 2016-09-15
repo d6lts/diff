@@ -155,16 +155,13 @@ class DiffRevisionTest extends DiffTestBase {
     // Revert the revision, confirm.
     $this->clickLink(t('Revert'));
     $this->drupalPostForm(NULL, NULL, t('Revert'));
-    $this->assertText(t('Article @title has been reverted to the revision from @revision-date.', array(
-      '@revision-date' => format_date($created),
-      '@title' => $title
-    )));
+    $this->assertText('Article ' . $title . ' has been reverted to the revision from');
 
     // Make sure three revisions are available.
     $rows = $this->xpath('//tbody/tr');
     $this->assertEqual(count($rows), 3);
     // Make sure the reverted comment is there.
-    $this->assertText(t('Copy of the revision from @date', array('@date' => date('D, m/d/Y - H:i', $created))));
+    $this->assertText('Copy of the revision from');
 
     // Delete the first revision (last entry in table).
     $this->clickLink(t('Delete'), 0);
@@ -178,10 +175,7 @@ class DiffRevisionTest extends DiffTestBase {
     // Delete one revision so that we are left with only 1 revision.
     $this->clickLink(t('Delete'), 0);
     $this->drupalPostForm(NULL, NULL, t('Delete'));
-    $this->assertText(t('Revision from @date of Article @title has been deleted.', array(
-        '@date' => date('D, m/d/Y - H:i', $created),
-        '@title' => $title
-    )));
+    $this->assertText('of Article ' . $title . ' has been deleted.');
 
     // Make sure we only have 1 revision now.
     $rows = $this->xpath('//tbody/tr');
