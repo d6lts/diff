@@ -37,7 +37,7 @@ class DiffRouteProvider implements EntityRouteProviderInterface {
       $route = new Route($entity_type->getLinkTemplate('revisions-diff'));
       $route->addDefaults([
         '_controller' => '\Drupal\diff\Controller\PluginRevisionController::compareEntityRevisions',
-        'filter' => 'classic',
+        'filter' => 'split_fields',
       ]);
       $route->addRequirements([
         '_entity_access' => $entity_type->id() . '.view',

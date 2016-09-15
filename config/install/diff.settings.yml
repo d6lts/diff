@@ -4,12 +4,12 @@ general_settings:
   context_lines_trailing: 1
   revision_pager_limit: 50
   layout_plugins:
-    html_diff:
+    visual_inline:
       enabled: true
       weight: 0
-    classic:
+    split_fields:
       enabled: true
       weight: 1
-    single_column:
+    unified_fields:
       enabled: true
       weight: 2

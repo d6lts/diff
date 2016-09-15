@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @DiffLayoutBuilder(
- *   id = "html_diff",
- *   label = @Translation("HTML Diff"),
+ *   id = "visual_inline",
+ *   label = @Translation("Visual Inline"),
  * )
  */
 class HTMLDiffLayout extends DiffLayoutBase {

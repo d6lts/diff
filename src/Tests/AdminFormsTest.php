@@ -91,8 +91,8 @@ class AdminFormsTest extends DiffTestBase {
     $node = $this->getNodeByTitle('greater_title');
     $this->drupalGet('node/' . $node->id() . '/revisions');
     $this->drupalPostForm(NULL, [], t('Compare'));
-    $this->assertLink('Single Column');
-    $this->assertLink('Standard');
+    $this->assertLink('Unified fields');
+    $this->assertLink('Split fields');
     $this->assertLink('Raw');
     $this->assertLink('Strip tags');
     $text = $this->xpath('//tbody/tr[4]/td[2]');
@@ -100,8 +100,8 @@ class AdminFormsTest extends DiffTestBase {
 
     // Change the settings of the layouts, disable the single column.
     $edit = [
-      'layout_plugins[classic][weight]' => '11',
-      'layout_plugins[single_column][enabled]' => FALSE,
+      'layout_plugins[split_fields][weight]' => '11',
+      'layout_plugins[unified_fields][enabled]' => FALSE,
     ];
     $this->drupalPostForm('admin/config/content/diff/general', $edit, t('Save configuration'));
 
@@ -109,9 +109,9 @@ class AdminFormsTest extends DiffTestBase {
     $this->drupalGet('node/' . $node->id() . '/revisions');
     $this->drupalPostForm(NULL, [], t('Compare'));
     $this->assertResponse(200);
-    $this->assertNoLink('Single Column');
-    $this->assertLink('Standard');
-    $this->clickLink('Standard');
+    $this->assertNoLink('Unified fields');
+    $this->assertLink('Split fields');
+    $this->clickLink('Split fields');
     $this->assertLink('Raw');
     $this->assertLink('Strip tags');
     $this->clickLink('Strip tags');
@@ -120,8 +120,8 @@ class AdminFormsTest extends DiffTestBase {
 
     // Change the settings of the layouts, enable single column.
     $edit = [
-      'layout_plugins[single_column][enabled]' => TRUE,
-      'layout_plugins[classic][enabled]' => FALSE,
+      'layout_plugins[unified_fields][enabled]' => TRUE,
+      'layout_plugins[split_fields][enabled]' => FALSE,
     ];
     $this->drupalPostForm('admin/config/content/diff/general', $edit, t('Save configuration'));
 
@@ -129,8 +129,8 @@ class AdminFormsTest extends DiffTestBase {
     $this->drupalGet('node/' . $node->id() . '/revisions');
     $this->drupalPostForm(NULL, [], t('Compare'));
     $this->assertResponse(200);
-    $this->assertLink('Single Column');
-    $this->assertNoLink('Standard');
+    $this->assertLink('Unified fields');
+    $this->assertNoLink('Split fields');
     $this->assertLink('Raw');
     $this->assertLink('Strip tags');
     $text = $this->xpath('//tbody/tr[5]/td[2]');

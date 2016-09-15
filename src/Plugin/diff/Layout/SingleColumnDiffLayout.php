@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @DiffLayoutBuilder(
- *   id = "single_column",
- *   label = @Translation("Single Column"),
+ *   id = "unified_fields",
+ *   label = @Translation("Unified fields"),
  * )
  */
 class SingleColumnDiffLayout extends DiffLayoutBase {

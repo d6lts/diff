@@ -107,7 +107,7 @@ class DiffLayoutManager extends DefaultPluginManager {
     // Remove plugin html_diff if library is not present.
     $has_htmlDiffAdvanced = class_exists('\HtmlDiffAdvanced');
     if (!$has_htmlDiffAdvanced) {
-      unset($definitions['html_diff']);
+      unset($definitions['visual_inline']);
     }
     return $definitions;
   }

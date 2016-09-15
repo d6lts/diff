@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @DiffLayoutBuilder(
- *   id = "classic",
- *   label = @Translation("Standard"),
+ *   id = "split_fields",
+ *   label = @Translation("Split fields"),
  * )
  */
 class ClassicDiffLayout extends DiffLayoutBase {
@@ -98,7 +98,7 @@ class ClassicDiffLayout extends DiffLayoutBase {
       '#type' => 'item',
       '#title' => $this->t('Filter'),
     ];
-    $build['filter']['options'] = $this->buildFilterNavigation($entity, $left_revision, $right_revision, 'classic', $active_filter);
+    $build['filter']['options'] = $this->buildFilterNavigation($entity, $left_revision, $right_revision, 'split_fields', $active_filter);
 
     // Build the diff comparison table.
     $diff_header = $this->buildTableHeader($left_revision, $right_revision);

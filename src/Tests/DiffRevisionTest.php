@@ -74,7 +74,7 @@ class DiffRevisionTest extends DiffTestBase {
 
     // Compare the revisions in standard mode.
     $this->drupalPostForm(NULL, NULL, t('Compare'));
-    $this->clickLink('Standard');
+    $this->clickLink('Split fields');
     // Assert breadcrumbs are properly displayed.
     $this->assertRaw('<nav class="breadcrumb"');
     $nid1 = $node->id();
@@ -125,7 +125,7 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[3]->asXML()))), 'Revision 2');
 
     // Compare the revisions in single column mode.
-    $this->clickLink('Single Column');
+    $this->clickLink('Unified fields');
     // Assert breadcrumbs are properly displayed.
     $this->assertRaw('<nav class="breadcrumb"');
     $nid1 = $node->id();

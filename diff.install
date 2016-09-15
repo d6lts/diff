@@ -48,3 +48,17 @@ function diff_update_8004() {
   }
   $config->save();
 }
+
+/**
+ * Update settings.
+ */
+function diff_update_8005() {
+  $config = \Drupal::configFactory()->getEditable('diff.settings');
+  $plugins = \Drupal::service('plugin.manager.diff.layout')->getDefinitions();
+  $config->clear('general_settings.layout_plugins');
+  foreach ($plugins as $key => $value) {
+    $plugin_options[$key] = $value['label'];
+    $config->set('general_settings.layout_plugins.' . $key . '.enabled', TRUE);
+  }
+  $config->save();
+}
