@@ -140,15 +140,25 @@ class DiffRevisionTest extends DiffTestBase {
     $rows = $this->xpath('//tbody/tr');
     $diff_row = $rows[1]->td;
     // Assert changes made to the body, text 1 changed to 2.
-    $this->assertEqual((string) ($diff_row[0]), '-');
-    $this->assertEqual((string) (($diff_row[1]->span)), '1');
-    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[1]->asXML())), '<p>Revision 1</p>');
+    $this->assertEqual((string) ($diff_row[0]), '1');
+    $this->assertEqual((string) ($diff_row[1]), '');
+    $this->assertEqual((string) ($diff_row[2]), '-');
+    $this->assertEqual((string) (($diff_row[3]->span)), '1');
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[3]->asXML())), '<p>Revision 1</p>');
     $diff_row = $rows[2]->td;
-    $this->assertEqual((string) (($diff_row[0])), '+');
-    $this->assertEqual((string) (($diff_row[1]->span)), '2');
-    $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[1]->asXML()))), '<p>Revision 2</p>');
+    $this->assertEqual((string) ($diff_row[0]), '');
+    $this->assertEqual((string) ($diff_row[1]), '1');
+    $this->assertEqual((string) (($diff_row[2])), '+');
+    $this->assertEqual((string) (($diff_row[3]->span)), '2');
+    $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[3]->asXML()))), '<p>Revision 2</p>');
     $this->assertUniqueText('first_unique_text');
     $this->assertUniqueText('second_unique_text');
+    $diff_row = $rows[3]->td;
+    $this->assertEqual((string) ($diff_row[0]), '2');
+    $this->assertEqual((string) ($diff_row[1]), '2');
+    $diff_row = $rows[4]->td;
+    $this->assertEqual((string) ($diff_row[0]), '3');
+    $this->assertEqual((string) ($diff_row[1]), '3');
 
     $this->drupalGet('node/' . $node->id());
     $this->clickLink(t('Revisions'));

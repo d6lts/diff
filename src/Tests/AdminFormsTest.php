@@ -133,7 +133,7 @@ class AdminFormsTest extends DiffTestBase {
     $this->assertNoLink('Split fields');
     $this->assertLink('Raw');
     $this->assertLink('Strip tags');
-    $text = $this->xpath('//tbody/tr[5]/td[2]');
+    $text = $this->xpath('//tbody/tr[5]/td[4]');
     $this->assertEqual(htmlspecialchars_decode(strip_tags($text[0]->asXML())), '<p>great_body</p>');
   }
 

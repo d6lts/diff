@@ -141,10 +141,29 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
       );
 
       $final_diff = [];
+      $row_count_left = NULL;
+      $row_count_right = NULL;
       foreach ($field_diff_rows as $key => $value) {
+        $show = FALSE;
         if (trim($field_diff_rows[$key][1]['data']['#markup']) != '') {
+          if ($field_diff_rows[$key][1]['data'] == $field_diff_rows[$key][3]['data']) {
+            $show = TRUE;
+            $row_count_right++;
+          }
+          $row_count_left++;
           $final_diff[] = [
-            $field_diff_rows[$key][0],
+            [
+              'data' => $row_count_left,
+              'class' => ['diff-line-number', $field_diff_rows[$key][1]['class']],
+            ],
+            [
+              'data' => $show ? $row_count_right : NULL,
+              'class' => ['diff-line-number', $field_diff_rows[$key][1]['class']],
+            ],
+            [
+              'data' => isset($field_diff_rows[$key][0]['data']) ? $field_diff_rows[$key][0]['data'] : NULL,
+              'class' => [isset($field_diff_rows[$key][0]['class']) ? $field_diff_rows[$key][0]['class'] : NULL, $field_diff_rows[$key][1]['class']]
+            ],
             [
               'data' => $field_diff_rows[$key][1]['data'],
               'colspan' => 2,
@@ -154,8 +173,20 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
         }
         if ($field_diff_rows[$key][1]['data'] != $field_diff_rows[$key][3]['data']) {
           if (trim($field_diff_rows[$key][3]['data']['#markup']) != '') {
+            $row_count_right++;
             $final_diff[] = [
-              $field_diff_rows[$key][2],
+              [
+                'data' => NULL,
+                'class' => ['diff-line-number', $field_diff_rows[$key][3]['class']],
+              ],
+              [
+                'data' => $row_count_right,
+                'class' => ['diff-line-number', $field_diff_rows[$key][3]['class']],
+              ],
+              [
+                'data' => isset($field_diff_rows[$key][2]['data']) ? $field_diff_rows[$key][2]['data'] : NULL,
+                'class' => [isset($field_diff_rows[$key][2]['class']) ? $field_diff_rows[$key][2]['class'] : NULL, $field_diff_rows[$key][3]['class']]
+              ],
               [
                 'data' => $field_diff_rows[$key][3]['data'],
                 'colspan' => 2,
