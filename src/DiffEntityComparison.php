@@ -6,8 +6,8 @@ use Drupal\Core\Config\ConfigFactory;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Component\Diff\Diff;
+use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Render\Element;
-use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Component\Utility\Xss;
 
 /**
@@ -47,6 +47,13 @@ class DiffEntityComparison {
   protected $entityParser;
 
   /**
+   * The field diff plugin manager service.
+   *
+   * @var \Drupal\diff\DiffBuilderManager
+   */
+  protected $diffBuilderManager;
+
+  /**
    * Constructs a DiffEntityComparison object.
    *
    * @param ConfigFactory $config_factory
@@ -57,13 +64,16 @@ class DiffEntityComparison {
    *   The Plugin manager service.
    * @param DiffEntityParser $entity_parser
    *   The diff field builder plugin manager.
+   * @param DiffBuilderManager $diff_builder_manager
+   *   The diff builder manager.
    */
-  public function __construct(ConfigFactory $config_factory, DiffFormatter $diff_formatter, PluginManagerInterface $plugin_manager, DiffEntityParser $entity_parser) {
+  public function __construct(ConfigFactory $config_factory, DiffFormatter $diff_formatter, PluginManagerInterface $plugin_manager, DiffEntityParser $entity_parser, DiffBuilderManager $diff_builder_manager) {
     $this->configFactory = $config_factory;
     $this->pluginsConfig = $this->configFactory->get('diff.plugins');
     $this->diffFormatter = $diff_formatter;
     $this->fieldTypeDefinitions = $plugin_manager->getDefinitions();
     $this->entityParser = $entity_parser;
+    $this->diffBuilderManager = $diff_builder_manager;
   }
 
   /**
@@ -241,6 +251,65 @@ class DiffEntityComparison {
     foreach ($diff['#data']['#right'] as $key => $value) {
       $diff['#data']['#right'][$key] = trim($diff['#data']['#right'][$key]);
     }
+  }
+
+  /**
+   * Gets the revision description of the revision.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $revision
+   *   The current revision.
+   * @param $previous_revision_id
+   *   The previous revision.
+   *
+   * @return string
+   *   The revision log message.
+   */
+  public function getRevisionDescription($revision, $previous_revision_id) {
+    if ($revision instanceof RevisionLogInterface) {
+      $revision_summary = Xss::filter($revision->getRevisionLogMessage());
+      if ($revision_summary == '') {
+        $revision_summary = $this->summary($revision, $previous_revision_id);
+      }
+    }
+    else {
+      $revision_summary = $this->summary($revision, $previous_revision_id);
+    }
+    return $revision_summary;
+  }
+
+  /**
+   * Creates an log message based on the changes of entity fields.
+   *
+   * @param $revision
+   *   The current revision.
+   * @param $previous_revision_id
+   *   The previous revision id.
+   *
+   * @return string
+   *   The revision log message.
+   */
+  protected function summary($revision, $previous_revision_id) {
+    $storage = \Drupal::entityTypeManager()
+      ->getStorage($revision->getEntityTypeId());
+    $summary = [];
+    if ($previous_revision_id) {
+      $previous_revision = $storage->loadRevision($previous_revision_id);
+      foreach ($previous_revision as $key => $value) {
+        if ($previous_revision->get($key)
+            ->getValue() != $revision->get($key)->getValue()
+          && $this->diffBuilderManager->getSelectedPluginForFieldDefinition($value->getFieldDefinition())
+        ) {
+          $summary[] = $value->getFieldDefinition()->getLabel();
+        }
+      }
+    }
+    if (count($summary) > 0) {
+      $summary = 'Changes on: ' . implode(', ', $summary);
+    }
+    else {
+      $summary = 'No changes.';
+    }
+    return $summary;
   }
 
 }

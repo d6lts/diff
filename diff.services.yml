@@ -24,7 +24,7 @@ services:
 
   diff.entity_comparison:
     class: Drupal\diff\DiffEntityComparison
-    arguments: ['@config.factory', '@diff.diff.formatter','@plugin.manager.field.field_type', '@diff.entity_parser']
+    arguments: ['@config.factory', '@diff.diff.formatter','@plugin.manager.field.field_type', '@diff.entity_parser', '@plugin.manager.diff.builder']
 
   diff.html_diff:
     class: HtmlDiffAdvanced

@@ -71,6 +71,9 @@ class DiffRevisionTest extends DiffTestBase {
     $rows = $this->xpath('//tbody/tr');
     // Make sure only two revisions available.
     $this->assertEqual(count($rows), 2);
+    // Assert the revision summary.
+    $this->assertText('Revision 2 comment');
+    $this->assertText('No changes.');
 
     // Compare the revisions in standard mode.
     $this->drupalPostForm(NULL, NULL, t('Compare'));
@@ -210,6 +213,9 @@ class DiffRevisionTest extends DiffTestBase {
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, 'Save and keep published');
 
     $this->clickLink(t('Revisions'));
+    // Assert the revision summary.
+    $this->assertNoUniqueText('Changes on: Title, Body');
+    $this->assertText('Copy of the revision from');
     $edit = [
       'radios_left' => 3,
       'radios_right' => 4,
