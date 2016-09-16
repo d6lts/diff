@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *   label = @Translation("Visual Inline"),
  * )
  */
-class HTMLDiffLayout extends DiffLayoutBase {
+class VisualInlineDiffLayout extends DiffLayoutBase {
 
   /**
    * The renderer.
@@ -126,7 +126,7 @@ class HTMLDiffLayout extends DiffLayoutBase {
           $entity->getEntityTypeId() => $entity->id(),
           'left_revision' => $left_revision->getRevisionId(),
           'right_revision' => $right_revision->getRevisionId(),
-          'filter' => 'html_diff',
+          'filter' => 'visual_inline',
           ['view_mode' => $view_mode]
         ])
       ];

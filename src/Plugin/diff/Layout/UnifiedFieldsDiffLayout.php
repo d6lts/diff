@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *   label = @Translation("Unified fields"),
  * )
  */
-class SingleColumnDiffLayout extends DiffLayoutBase {
+class UnifiedFieldsDiffLayout extends DiffLayoutBase {
 
   /**
    * The renderer.

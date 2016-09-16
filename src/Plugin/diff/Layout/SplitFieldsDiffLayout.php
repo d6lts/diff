@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *   label = @Translation("Split fields"),
  * )
  */
-class ClassicDiffLayout extends DiffLayoutBase {
+class SplitFieldsDiffLayout extends DiffLayoutBase {
 
   /**
    * The renderer.
