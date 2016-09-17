@@ -135,6 +135,9 @@ class AdminFormsTest extends DiffTestBase {
     $this->assertLink('Strip tags');
     $text = $this->xpath('//tbody/tr[5]/td[4]');
     $this->assertEqual(htmlspecialchars_decode(strip_tags($text[0]->asXML())), '<p>great_body</p>');
+    $this->clickLink('Strip tags');
+    $text = $this->xpath('//tbody/tr[5]/td[4]');
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($text[0]->asXML())), 'great_body');
   }
 
 }
