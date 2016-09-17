@@ -140,6 +140,9 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
     $build['view_mode'] = [
       '#type' => 'item',
       '#title' => $this->t('View mode'),
+      '#weigth' => 2,
+      '#prefix' => '<div class="diff-layout">',
+      '#suffix' => '</div>',
     ];
     $build['view_mode']['filter'] = [
       '#type' => 'operations',

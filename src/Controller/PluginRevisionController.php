@@ -133,15 +133,18 @@ class PluginRevisionController extends ControllerBase {
       '#title' => $this->t('Changes to %title', ['%title' => $entity->label()]),
     );
 
+    // Build the navigation links.
+    $build['diff_navigation'] = $this->buildRevisionsNavigation($entity, $revisions_ids, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter);
+
     // Build the layout filter.
     $build['diff_layout'] = [
       '#type' => 'item',
       '#title' => $this->t('Layout'),
+      '#weigth' => 1,
+      '#prefix' => '<div class="diff-layout">',
+      '#suffix' => '</div>',
     ];
     $build['diff_layout']['filter'] = $this->buildLayoutNavigation($entity, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter);
-
-    // Build the navigation links.
-    $build['diff_navigation'] = $this->buildRevisionsNavigation($entity, $revisions_ids, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter);
 
     // Perform comparison only if both entity revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
@@ -225,6 +228,7 @@ class PluginRevisionController extends ControllerBase {
       $element['diff_navigation'] = [
         '#type' => 'item',
         '#title' => $this->t('Navigation'),
+        '#weigth' => 0,
       ];
       $i = 0;
       // Find the previous revision.

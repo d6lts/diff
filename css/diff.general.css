@@ -16,3 +16,7 @@
   width: 50%;
   display: inline-block;
 }
+.diff-layout {
+  display: inline-table;
+  padding: 0 1em 0 0;
+}

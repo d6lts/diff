@@ -97,6 +97,9 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
     $build['filter'] = [
       '#type' => 'item',
       '#title' => $this->t('Filter'),
+      '#weigth' => 2,
+      '#prefix' => '<div class="diff-layout">',
+      '#suffix' => '</div>',
     ];
     $build['filter']['options'] = $this->buildFilterNavigation($entity, $left_revision, $right_revision, 'split_fields', $active_filter);
 
