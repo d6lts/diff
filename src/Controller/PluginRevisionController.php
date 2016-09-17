@@ -269,15 +269,16 @@ class PluginRevisionController extends ControllerBase {
    *   Revision id of the left revision.
    * @param $right_revision_id
    *   Revision id of the right revision.
-   * @param $filter
-   *   (optional) The filter added to the route.
+   * @param $layout
+   *   (optional) The filter/layout added to the route.
    * @param $layout_options
    *   (optional) The layout options provided by the selected layout.
    *
    * @return \Drupal\Core\Url
    *   The URL object.
    */
-  public function diffRoute(EntityInterface $entity, $left_revision_id, $right_revision_id, $filter = NULL, $layout_options = NULL) {
+
+  public static function diffRoute(EntityInterface $entity, $left_revision_id, $right_revision_id, $layout = NULL, $layout_options = NULL) {
     $entity_type_id = $entity->getEntityTypeId();
     // @todo Remove the diff.revisions_diff route so we avoid adding extra cases.
     if ($entity->getEntityTypeId() == 'node') {
@@ -291,8 +292,8 @@ class PluginRevisionController extends ControllerBase {
       'left_revision' => $left_revision_id,
       'right_revision' => $right_revision_id,
     ];
-    if ($filter) {
-      $route_parameters['filter'] = $filter;
+    if ($layout) {
+      $route_parameters['filter'] = $layout;
     }
     $options = [];
     if ($layout_options) {

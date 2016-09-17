@@ -13,6 +13,7 @@ use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use Drupal\diff\Controller\PluginRevisionController;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -144,21 +145,24 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
    */
   protected function buildFilterNavigation(EntityInterface $entity, EntityInterface $left_revision, EntityInterface $right_revision, $layout, $active_filter) {
     // Build the view modes filter.
-    $entity_type_id = $entity->getEntityTypeId();
-    $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'diff.revisions_diff';
     $options['raw'] = [
       'title' => $this->t('Raw'),
-      'url' => Url::fromRoute($route_name, [$entity->getEntityTypeId() => $entity->id(),
-        'left_revision' => $left_revision->getRevisionId(),
-        'right_revision' => $right_revision->getRevisionId(),
-        'filter' => $layout, ['filter' => 'raw']])
+      'url' => PluginRevisionController::diffRoute($entity,
+        $left_revision->getRevisionId(),
+        $right_revision->getRevisionId(),
+        $layout,
+        ['filter' => 'raw']
+      ),
     ];
+
     $options['strip_tags'] = [
       'title' => $this->t('Strip tags'),
-      'url' => Url::fromRoute($route_name, [$entity->getEntityTypeId() => $entity->id(),
-        'left_revision' => $left_revision->getRevisionId(),
-        'right_revision' => $right_revision->getRevisionId(),
-        'filter' => $layout, ['filter' => 'strip_tags']])
+      'url' => PluginRevisionController::diffRoute($entity,
+         $left_revision->getRevisionId(),
+         $right_revision->getRevisionId(),
+         $layout,
+         ['filter' => 'strip_tags']
+      ),
     ];
 
     $filter = $options[$active_filter];

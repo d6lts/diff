@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\PhpStorage\PhpStorageFactory;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Url;
+use Drupal\diff\Controller\PluginRevisionController;
 use Drupal\diff\DiffEntityComparison;
 use Drupal\diff\DiffEntityParser;
 use Drupal\diff\DiffLayoutBase;
@@ -113,22 +114,19 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
    */
   public function build(EntityInterface $left_revision, EntityInterface $right_revision, EntityInterface $entity) {
     $this->entityTypeManager->getStorage($entity->getEntityTypeId())->resetCache([$entity->id()]);
-    $entity_type_id = $entity->getEntityTypeId();
     // Build the view modes filter.
     $options = [];
     // Get all view modes for entity type.
     $view_modes = $this->entityTypeManager->getViewModeOptionsByBundle($entity->getEntityTypeId(), $entity->bundle());
-    $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'diff.revisions_diff';
     foreach ($view_modes as $view_mode => $view_mode_info) {
       $options[$view_mode] = [
         'title' => $view_mode_info,
-        'url' => Url::fromRoute($route_name, [
-          $entity->getEntityTypeId() => $entity->id(),
-          'left_revision' => $left_revision->getRevisionId(),
-          'right_revision' => $right_revision->getRevisionId(),
-          'filter' => 'visual_inline',
+        'url' => PluginRevisionController::diffRoute($entity,
+          $left_revision->getRevisionId(),
+          $right_revision->getRevisionId(),
+          'visual_inline',
           ['view_mode' => $view_mode]
-        ])
+        ),
       ];
     }
 
