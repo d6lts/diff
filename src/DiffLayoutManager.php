@@ -51,7 +51,7 @@ class DiffLayoutManager extends DefaultPluginManager {
     parent::__construct('Plugin/diff/Layout', $namespaces, $module_handler, '\Drupal\diff\DiffLayoutInterface', 'Drupal\diff\Annotation\DiffLayoutBuilder');
 
     $this->setCacheBackend($cache_backend, 'diff_layout_builder_plugins');
-    $this->alterInfo('field_diff_builder_info');
+    $this->alterInfo('diff_layout_builder_info');
     $this->entityTypeManager = $entity_type_manager;
     $this->config = $configFactory->get('diff.settings');
     $this->layoutPluginsConfig =  $configFactory->get('diff.layout_plugins');
