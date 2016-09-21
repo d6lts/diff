@@ -153,10 +153,8 @@ class RevisionOverviewForm extends FormBase {
       '#value' => $node->id(),
     );
 
-    $table_header = array(
-      'revision' => $this->t('Revision'),
-      'operations' => $this->t('Operations'),
-    );
+    $table_header = [];
+    $table_header['revision'] = $this->t('Revision');
 
     // Allow comparisons only if there are 2 or more revisions.
     if ($revision_count > 1) {
@@ -165,6 +163,7 @@ class RevisionOverviewForm extends FormBase {
         'select_column_two' => '',
       );
     }
+    $table_header['operations'] = $this->t('Operations');
 
     $rev_revert_perm = $account->hasPermission("revert $type revisions") ||
       $account->hasPermission('revert all revisions') ||
