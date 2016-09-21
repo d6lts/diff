@@ -119,6 +119,10 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
     // Get all view modes for entity type.
     $view_modes = $this->entityTypeManager->getViewModeOptionsByBundle($entity->getEntityTypeId(), $entity->bundle());
     foreach ($view_modes as $view_mode => $view_mode_info) {
+      // Skip view modes that are not used in the front end.
+      if (in_array($view_mode, ['rss', 'search_index'])) {
+        continue;
+      }
       $options[$view_mode] = [
         'title' => $view_mode_info,
         'url' => PluginRevisionController::diffRoute($entity,
