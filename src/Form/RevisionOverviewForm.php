@@ -2,13 +2,13 @@
 
 namespace Drupal\diff\Form;
 
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\diff\DiffEntityComparison;
 use Drupal\diff\DiffLayoutManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Form\FormStateInterface;
@@ -155,7 +155,6 @@ class RevisionOverviewForm extends FormBase {
 
     $table_header = array(
       'revision' => $this->t('Revision'),
-      'summary' => $this->t('Summary'),
       'operations' => $this->t('Operations'),
     );
 
@@ -215,13 +214,12 @@ class RevisionOverviewForm extends FormBase {
                 '#context' => [
                   'date' => $link,
                   'username' => $this->renderer->renderPlain($username),
-                  'message' => ['#markup' => $revision->revision_log->value, '#allowed_tags' => Xss::getHtmlTagList()],
+                  'message' => [
+                    '#markup' => $this->entityComparison->getRevisionDescription($revision, isset($vids[$key + 1]) ? $vids[$key + 1] : $vids[$key]),
+                    '#allowed_tags' => Xss::getHtmlTagList()
+                  ],
                 ],
               ),
-              'summary' => [
-                '#type' => 'markup',
-                '#markup' => $this->entityComparison->getRevisionDescription($revision, isset($vids[$key + 1]) ? $vids[$key + 1] : $vids[$key]),
-              ],
             );
             // Allow comparisons only if there are 2 or more revisions.
             if ($revision_count > 1) {
@@ -284,13 +282,12 @@ class RevisionOverviewForm extends FormBase {
                 '#context' => [
                   'date' => $link,
                   'username' => $this->renderer->renderPlain($username),
-                  'message' => ['#markup' => $revision->revision_log->value, '#allowed_tags' => Xss::getHtmlTagList()],
+                  'message' => [
+                    '#markup' => $this->entityComparison->getRevisionDescription($revision, isset($vids[$key + 1]) ? $vids[$key + 1] : $vids[$key]),
+                    '#allowed_tags' => Xss::getHtmlTagList()
+                  ],
                 ],
               ),
-              'summary' => [
-                '#type' => 'markup',
-                '#markup' => $this->entityComparison->getRevisionDescription($revision, isset($vids[$key + 1]) ? $vids[$key + 1] : $vids[$key]),
-              ],
               'select_column_one' => array(
                 '#type' => 'radio',
                 '#title_display' => 'invisible',

@@ -72,7 +72,7 @@ class DiffRevisionTest extends DiffTestBase {
     // Make sure only two revisions available.
     $this->assertEqual(count($rows), 2);
     // Assert the revision summary.
-    $this->assertText('Revision 2 comment');
+    $this->assertUniqueText('Revision 2 comment');
     $this->assertText('No changes.');
 
     // Compare the revisions in standard mode.
