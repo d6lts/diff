@@ -53,8 +53,19 @@ function diff_update_8004() {
  * Update settings.
  */
 function diff_update_8005() {
+  // The original update function had a bug, it set the new configuration of
+  // layout plugins using the old keys (which were changed). Update 8006 will
+  // fix this issue.
+}
+
+/**
+ * Update settings, set the new keys of layout plugins.
+ */
+function diff_update_8006() {
   $config = \Drupal::configFactory()->getEditable('diff.settings');
-  $plugins = \Drupal::service('plugin.manager.diff.layout')->getDefinitions();
+  $layout_manager = \Drupal::service('plugin.manager.diff.layout');
+  $layout_manager->clearCachedDefinitions();
+  $plugins = $layout_manager->getDefinitions();
   $config->clear('general_settings.layout_plugins');
   foreach ($plugins as $key => $value) {
     $plugin_options[$key] = $value['label'];
