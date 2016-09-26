@@ -140,6 +140,21 @@ class GeneralSettingsForm extends ConfigFormBase {
     return parent::buildForm($form, $form_state);
   }
 
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
+
+    // Make sure there is at least one layout enabled.
+    $enabled_layouts = [];
+    foreach ($form_state->getValue('layout_plugins') as $key => $layout) {
+      if ($layout['enabled']) {
+        $enabled_layouts[] = $key;
+      }
+    }
+    if (!$enabled_layouts) {
+      $form_state->setErrorByName('layout_plugins', t('At least one layout plugin needs to be enabled.'));
+    }
+  }
+
   /**
    * {@inheritdoc}
    */
