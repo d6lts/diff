@@ -206,38 +206,17 @@ class RevisionOverviewForm extends FormBase {
 
           // Default revision.
           if ($latest_revision) {
-            $row = array(
-              'revision' => array(
-                '#type' => 'inline_template',
-                '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
-                '#context' => [
-                  'date' => $link,
-                  'username' => $this->renderer->renderPlain($username),
-                  'message' => [
-                    '#markup' => $this->entityComparison->getRevisionDescription($revision, isset($vids[$key + 1]) ? $vids[$key + 1] : $vids[$key]),
-                    '#allowed_tags' => Xss::getHtmlTagList()
-                  ],
-                ],
-              ),
-            );
+            $row = [
+              'revision' => $this->buildRevision($link, $username, $revision,
+                isset($vids[$key + 1]) ? $vids[$key + 1] : $vids[$key]),
+            ];
+
             // Allow comparisons only if there are 2 or more revisions.
             if ($revision_count > 1) {
-              $row += array(
-                'select_column_one' => array(
-                  '#type' => 'radio',
-                  '#title_display' => 'invisible',
-                  '#name' => 'radios_left',
-                  '#return_value' => $vid,
-                  '#default_value' => FALSE,
-                ),
-                'select_column_two' => array(
-                  '#type' => 'radio',
-                  '#title_display' => 'invisible',
-                  '#name' => 'radios_right',
-                  '#default_value' => $vid,
-                  '#return_value' => $vid,
-                ),
-              );
+              $row += [
+                'select_column_one' => $this->buildSelectColumn('radios_left', $vid, FALSE),
+                'select_column_two' => $this->buildSelectColumn('radios_right', $vid, $vid),
+              ];
             }
             $row['operations'] = array(
               '#prefix' => '<em>',
@@ -274,38 +253,17 @@ class RevisionOverviewForm extends FormBase {
             // Here we don't have to deal with 'only one revision' case because
             // if there's only one revision it will also be the default one,
             // entering on the first branch of this if else statement.
-            $row = array(
-              'revision' => array(
-                '#type' => 'inline_template',
-                '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
-                '#context' => [
-                  'date' => $link,
-                  'username' => $this->renderer->renderPlain($username),
-                  'message' => [
-                    '#markup' => $this->entityComparison->getRevisionDescription($revision, isset($vids[$key + 1]) ? $vids[$key + 1] : $vids[$key]),
-                    '#allowed_tags' => Xss::getHtmlTagList()
-                  ],
-                ],
-              ),
-              'select_column_one' => array(
-                '#type' => 'radio',
-                '#title_display' => 'invisible',
-                '#name' => 'radios_left',
-                '#return_value' => $vid,
-                '#default_value' => isset ($vids[1]) ? $vids[1] : FALSE,
-              ),
-              'select_column_two' => array(
-                '#type' => 'radio',
-                '#title_display' => 'invisible',
-                '#name' => 'radios_right',
-                '#return_value' => $vid,
-                '#default_value' => FALSE,
-              ),
-              'operations' => array(
+            $row = [
+              'revision' => $this->buildRevision($link, $username, $revision,
+                isset($vids[$key + 1]) ? $vids[$key + 1] : $vids[$key]),
+              'select_column_one' => $this->buildSelectColumn('radios_left', $vid,
+                isset ($vids[1]) ? $vids[1] : FALSE),
+              'select_column_two' => $this->buildSelectColumn('radios_right', $vid, FALSE),
+              'operations' => [
                 '#type' => 'operations',
                 '#links' => $links,
-              ),
-            );
+              ],
+            ];
           }
           // Add the row to the table.
           $build['node_revisions_table'][] = $row;
@@ -330,6 +288,58 @@ class RevisionOverviewForm extends FormBase {
     );
 
     return $build;
+  }
+
+  /**
+   * Set column attributes and return config array.
+   *
+   * @param $name
+   *   Name attribute.
+   * @param $return_val
+   *   Return value attribute.
+   * @param $default_val
+   *   Default value attribute.
+   *
+   * @return array
+   *   Configuration array.
+   */
+  public function buildSelectColumn($name, $return_val, $default_val) {
+    return [
+      '#type' => 'radio',
+      '#title_display' => 'invisible',
+      '#name' => $name,
+      '#return_value' => $return_val,
+      '#default_value' => $default_val
+    ];
+  }
+
+  /**
+   * Set and return configuration for revision.
+   * @param $link
+   *   Link attribute.
+   * @param $username
+   *   Username attribute.
+   * @param $revision
+   *   Revision parameter for getRevisionDescription function.
+   * @param $previous_revision_id
+   *   Previous revision id parameter for getRevisionDescription function.
+   *
+   * @return array
+   *   Configuration for revision.
+   */
+  public function buildRevision($link, $username, $revision, $previous_revision_id ) {
+    return [
+      '#type' => 'inline_template',
+      '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
+      '#context' => [
+        'date' => $link,
+        'username' => $this->renderer->renderPlain($username),
+        'message' => [
+          '#markup' => $this->entityComparison->getRevisionDescription($revision, $previous_revision_id),
+          '#allowed_tags' => Xss::getHtmlTagList()
+        ],
+      ],
+    ];
   }
 
   /**
