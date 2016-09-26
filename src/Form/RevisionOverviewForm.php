@@ -303,7 +303,7 @@ class RevisionOverviewForm extends FormBase {
    * @return array
    *   Configuration array.
    */
-  public function buildSelectColumn($name, $return_val, $default_val) {
+  protected function buildSelectColumn($name, $return_val, $default_val) {
     return [
       '#type' => 'radio',
       '#title_display' => 'invisible',
@@ -327,7 +327,7 @@ class RevisionOverviewForm extends FormBase {
    * @return array
    *   Configuration for revision.
    */
-  public function buildRevision($link, $username, $revision, $previous_revision_id ) {
+  protected function buildRevision($link, $username, $revision, $previous_revision_id ) {
     return [
       '#type' => 'inline_template',
       '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
