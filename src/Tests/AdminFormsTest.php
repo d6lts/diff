@@ -135,6 +135,14 @@ class AdminFormsTest extends DiffTestBase {
     ];
     $this->drupalPostForm('admin/config/content/diff/general', $edit, t('Save configuration'));
 
+    // Test the validation of form.
+    $edit = [
+      'layout_plugins[unified_fields][enabled]' => FALSE,
+      'layout_plugins[split_fields][enabled]' => FALSE,
+    ];
+    $this->drupalPostForm('admin/config/content/diff/general', $edit, t('Save configuration'));
+    $this->assertText('At least one layout plugin needs to be enabled.');
+
     // Assert the diff display uses the single column layout.
     $this->drupalGet('node/' . $node->id() . '/revisions');
     $this->drupalPostForm(NULL, [], t('Compare'));
