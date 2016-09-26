@@ -43,6 +43,16 @@ class AdminFormsTest extends DiffTestBase {
   }
 
   /**
+   * Tests the module requirements.
+   */
+  public function testRequirements() {
+    module_load_install('diff');
+    $requirements = diff_requirements('runtime');
+    $this->assertEqual($requirements['html_diff_advanced']['title'], 'Diff');
+    $this->assertEqual($requirements['html_diff_advanced']['value'], 'Visual inline layout');
+  }
+
+  /**
    * Tests the Configurable Fields tab.
    */
   public function testConfigurableFieldsTab() {

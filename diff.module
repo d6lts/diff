@@ -88,25 +88,6 @@ function diff_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
- * Implements hook_requirements().
- */
-function diff_requirements($phase) {
-  $requirements = [];
-
-  $has_htmlDiffAdvanced = class_exists('\HtmlDiffAdvanced');
-
-  $requirements['html_diff_advanced'] = [
-    'title' => t('Diff'),
-    'value' => $has_htmlDiffAdvanced ? t('Found') : t('Not found'),
-  ];
-  if (!$has_htmlDiffAdvanced) {
-    $requirements['html_diff_advanced']['severity'] = REQUIREMENT_ERROR;
-    $requirements['html_diff_advanced']['description'] = t("The HTML Diff layout requires the HtmlDiffAdvanced library. Please consult README.txt for installation instructions.");
-  }
-  return $requirements;
-}
-
-/**
  * Returns the label of a certain field.
  *
  * Therefore it looks up in all bundles to find the most used field.
@@ -144,19 +125,17 @@ function _diff_field_label($entity_type, $field_name) {
 }
 
 /**
- * Implements hook_theme().
+ * Implements hook_install().
  */
-
-function diff_theme() {
-  $theme = [];
-
-  $theme['node_diff'] = array(
-    'render element' => 'elements'
-  );
-
-  return $theme;
-}
-
-function template_preprocess_node_diff(&$variables) {
-  template_preprocess_node($variables);
+function diff_install() {
+  $visual_inline = \Drupal::service('plugin.manager.diff.layout')->hasDefinition('visual_inline');
+  // Enable Visual Inline layout if library found.
+  if ($visual_inline) {
+    $config = \Drupal::configFactory()->getEditable('diff.settings');
+    $settings_enabled = $config->get('general_settings.layout_plugins.visual_inline.enabled');
+    if (!$settings_enabled) {
+      $config->set('general_settings.layout_plugins.visual_inline.enabled', TRUE);
+    }
+    $config->save();
+  }
 }

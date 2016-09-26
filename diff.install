@@ -5,6 +5,39 @@
  * Installation hooks for diff module.
  */
 
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_requirements().
+ */
+function diff_requirements($phase) {
+  if ($phase == 'runtime') {
+    $requirements = [];
+    $config = \Drupal::config('diff.settings');
+    $setting_enabled = $config->get('general_settings.layout_plugins.visual_inline.enabled');
+    $has_htmlDiffAdvanced = class_exists('\HtmlDiffAdvanced');
+
+    $requirements['html_diff_advanced'] = [
+      'title' => t('Diff'),
+      'value' => t('Installed correctly'),
+      'description' => t('Diff module has been installed correctly.'),
+    ];
+    if (!$has_htmlDiffAdvanced) {
+      if ($setting_enabled) {
+        $requirements['html_diff_advanced']['value'] = t('Dependencies not found');
+        $requirements['html_diff_advanced']['severity'] = REQUIREMENT_ERROR;
+        $requirements['html_diff_advanced']['description'] = t("The HTML Diff layout requires the HtmlDiffAdvanced library. Please consult README.txt for installation instructions.");
+      }
+      else {
+        $requirements['html_diff_advanced']['value'] = t('Visual inline layout');
+        $requirements['html_diff_advanced']['severity'] = REQUIREMENT_INFO;
+        $requirements['html_diff_advanced']['description'] = t('Diff adds a visual rendered display, consult README.txt for installation instructions and enable it in <a href=":settings">settings</a>.', [':settings' => Url::fromRoute('diff.general_settings')->toString()]);
+      }
+    }
+    return $requirements;
+  }
+}
+
 /**
  * Delete stale field diff configuration. Please reconfigure diff plugins.
  */
