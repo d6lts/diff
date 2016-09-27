@@ -163,6 +163,21 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertEqual((string) ($diff_row[0]), '3');
     $this->assertEqual((string) ($diff_row[1]), '3');
 
+    $this->clickLink('Strip tags');
+    // Extract the changes.
+    $rows = $this->xpath('//tbody/tr');
+    $diff_row = $rows[1]->td;
+
+    // Assert changes made to the body, with strip_tags filter and make sure
+    // there are no line numbers.
+    $this->assertEqual((string) ($diff_row[0]), '-');
+    $this->assertEqual((string) (($diff_row[1]->span)), '1');
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[1]->asXML())), 'Revision 1');
+    $diff_row = $rows[2]->td;
+    $this->assertEqual((string) (($diff_row[0])), '+');
+    $this->assertEqual((string) (($diff_row[1]->span)), '2');
+    $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[1]->asXML()))), 'Revision 2');
+
     $this->drupalGet('node/' . $node->id());
     $this->clickLink(t('Revisions'));
     // Revert the revision, confirm.

@@ -120,7 +120,8 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
         ];
       }
 
-      if ($active_filter == 'strip_tags') {
+      $raw_active = $active_filter == 'raw';
+      if (!$raw_active) {
         $field_settings = $field['#settings'];
         if (!empty($field_settings['settings']['markdown'])) {
           $field['#data']['#left'] = $this->applyMarkdown($field_settings['settings']['markdown'], $field['#data']['#left']);
@@ -146,6 +147,7 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
       $final_diff = [];
       $row_count_left = NULL;
       $row_count_right = NULL;
+      $row_counter = 0;
       foreach ($field_diff_rows as $key => $value) {
         $show = FALSE;
         if (isset($field_diff_rows[$key][1]['data']) && trim($field_diff_rows[$key][1]['data']['#markup']) != '') {
@@ -154,7 +156,7 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
             $row_count_right++;
           }
           $row_count_left++;
-          $final_diff[] = [
+          $final_diff[$row_counter] = [
             [
               'data' => $row_count_left,
               'class' => ['diff-line-number', $field_diff_rows[$key][1]['class']],
@@ -173,11 +175,16 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
               'class' => $field_diff_rows[$key][1]['class'],
             ]
           ];
+          if (!$raw_active) {
+            // Remove line number cols.
+            $final_diff[$row_counter] = array_slice($final_diff[$row_counter], 2, 2);
+          }
+          $row_counter++;
         }
         if ($field_diff_rows[$key][1] != $field_diff_rows[$key][3]) {
           if (isset($field_diff_rows[$key][3]['data']) && trim($field_diff_rows[$key][3]['data']['#markup']) != '') {
             $row_count_right++;
-            $final_diff[] = [
+            $final_diff[$row_counter] = [
               [
                 'data' => NULL,
                 'class' => ['diff-line-number', $field_diff_rows[$key][3]['class']],
@@ -196,6 +203,11 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
                 'class' => $field_diff_rows[$key][3]['class'],
               ]
             ];
+            if (!$raw_active) {
+              // Remove line number cols.
+              $final_diff[$row_counter] = array_slice($final_diff[$row_counter], 2, 2);
+            }
+            $row_counter++;
           }
         }
       }
@@ -209,6 +221,10 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
       $diff_rows = array_merge($diff_rows, $final_diff);
     }
 
+    if (!$raw_active) {
+      // Remove line number cols.
+      $diff_header[0]['colspan'] = 2;
+    }
     $build['diff'] = [
       '#type' => 'table',
       '#header' => $diff_header,
