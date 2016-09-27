@@ -159,7 +159,7 @@ class PluginRevisionController extends ControllerBase {
   }
 
   /**
-   * Builds a table row with navigation between the layout plugins.
+   * Builds a navigation dropdown button between the layout plugins.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity to be compared.
@@ -199,7 +199,7 @@ class PluginRevisionController extends ControllerBase {
   }
 
   /**
-   * Creates an url object for diff.
+   * Creates navigation links between the previous changes and the new ones.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity to be compared.
@@ -281,7 +281,6 @@ class PluginRevisionController extends ControllerBase {
    * @return \Drupal\Core\Url
    *   The URL object.
    */
-
   public static function diffRoute(EntityInterface $entity, $left_revision_id, $right_revision_id, $layout = NULL, $layout_options = NULL) {
     $entity_type_id = $entity->getEntityTypeId();
     // @todo Remove the diff.revisions_diff route so we avoid adding extra cases.

@@ -148,8 +148,8 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
       $row_count_right = NULL;
       foreach ($field_diff_rows as $key => $value) {
         $show = FALSE;
-        if (trim($field_diff_rows[$key][1]['data']['#markup']) != '') {
-          if ($field_diff_rows[$key][1]['data'] == $field_diff_rows[$key][3]['data']) {
+        if (isset($field_diff_rows[$key][1]['data']) && trim($field_diff_rows[$key][1]['data']['#markup']) != '') {
+          if ($field_diff_rows[$key][1] == $field_diff_rows[$key][3]) {
             $show = TRUE;
             $row_count_right++;
           }
@@ -174,8 +174,8 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
             ]
           ];
         }
-        if ($field_diff_rows[$key][1]['data'] != $field_diff_rows[$key][3]['data']) {
-          if (trim($field_diff_rows[$key][3]['data']['#markup']) != '') {
+        if ($field_diff_rows[$key][1] != $field_diff_rows[$key][3]) {
+          if (isset($field_diff_rows[$key][3]['data']) && trim($field_diff_rows[$key][3]['data']['#markup']) != '') {
             $row_count_right++;
             $final_diff[] = [
               [

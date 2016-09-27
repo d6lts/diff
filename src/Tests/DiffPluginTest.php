@@ -336,6 +336,13 @@ class DiffPluginTest extends DiffTestBase {
     $this->assertText('File');
     $this->assertText('File: text-1.txt');
     $this->assertText('File ID: 4');
+
+    // Use the unified fields layout.
+    $this->clickLink('Unified fields');
+    $this->assertResponse(200);
+    $this->assertText('File');
+    $this->assertText('File: text-1.txt');
+    $this->assertText('File ID: 4');
   }
 
   /**

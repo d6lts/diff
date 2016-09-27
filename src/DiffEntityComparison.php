@@ -180,7 +180,7 @@ class DiffEntityComparison {
   }
 
   /**
-   * Prepare the table rows for theme 'table'.
+   * Prepare the table rows for #type 'table'.
    *
    * @param string $a
    *   The source string to compare from.
@@ -191,8 +191,11 @@ class DiffEntityComparison {
    * @param array $line_stats
    *   This structure tracks line numbers across multiple calls to DiffFormatter.
    *
+   * @see \Drupal\Component\Diff\DiffFormatter::format
+   *
    * @return array
-   *   Array of rows usable with theme('table').
+   *   Array of rows usable with #type => 'table' returned by the core diff
+   *   formatter when format a diff.
    */
   public function getRows($a, $b, $show_header = FALSE, &$line_stats = NULL) {
     $a = is_array($a) ? $a : explode("\n", $a);
