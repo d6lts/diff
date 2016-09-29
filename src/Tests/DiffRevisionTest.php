@@ -97,12 +97,14 @@ class DiffRevisionTest extends DiffTestBase {
     // Assert the revision comment.
     $this->assertEqual((string) $comment, 'Revision 2 comment');
     // Assert changes made to the body, text 1 changed to 2.
-    $this->assertEqual((string) ($diff_row[0]), '-');
-    $this->assertEqual((string) (($diff_row[1]->span)), '1');
-    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[1]->asXML())), '<p>Revision 1</p>');
-    $this->assertEqual((string) (($diff_row[2])), '+');
-    $this->assertEqual((string) (($diff_row[3]->span)), '2');
-    $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[3]->asXML()))), '<p>Revision 2</p>');
+    $this->assertEqual((string) ($diff_row[0]), '1');
+    $this->assertEqual((string) ($diff_row[1]), '-');
+    $this->assertEqual((string) (($diff_row[2]->span)), '1');
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[2]->asXML())), '<p>Revision 1</p>');
+    $this->assertEqual((string) ($diff_row[3]), '1');
+    $this->assertEqual((string) ($diff_row[4]), '+');
+    $this->assertEqual((string) (($diff_row[5]->span)), '2');
+    $this->assertEqual(htmlspecialchars_decode((strip_tags($diff_row[5]->asXML()))), '<p>Revision 2</p>');
 
     // Compare the revisions in markdown mode.
     $this->clickLink('Strip tags');

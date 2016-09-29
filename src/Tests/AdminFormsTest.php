@@ -105,7 +105,7 @@ class AdminFormsTest extends DiffTestBase {
     $this->assertLink('Split fields');
     $this->assertLink('Raw');
     $this->assertLink('Strip tags');
-    $text = $this->xpath('//tbody/tr[4]/td[2]');
+    $text = $this->xpath('//tbody/tr[4]/td[3]');
     $this->assertEqual(htmlspecialchars_decode(strip_tags($text[0]->asXML())), '<p>great_body</p>');
 
     // Change the settings of the layouts, disable the single column.
