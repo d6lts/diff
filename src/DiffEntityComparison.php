@@ -261,21 +261,21 @@ class DiffEntityComparison {
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $revision
    *   The current revision.
-   * @param $previous_revision_id
-   *   The previous revision.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $previous_revision
+   *   (optional) The previous revision. Defaults to NULL.
    *
    * @return string
    *   The revision log message.
    */
-  public function getRevisionDescription($revision, $previous_revision_id) {
+  public function getRevisionDescription(ContentEntityInterface $revision, ContentEntityInterface $previous_revision = NULL) {
     if ($revision instanceof RevisionLogInterface) {
       $revision_summary = Xss::filter($revision->getRevisionLogMessage());
       if ($revision_summary == '') {
-        $revision_summary = $this->summary($revision, $previous_revision_id);
+        $revision_summary = $this->summary($revision, $previous_revision);
       }
     }
     else {
-      $revision_summary = $this->summary($revision, $previous_revision_id);
+      $revision_summary = $this->summary($revision, $previous_revision);
     }
     return $revision_summary;
   }
@@ -283,20 +283,17 @@ class DiffEntityComparison {
   /**
    * Creates an log message based on the changes of entity fields.
    *
-   * @param $revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $revision
    *   The current revision.
-   * @param $previous_revision_id
-   *   The previous revision id.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $previous_revision
+   *   (optional) The previous revision. Defaults to NULL.
    *
    * @return string
    *   The revision log message.
    */
-  protected function summary($revision, $previous_revision_id) {
-    $storage = \Drupal::entityTypeManager()
-      ->getStorage($revision->getEntityTypeId());
+  protected function summary(ContentEntityInterface $revision, ContentEntityInterface $previous_revision = NULL) {
     $summary = [];
-    if ($previous_revision_id) {
-      $previous_revision = $storage->loadRevision($previous_revision_id);
+    if ($previous_revision) {
       foreach ($previous_revision as $key => $value) {
         if ($previous_revision->get($key)
             ->getValue() != $revision->get($key)->getValue()

@@ -3,6 +3,7 @@
 namespace Drupal\diff\Form;
 
 use Drupal\Component\Utility\Xss;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\diff\DiffEntityComparison;
 use Drupal\diff\DiffLayoutManager;
@@ -189,6 +190,10 @@ class RevisionOverviewForm extends FormBase {
 
     // Add rows to the table.
     foreach ($vids as $key => $vid) {
+      $previous_revision = NULL;
+      if (isset($vids[$key + 1])) {
+        $previous_revision = $node_storage->loadRevision($vids[$key + 1]);
+      }
       if ($revision = $node_storage->loadRevision($vid)) {
         if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)->isRevisionTranslationAffected()) {
           $username = array(
@@ -207,8 +212,7 @@ class RevisionOverviewForm extends FormBase {
           // Default revision.
           if ($latest_revision) {
             $row = [
-              'revision' => $this->buildRevision($link, $username, $revision,
-                isset($vids[$key + 1]) ? $vids[$key + 1] : $vids[$key]),
+              'revision' => $this->buildRevision($link, $username, $revision, $previous_revision),
             ];
 
             // Allow comparisons only if there are 2 or more revisions.
@@ -254,8 +258,7 @@ class RevisionOverviewForm extends FormBase {
             // if there's only one revision it will also be the default one,
             // entering on the first branch of this if else statement.
             $row = [
-              'revision' => $this->buildRevision($link, $username, $revision,
-                isset($vids[$key + 1]) ? $vids[$key + 1] : $vids[$key]),
+              'revision' => $this->buildRevision($link, $username, $revision, $previous_revision),
               'select_column_one' => $this->buildSelectColumn('radios_left', $vid,
                 isset ($vids[1]) ? $vids[1] : FALSE),
               'select_column_two' => $this->buildSelectColumn('radios_right', $vid, FALSE),
@@ -319,15 +322,16 @@ class RevisionOverviewForm extends FormBase {
    *   Link attribute.
    * @param $username
    *   Username attribute.
-   * @param $revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $revision
    *   Revision parameter for getRevisionDescription function.
-   * @param $previous_revision_id
-   *   Previous revision id parameter for getRevisionDescription function.
+   * @param  \Drupal\Core\Entity\ContentEntityInterface $previous_revision
+   *   (optional) Previous revision for getRevisionDescription function.
+   *   Defaults to NULL.
    *
    * @return array
    *   Configuration for revision.
    */
-  protected function buildRevision($link, $username, $revision, $previous_revision_id ) {
+  protected function buildRevision($link, $username, ContentEntityInterface $revision, ContentEntityInterface $previous_revision = NULL) {
     return [
       '#type' => 'inline_template',
       '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
@@ -335,7 +339,7 @@ class RevisionOverviewForm extends FormBase {
         'date' => $link,
         'username' => $this->renderer->renderPlain($username),
         'message' => [
-          '#markup' => $this->entityComparison->getRevisionDescription($revision, $previous_revision_id),
+          '#markup' => $this->entityComparison->getRevisionDescription($revision, $previous_revision),
           '#allowed_tags' => Xss::getHtmlTagList()
         ],
       ],
