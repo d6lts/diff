@@ -94,7 +94,7 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
     if (!$storage->exists('cache.php')) {
       $storage->save('cache.php', 'dummy');
     }
-    $html_diff->setPurifierSerializerCachePath(dirname($storage->getFullPath('cache.php')));
+    $html_diff->getConfig()->setPurifierCacheLocation(dirname($storage->getFullPath('cache.php')));
     $this->htmlDiff = $html_diff;
     $this->requestStack = $request_stack;
     $this->entityDisplayRepository = $entity_display_repository;
