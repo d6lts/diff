@@ -31,6 +31,9 @@ diff.settings:
               weight:
                 type: integer
                 label: 'Weight'
+        visual_inline_theme:
+          type: string
+          label: 'Theme'
     entity:
       type: sequence
       label: 'Entities'

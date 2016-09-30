@@ -137,6 +137,25 @@ class GeneralSettingsForm extends ConfigFormBase {
       ];
     }
 
+    // Check if Visual inline layout is installed.
+    if ($this->diffLayoutManager->hasDefinition('visual_inline')) {
+      $form['visual_inline_theme'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Theme'),
+        '#options' => [
+          'standard' => $this->t('Standard'),
+          'admin' => $this->t('Admin'),
+        ],
+        '#description' => $this->t('Theme used for Visual inline layout when comparing revisions.'),
+        '#default_value' => $config->get('general_settings')['visual_inline_theme'],
+        '#states' => [
+          'visible' => [
+            ':input[name="layout_plugins[visual_inline][enabled]"]' => ['checked' => TRUE]
+          ]
+        ],
+      ];
+    }
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -166,6 +185,7 @@ class GeneralSettingsForm extends ConfigFormBase {
       'context_lines_leading',
       'context_lines_trailing',
       'layout_plugins',
+      'visual_inline_theme'
     );
     foreach ($keys as $key) {
       $config->set('general_settings.' . $key, $form_state->getValue($key));
