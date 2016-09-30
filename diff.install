@@ -106,3 +106,12 @@ function diff_update_8006() {
   }
   $config->save();
 }
+
+/**
+ * Update settings, set the theme used for visual inline layout.
+ */
+function diff_update_8007() {
+  $config = \Drupal::configFactory()->getEditable('diff.settings');
+  $config->set('general_settings.visual_inline_theme', 'standard');
+  $config->save();
+}
