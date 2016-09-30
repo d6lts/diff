@@ -52,9 +52,9 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   The configuration factory object.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity manager.
+   *   The entity type manager.
    * @param \Drupal\diff\DiffEntityParser $entity_parser
-   *   The entity manager.
+   *   The entity parser.
    * @param \Drupal\Core\DateTime\DateFormatter $date
    *   The date service.
    * @param \Drupal\Core\Render\RendererInterface $renderer
@@ -80,7 +80,7 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
       $plugin_id,
       $plugin_definition,
       $container->get('config.factory'),
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
       $container->get('diff.entity_parser'),
       $container->get('date.formatter'),
       $container->get('renderer'),

@@ -25,7 +25,9 @@ function diff_form_node_type_edit_form_alter(&$form, FormStateInterface $form_st
 
     $options = array();
     // Get all view modes for node entity type.
-    $node_view_modes = \Drupal::entityManager()->getViewModes('node');
+    /* @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_service */
+    $entity_display_service = \Drupal::service('entity_display.repository');
+    $node_view_modes = $entity_display_service->getViewModes('node');
     foreach ($node_view_modes as $view_mode => $view_mode_info) {
       $options[$view_mode] = $view_mode_info['label'];
     }

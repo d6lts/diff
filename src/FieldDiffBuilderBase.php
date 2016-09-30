@@ -9,7 +9,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuilderInterface, ContainerFactoryPluginInterface {
 
@@ -23,11 +23,11 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
   protected $configFactory;
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * The entity parser.
@@ -47,15 +47,15 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
    *   The plugin implementation definition.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   The configuration factory object.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
-   *   The entity manager.
-   * @param \Drupal\diff\DiffEntityParser $entityParser
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\diff\DiffEntityParser $entity_parser
+   *   The entity parser.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityManagerInterface $entityManager, DiffEntityParser $entityParser) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityTypeManagerInterface $entity_type_manager, DiffEntityParser $entity_parser) {
     $this->configFactory = $config;
-    $this->entityManager = $entityManager;
-    $this->entityParser = $entityParser;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->entityParser = $entity_parser;
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->configuration += $this->defaultConfiguration();
@@ -70,7 +70,7 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
       $plugin_id,
       $plugin_definition,
       $container->get('config.factory'),
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
       $container->get('diff.entity_parser')
     );
   }

@@ -5,6 +5,7 @@ namespace Drupal\diff\Controller;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\diff\DiffLayoutManager;
@@ -237,7 +238,7 @@ class PluginRevisionController extends ControllerBase {
       }
       if ($i != 0) {
         // build the left link.
-        $left_link = $this->l($this->t('< Previous change'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter, $layout_options));
+        $left_link = Link::fromTextAndUrl($this->t('< Previous change'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter, $layout_options))->toString();
       }
       $element['diff_navigation']['left'] = [
         '#type' => 'markup',
@@ -252,7 +253,7 @@ class PluginRevisionController extends ControllerBase {
       }
       if ($revisions_count != $i && $revision_ids[$i - 1] != $revision_ids[$revisions_count - 1]) {
         // Build the right link.
-        $right_link = $this->l($this->t('Next change >'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i], $filter, $layout_options));
+        $right_link = Link::fromTextAndUrl($this->t('Next change >'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i], $filter, $layout_options))->toString();
       }
       $element['diff_navigation']['right'] = [
         '#type' => 'markup',

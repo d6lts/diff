@@ -39,6 +39,27 @@ class DiffPluginTest extends DiffTestBase {
   ];
 
   /**
+   * A storage instance for the entity form display.
+   *
+   * @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface
+   */
+  protected $formDisplay;
+
+  /**
+   * A storage instance for the entity view display.
+   *
+   * @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface
+   */
+  protected $viewDisplay;
+
+  /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp() {
@@ -46,6 +67,10 @@ class DiffPluginTest extends DiffTestBase {
 
     // Add the comment field to articles.
     $this->addDefaultCommentField('node', 'article');
+
+    $this->formDisplay = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+    $this->viewDisplay = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+    $this->fileSystem = \Drupal::service('file_system');
 
     // FieldUiTestTrait checks the breadcrumb when adding a field, so we need
     // to show the breadcrumb block.
@@ -103,17 +128,13 @@ class DiffPluginTest extends DiffTestBase {
     $this->field->save();
 
     // Add the email field to the article form.
-    entity_get_form_display('node', 'article', 'default')
-      ->setComponent($field_name, array(
-        'type' => 'email_default',
-      ))
+    $this->formDisplay->load('node.article.default')
+      ->setComponent($field_name, ['type' => 'email_default'])
       ->save();
 
     // Add the email field to the default display
-    entity_get_display('node', 'article', 'default')
-      ->setComponent($field_name, array(
-        'type' => 'basic_string',
-      ))
+    $this->viewDisplay->load('node.article.default')
+      ->setComponent($field_name, ['type' => 'basic_string'])
       ->save();
 
     // Create an article with an email.
@@ -158,17 +179,13 @@ class DiffPluginTest extends DiffTestBase {
     $this->field->save();
 
     // Add the timestamp field to the article form.
-    entity_get_form_display('node', 'article', 'default')
-      ->setComponent($field_name, array(
-        'type' => 'datetime_timestamp',
-      ))
+    $this->formDisplay->load('node.article.default')
+      ->setComponent($field_name, ['type' => 'datetime_timestamp'])
       ->save();
 
     // Add the timestamp field to the default display
-    entity_get_display('node', 'article', 'default')
-      ->setComponent($field_name, array(
-        'type' => 'timestamp',
-      ))
+    $this->viewDisplay->load('node.article.default')
+      ->setComponent($field_name, ['type' => 'timestamp'])
       ->save();
 
     $old_timestamp = '321321321';
@@ -292,17 +309,13 @@ class DiffPluginTest extends DiffTestBase {
     ])->save();
 
     // Make the field visible in the form and desfault display.
-    entity_get_display('node', 'article', 'default')
+    $this->viewDisplay->load('node.article.default')
       ->setComponent('test_field')
       ->setComponent($file_field_name)
       ->save();
-    entity_get_form_display('node', 'article', 'default')
-      ->setComponent('test_field', array(
-        'type' => 'entity_reference_autocomplete',
-      ))
-      ->setComponent($file_field_name, array(
-         'type' => 'file_generic',
-      ))
+    $this->formDisplay->load('node.article.default')
+      ->setComponent('test_field', ['type' => 'entity_reference_autocomplete'])
+      ->setComponent($file_field_name, ['type' => 'file_generic'])
       ->save();
 
     // Create an article.
@@ -313,7 +326,7 @@ class DiffPluginTest extends DiffTestBase {
 
     // Upload a file to the article.
     $test_files = $this->drupalGetTestFiles('text');
-    $edit['files[field_file_0]'] = drupal_realpath($test_files['0']->uri);
+    $edit['files[field_file_0]'] = $this->fileSystem->realpath($test_files['0']->uri);
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, 'Upload');
     $edit['revision'] = TRUE;
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
@@ -321,7 +334,7 @@ class DiffPluginTest extends DiffTestBase {
     // Replace the file by a different one.
     $this->drupalPostForm('node/' . $node->id() . '/edit', [], 'Remove');
     $this->drupalPostForm(NULL, ['revision' => FALSE], t('Save and keep published'));
-    $edit['files[field_file_0]'] = drupal_realpath($test_files['1']->uri);
+    $edit['files[field_file_0]'] = $this->fileSystem->realpath($test_files['1']->uri);
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, 'Upload');
     $edit['revision'] = TRUE;
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
@@ -369,14 +382,14 @@ class DiffPluginTest extends DiffTestBase {
     ]);
     $field_config->save();
 
-    entity_get_form_display('node', 'article', 'default')
+    $this->formDisplay->load('node.article.default')
       ->setComponent($image_field_name, [
         'type' => 'image_image',
         'settings' => [],
       ])
       ->save();
 
-    entity_get_display('node', 'article', 'default')
+    $this->viewDisplay->load('node.article.default')
       ->setComponent($image_field_name, [
         'type' => 'image',
         'settings' => [],
@@ -391,7 +404,7 @@ class DiffPluginTest extends DiffTestBase {
 
     // Upload an image to the article.
     $test_files = $this->drupalGetTestFiles('image');
-    $edit = ['files[field_image_0]' => drupal_realpath($test_files['1']->uri)];
+    $edit = ['files[field_image_0]' => $this->fileSystem->realpath($test_files['1']->uri)];
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $edit = [
       'field_image[0][alt]' => 'Image alt',
@@ -402,7 +415,7 @@ class DiffPluginTest extends DiffTestBase {
     // Replace the image by a different one.
     $this->drupalPostForm('node/' . $node->id() . '/edit', [], 'Remove');
     $this->drupalPostForm(NULL, ['revision' => FALSE], t('Save and keep published'));
-    $edit = ['files[field_image_0]' => drupal_realpath($test_files['1']->uri)];
+    $edit = ['files[field_image_0]' => $this->fileSystem->realpath($test_files['1']->uri)];
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $edit = [
       'field_image[0][alt]' => 'Image alt updated',
@@ -444,18 +457,16 @@ class DiffPluginTest extends DiffTestBase {
       ),
     ]);
     $this->field->save();
-    entity_get_form_display('node', 'article', 'default')
-      ->setComponent($field_name, array(
+    $this->formDisplay->load('node.article.default')
+      ->setComponent($field_name, [
         'type' => 'link_default',
         'settings' => [
           'placeholder_url' => 'http://example.com',
         ],
-      ))
-      ->save();
-    entity_get_display('node', 'article', 'default')
-      ->setComponent($field_name, [
-        'type' => 'link',
       ])
+      ->save();
+    $this->viewDisplay->load('node.article.default')
+      ->setComponent($field_name, ['type' => 'link'])
       ->save();
 
     // Enable the comparison of the link's title field.
@@ -521,15 +532,11 @@ class DiffPluginTest extends DiffTestBase {
       'label' => 'List',
     ])->save();
 
-    entity_get_form_display('node', 'article', 'default')
-      ->setComponent($field_name, [
-        'type' => 'options_select',
-      ])
+    $this->formDisplay->load('node.article.default')
+      ->setComponent($field_name, ['type' => 'options_select'])
       ->save();
-    entity_get_display('node', 'article', 'default')
-      ->setComponent($field_name, [
-        'type' => 'list_default',
-      ])
+    $this->viewDisplay->load('node.article.default')
+      ->setComponent($field_name, ['type' => 'list_default'])
       ->save();
 
     // Create an article, setting values on the lit field.
@@ -644,12 +651,10 @@ class DiffPluginTest extends DiffTestBase {
       'bundle' => 'article',
       'label' => $label,
     ])->save();
-    entity_get_form_display('node', 'article', 'default')
-      ->setComponent($field_name, array(
-        'type' => $widget_type,
-      ))
+    $this->formDisplay->load('node.article.default')
+      ->setComponent($field_name, ['type' => $widget_type])
       ->save();
-    entity_get_display('node', 'article', 'default')
+    $this->viewDisplay->load('node.article.default')
       ->setComponent($field_name)
       ->save();
   }

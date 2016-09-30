@@ -11,6 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\diff\Controller\PluginRevisionController;
@@ -61,9 +62,9 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   The configuration factory object.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity manager.
+   *   The entity type manager.
    * @param \Drupal\diff\DiffEntityParser $entity_parser
-   *   The entity manager.
+   *   The entity parser.
    * @param \Drupal\Core\DateTime\DateFormatter $date
    *   The date service.
    */
@@ -85,7 +86,7 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
       $plugin_id,
       $plugin_definition,
       $container->get('config.factory'),
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
       $container->get('diff.entity_parser'),
       $container->get('date.formatter')
     );
@@ -114,14 +115,14 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
       $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
       $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
       $revision_link = $this->t($revision_log . '@date', [
-        '@date' => \Drupal::l($revision_date, Url::fromRoute($route_name, [
+        '@date' => Link::fromTextAndUrl($revision_date, Url::fromRoute($route_name, [
           $entity_type_id => $revision->id(),
           $entity_type_id . '_revision' => $revision->getRevisionId(),
-        ])),
+          ]))->toString(),
       ]);
     }
     else {
-      $revision_link = \Drupal::l($revision->label(), $revision->toUrl('revision'));
+      $revision_link = Link::fromTextAndUrl($revision->label(), $revision->toUrl('revision'))->toString();
     }
     return $revision_link;
   }

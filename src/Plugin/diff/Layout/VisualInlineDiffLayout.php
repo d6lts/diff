@@ -4,11 +4,11 @@ namespace Drupal\diff\Plugin\diff\Layout;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DateFormatter;
+use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\PhpStorage\PhpStorageFactory;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\Core\Url;
 use Drupal\diff\Controller\PluginRevisionController;
 use Drupal\diff\DiffEntityComparison;
 use Drupal\diff\DiffEntityParser;
@@ -52,6 +52,13 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
   protected $requestStack;
 
   /**
+   * The entity display repository.
+   *
+   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
+   */
+  protected $entityDisplayRepository;
+
+  /**
    * Constructs a FieldDiffBuilderBase object.
    *
    * @param array $configuration
@@ -63,9 +70,9 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   The configuration factory object.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity manager.
+   *   The entity type manager.
    * @param \Drupal\diff\DiffEntityParser $entity_parser
-   *   The entity manager.
+   *   The entity parser.
    * @param \Drupal\Core\DateTime\DateFormatter $date
    *   The date service.
    * @param \Drupal\Core\Render\RendererInterface $renderer
@@ -76,8 +83,10 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
    *   The html diff service.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
+   * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
+   *   The entity display repository.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityTypeManagerInterface $entity_type_manager, DiffEntityParser $entity_parser, DateFormatter $date, RendererInterface $renderer, DiffEntityComparison $entity_comparison, HtmlDiffAdvancedInterface $html_diff, RequestStack $request_stack) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityTypeManagerInterface $entity_type_manager, DiffEntityParser $entity_parser, DateFormatter $date, RendererInterface $renderer, DiffEntityComparison $entity_comparison, HtmlDiffAdvancedInterface $html_diff, RequestStack $request_stack, EntityDisplayRepositoryInterface $entity_display_repository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $config, $entity_type_manager, $entity_parser, $date);
     $this->renderer = $renderer;
     $this->entityComparison = $entity_comparison;
@@ -88,6 +97,7 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
     $html_diff->setPurifierSerializerCachePath(dirname($storage->getFullPath('cache.php')));
     $this->htmlDiff = $html_diff;
     $this->requestStack = $request_stack;
+    $this->entityDisplayRepository = $entity_display_repository;
   }
 
   /**
@@ -99,13 +109,14 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
       $plugin_id,
       $plugin_definition,
       $container->get('config.factory'),
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
       $container->get('diff.entity_parser'),
       $container->get('date.formatter'),
       $container->get('renderer'),
       $container->get('diff.entity_comparison'),
       $container->get('diff.html_diff'),
-      $container->get('request_stack')
+      $container->get('request_stack'),
+      $container->get('entity_display.repository')
     );
   }
 
@@ -117,7 +128,7 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
     // Build the view modes filter.
     $options = [];
     // Get all view modes for entity type.
-    $view_modes = $this->entityTypeManager->getViewModeOptionsByBundle($entity->getEntityTypeId(), $entity->bundle());
+    $view_modes = $this->entityDisplayRepository->getViewModeOptionsByBundle($entity->getEntityTypeId(), $entity->bundle());
     foreach ($view_modes as $view_mode => $view_mode_info) {
       // Skip view modes that are not used in the front end.
       if (in_array($view_mode, ['rss', 'search_index'])) {

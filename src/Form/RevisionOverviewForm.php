@@ -4,11 +4,12 @@ namespace Drupal\diff\Form;
 
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Link;
 use Drupal\diff\DiffEntityComparison;
 use Drupal\diff\DiffLayoutManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Datetime\DateFormatter;
@@ -22,11 +23,11 @@ use Drupal\Core\Render\RendererInterface;
 class RevisionOverviewForm extends FormBase {
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * The current user service.
@@ -76,9 +77,9 @@ class RevisionOverviewForm extends FormBase {
   /**
    * Constructs a RevisionOverviewForm object.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entityManager
-   *   The entity manager.
-   * @param \Drupal\Core\Session\AccountInterface $currentUser
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
    * @param \Drupal\Core\Datetime\DateFormatter $date
    *   The date service.
@@ -91,9 +92,9 @@ class RevisionOverviewForm extends FormBase {
    * @param \Drupal\diff\DiffEntityComparison $entity_comparison
    *   The diff entity comparison service.
    */
-  public function __construct(EntityManagerInterface $entityManager, AccountInterface $currentUser, DateFormatter $date, RendererInterface $renderer, LanguageManagerInterface $language_manager, DiffLayoutManager $diff_layout_manager, DiffEntityComparison $entity_comparison) {
-    $this->entityManager = $entityManager;
-    $this->currentUser = $currentUser;
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, AccountInterface $current_user, DateFormatter $date, RendererInterface $renderer, LanguageManagerInterface $language_manager, DiffLayoutManager $diff_layout_manager, DiffEntityComparison $entity_comparison) {
+    $this->entityTypeManager = $entity_type_manager;
+    $this->currentUser = $current_user;
     $this->date = $date;
     $this->renderer = $renderer;
     $this->languageManager = $language_manager;
@@ -107,7 +108,7 @@ class RevisionOverviewForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager'),
       $container->get('current_user'),
       $container->get('date.formatter'),
       $container->get('renderer'),
@@ -133,7 +134,7 @@ class RevisionOverviewForm extends FormBase {
     $langname = $node->language()->getName();
     $languages = $node->getTranslationLanguages();
     $has_translations = (count($languages) > 1);
-    $node_storage = $this->entityManager->getStorage('node');
+    $node_storage = $this->entityTypeManager->getStorage('node');
     $type = $node->getType();
 
     $pagerLimit = $this->config->get('general_settings.revision_pager_limit');
@@ -203,7 +204,7 @@ class RevisionOverviewForm extends FormBase {
           $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
           // Use revision link to link to revisions that are not active.
           if ($vid != $node->getRevisionId()) {
-            $link = $this->l($revision_date, new Url('entity.node.revision', ['node' => $node->id(), 'node_revision' => $vid]));
+            $link = Link::fromTextAndUrl($revision_date, new Url('entity.node.revision', ['node' => $node->id(), 'node_revision' => $vid]))->toString();
           }
           else {
             $link = $node->link($revision_date);
