@@ -39,6 +39,22 @@ function diff_requirements($phase) {
 }
 
 /**
+ * Implements hook_install().
+ */
+function diff_install() {
+  $visual_inline = \Drupal::service('plugin.manager.diff.layout')->hasDefinition('visual_inline');
+  // Enable Visual Inline layout if library found.
+  if ($visual_inline) {
+    $config = \Drupal::configFactory()->getEditable('diff.settings');
+    $settings_enabled = $config->get('general_settings.layout_plugins.visual_inline.enabled');
+    if (!$settings_enabled) {
+      $config->set('general_settings.layout_plugins.visual_inline.enabled', TRUE);
+    }
+    $config->save();
+  }
+}
+
+/**
  * Delete stale field diff configuration. Please reconfigure diff plugins.
  */
 function diff_update_8001() {
