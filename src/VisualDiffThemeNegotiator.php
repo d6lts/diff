@@ -16,15 +16,15 @@ class VisualDiffThemeNegotiator extends AdminNegotiator {
    * {@inheritdoc}
    */
   public function applies(RouteMatchInterface $routeMatch) {
-    if($routeMatch->getParameter('filter') === 'visual_inline') {
-      if($this->isDiffRoute($routeMatch)) {
-        if($this->configFactory->get('diff.settings')->get('general_settings.visual_inline_theme') === 'standard') {
+    if ($routeMatch->getParameter('filter') === 'visual_inline') {
+      if ($this->isDiffRoute($routeMatch)) {
+        if ($this->configFactory->get('diff.settings')->get('general_settings.visual_inline_theme') === 'standard') {
           return TRUE;
         }
       }
     }
 
-    return;
+    return FALSE;
   }
 
   /**
