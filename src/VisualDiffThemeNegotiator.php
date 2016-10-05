@@ -15,15 +15,16 @@ class VisualDiffThemeNegotiator extends AdminNegotiator {
   /**
    * {@inheritdoc}
    */
-  public function applies(RouteMatchInterface $route_match) {
-    if ($route_match->getRouteName() === 'diff.revisions_diff') {
-      if ($route_match->getParameter('filter') === 'visual_inline') {
-        if ($this->configFactory->get('diff.settings')->get('general_settings.visual_inline_theme') === 'standard') {
+  public function applies(RouteMatchInterface $routeMatch) {
+    if($routeMatch->getParameter('filter') === 'visual_inline') {
+      if($this->isDiffRoute($routeMatch)) {
+        if($this->configFactory->get('diff.settings')->get('general_settings.visual_inline_theme') === 'standard') {
           return TRUE;
         }
       }
     }
-    return FALSE;
+
+    return;
   }
 
   /**
@@ -33,4 +34,18 @@ class VisualDiffThemeNegotiator extends AdminNegotiator {
     return $this->configFactory->get('system.theme')->get('default');
   }
 
+  /**
+   * Checks if route names for node or other entity are corresponding.
+   *
+   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   *   Route match object.
+   *
+   * @return bool
+   *   Return TRUE if route name is ok.
+   */
+  public function isDiffRoute(RouteMatchInterface $route_match) {
+    $regex_pattern = '/^entity\..*\.revisions_diff$/';
+    return $route_match->getRouteName() === 'diff.revisions_diff' ||
+      preg_match($regex_pattern, $route_match->getRouteName());
+  }
 }

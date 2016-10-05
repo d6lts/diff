@@ -75,6 +75,9 @@ class VisualDiffThemeNegotiatorTest extends UnitTestCase {
     // Mocking $route_match and relevant variable.
     $route_match = $this->prophesize(RouteMatchInterface::class);
     $route_match->getRouteName()->willReturn('diff.revisions_diff');
+    $this->assertTrue($theme->isDiffRoute($route_match->reveal()));
+    $route_match->getRouteName()->willReturn('entity.entity_type_id.revisions_diff');
+    $this->assertTrue($theme->isDiffRoute($route_match->reveal()));
     $route_match->getParameter('filter')->willReturn('visual_inline');
 
     $container = $this->prophesize(ContainerInterface::class);
