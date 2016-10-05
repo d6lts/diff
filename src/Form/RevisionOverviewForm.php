@@ -186,9 +186,7 @@ class RevisionOverviewForm extends FormBase {
     $build['node_revisions_table']['#attached']['library'][] = 'diff/diff.general';
     $build['node_revisions_table']['#attached']['drupalSettings']['diffRevisionRadios'] = $this->config->get('general_settings.radio_behavior');
 
-    $page = \Drupal::request()->query->get('page');
-    $latest_revision = empty($page);
-
+    $default_revision = $node->getRevisionId();
     // Add rows to the table.
     foreach ($vids as $key => $vid) {
       $previous_revision = NULL;
@@ -210,8 +208,7 @@ class RevisionOverviewForm extends FormBase {
             $link = $node->link($revision_date);
           }
 
-          // Default revision.
-          if ($latest_revision) {
+          if ($vid == $default_revision) {
             $row = [
               'revision' => $this->buildRevision($link, $username, $revision, $previous_revision),
             ];
@@ -231,7 +228,6 @@ class RevisionOverviewForm extends FormBase {
                 'class' => array('revision-current'),
               )
             );
-            $latest_revision = FALSE;
           }
           else {
             $route_params = array(
@@ -242,7 +238,7 @@ class RevisionOverviewForm extends FormBase {
             $links = array();
             if ($revert_permission) {
               $links['revert'] = [
-                'title' => $this->t('Revert'),
+                'title' => $vid < $node->getRevisionId() ? $this->t('Revert') : $this->t('Set as current revision'),
                 'url' => $has_translations ?
                   Url::fromRoute('node.revision_revert_translation_confirm', ['node' => $node->id(), 'node_revision' => $vid, 'langcode' => $langcode]) :
                   Url::fromRoute('node.revision_revert_confirm', ['node' => $node->id(), 'node_revision' => $vid]),

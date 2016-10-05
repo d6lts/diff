@@ -248,6 +248,27 @@ class DiffRevisionTest extends DiffTestBase {
     $rows = $this->xpath('//tbody/tr');
     $diff_row = $rows[3]->td;
     $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[3]->asXML())), 'newer body');
+
+    // Get the node, create a new revision that is not the current one.
+    $node = $this->getNodeByTitle('newer test title');
+    $node->setNewRevision(TRUE);
+    $node->isDefaultRevision(FALSE);
+    $node->save();
+    $this->drupalGet('node/' . $node->id() . '/revisions');
+
+    // Check that the last revision is not the current one.
+    $this->assertLink(t('Set as current revision'));
+    $text = $this->xpath('//tbody/tr[2]/td[4]/em');
+    $this->assertEqual($text[0], 'Current revision');
+
+    // Set the last revision as current.
+    $this->clickLink('Set as current revision');
+    $this->drupalPostForm(NULL, [], t('Revert'));
+
+    // Check the last revision is set as current.
+    $text = $this->xpath('//tbody/tr[1]/td[4]/em');
+    $this->assertEqual($text[0], 'Current revision');
+    $this->assertNoLink(t('Set as current revision'));
   }
 
   public function testOverviewPager() {
