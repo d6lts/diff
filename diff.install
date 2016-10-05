@@ -11,8 +11,9 @@ use Drupal\Core\Url;
  * Implements hook_requirements().
  */
 function diff_requirements($phase) {
+  $requirements = [];
+
   if ($phase == 'runtime') {
-    $requirements = [];
     $config = \Drupal::config('diff.settings');
     $setting_enabled = $config->get('general_settings.layout_plugins.visual_inline.enabled');
     $has_htmlDiffAdvanced = class_exists('\HtmlDiffAdvanced');
@@ -34,8 +35,9 @@ function diff_requirements($phase) {
         $requirements['html_diff_advanced']['description'] = t('Diff adds a visual rendered display, consult README.txt for installation instructions and enable it in <a href=":settings">settings</a>.', [':settings' => Url::fromRoute('diff.general_settings')->toString()]);
       }
     }
-    return $requirements;
   }
+
+  return $requirements;
 }
 
 /**
