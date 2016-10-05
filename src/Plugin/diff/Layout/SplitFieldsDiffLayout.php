@@ -97,7 +97,7 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
     $build['filter'] = [
       '#type' => 'item',
       '#title' => $this->t('Filter'),
-      '#weigth' => 2,
+      '#weight' => 3,
       '#prefix' => '<div class="diff-layout">',
       '#suffix' => '</div>',
     ];
@@ -209,6 +209,7 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
       '#type' => 'table',
       '#header' => $diff_header,
       '#rows' => $diff_rows,
+      '#weight' => 10,
       '#empty' => $this->t('No visible changes'),
       '#attributes' => [
         'class' => ['diff'],

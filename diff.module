@@ -78,9 +78,6 @@ function diff_help($route_name, RouteMatchInterface $route_match) {
       $output .= '</dl>';
       return $output;
 
-    case 'diff.revisions_diff':
-      return '<p>' . t('Comparing two revisions:') . '</p>';
-
     case 'diff.revision_overview':
       return '<p>' . t('Revisions allow you to track differences between multiple versions of your content, and revert to older versions.') . '</p>';
 

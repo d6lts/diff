@@ -2,17 +2,21 @@
 
 namespace Drupal\diff\Plugin\diff\Layout;
 
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Link;
 use Drupal\Core\PhpStorage\PhpStorageFactory;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Url;
 use Drupal\diff\Controller\PluginRevisionController;
 use Drupal\diff\DiffEntityComparison;
 use Drupal\diff\DiffEntityParser;
 use Drupal\diff\DiffLayoutBase;
+use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use HtmlDiffAdvancedInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -125,6 +129,20 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
    */
   public function build(EntityInterface $left_revision, EntityInterface $right_revision, EntityInterface $entity) {
     $this->entityTypeManager->getStorage($entity->getEntityTypeId())->resetCache([$entity->id()]);
+
+    // Show the revisions that are compared.
+    $build['diff_revisions'] = [
+      '#type' => 'item',
+      '#title' => $this->t('Comparing'),
+      'weight' => 0,
+    ];
+    $build['diff_revisions']['left_revision'] = $this->buildRevisionLinkVisualInline($left_revision);
+    $build['diff_revisions']['left_revision']['#prefix'] = '<div class="comparation-flex-container">';
+    $build['diff_revisions']['left_revision']['#suffix'] = '</div>';
+    $build['diff_revisions']['right_revision'] = $this->buildRevisionLinkVisualInline($right_revision);
+    $build['diff_revisions']['right_revision']['#prefix'] = '<div class="comparation-flex-container">';
+    $build['diff_revisions']['right_revision']['#suffix'] = '</div>';
+
     // Build the view modes filter.
     $options = [];
     // Get all view modes for entity type.
@@ -155,7 +173,7 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
     $build['view_mode'] = [
       '#type' => 'item',
       '#title' => $this->t('View mode'),
-      '#weigth' => 2,
+      '#weight' => 3,
       '#prefix' => '<div class="diff-layout">',
       '#suffix' => '</div>',
     ];
@@ -184,10 +202,74 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
     $this->htmlDiff->setNewHtml($html_2);
     $this->htmlDiff->build();
 
-    $build['diff'] = ['#markup' => $this->htmlDiff->getDifference()];
+    $build['diff'] = [
+      '#markup' => $this->htmlDiff->getDifference(),
+      '#weight' => 10,
+    ];
 
     $build['#attached']['library'][] = 'diff/diff.html_diff';
     return $build;
+  }
+
+  /**
+   * Build the revision link for visual inline layout.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $revision
+   *   A revision where to add a link.
+   *
+   * @return \Drupal\Core\GeneratedLink
+   *   Header link for a revision comparision.
+   */
+  protected function buildRevisionLinkVisualInline(EntityInterface $revision) {
+    $entity_type_id = $revision->getEntityTypeId();
+    if ($revision instanceof EntityRevisionLogInterface || $revision instanceof NodeInterface) {
+      $revision_log = '';
+
+      if ($revision instanceof EntityRevisionLogInterface) {
+        $revision_log = Xss::filter($revision->getRevisionLogMessage());
+      }
+      elseif ($revision instanceof NodeInterface) {
+        $revision_log = $revision->revision_log->value;
+      }
+      $user_id = $revision->getRevisionUserId();
+      $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
+
+      $revision_link['date'] = [
+        '#type' => 'link',
+        '#title' => $this->date->format($revision->getRevisionCreationTime(), 'short'),
+        '#url' => Url::fromRoute($route_name, [
+          $entity_type_id => $revision->id(),
+          $entity_type_id . '_revision' => $revision->getRevisionId(),
+        ]),
+        '#attributes' => [
+          'class' => ['comparation-flex-item-date'],
+        ],
+      ];
+
+      $revision_link['author'] = [
+        '#type' => 'link',
+        '#title' => $revision->getRevisionUser()->getDisplayName(),
+        '#url' => Url::fromUri(\Drupal::request()->getUriForPath('/user/' . $user_id)),
+        '#theme' => 'username',
+        '#account' => $revision->getRevisionUser(),
+        '#attributes' => [
+          'class' => ['comparation-flex-item-author'],
+        ],
+      ];
+
+      if ($revision_log) {
+        $revision_link['message'] = [
+          '#type' => 'markup',
+          '#prefix' => '<div class="comparation-flex-item-message">',
+          '#suffix' => '</div>',
+          '#markup' => $revision_log,
+        ];
+      }
+    }
+    else {
+      $revision_link = Link::fromTextAndUrl($revision->label(), $revision->toUrl('revision'))->toString();
+    }
+    return $revision_link;
   }
 
 }

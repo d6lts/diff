@@ -1,7 +1,38 @@
 del {
-    background-color: #fcc;
+  background-color: #fcc;
 }
 
 ins {
-    background-color: #cfc;
+  background-color: #cfc;
+}
+.comparation-flex-container {
+  display: flex;
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+}
+.comparation-flex-item-date {
+  flex-basis: auto;
+  min-width: 0;
+}
+.comparation-flex-item-author {
+  flex-basis: 30%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 15%;
+  padding: 0 1em 0 1em;
+  text-align: center;
+}
+.comparation-flex-item-message {
+  flex-basis: 35%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 15%;
+}
+@media screen and (min-width: 300px) and (max-width: 920px) {
+  .comparation-flex-container {
+    width: 80%;
+  }
 }
