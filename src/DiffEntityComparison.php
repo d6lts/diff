@@ -56,15 +56,15 @@ class DiffEntityComparison {
   /**
    * Constructs a DiffEntityComparison object.
    *
-   * @param ConfigFactory $config_factory
-   *   Diff formatter service.
-   * @param DiffFormatter $diff_formatter
-   *   Diff formatter service.
-   * @param PluginManagerInterface $plugin_manager
-   *   The Plugin manager service.
-   * @param DiffEntityParser $entity_parser
-   *   The diff field builder plugin manager.
-   * @param DiffBuilderManager $diff_builder_manager
+   * @param \Drupal\Core\Config\ConfigFactory $config_factory
+   *   The configuration factory.
+   * @param \Drupal\diff\DiffFormatter $diff_formatter
+   *   The diff formatter service.
+   * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
+   *   The plugin manager service.
+   * @param \Drupal\diff\DiffEntityParser $entity_parser
+   *   The entity parser.
+   * @param \Drupal\diff\DiffBuilderManager $diff_builder_manager
    *   The diff builder manager.
    */
   public function __construct(ConfigFactory $config_factory, DiffFormatter $diff_formatter, PluginManagerInterface $plugin_manager, DiffEntityParser $entity_parser, DiffBuilderManager $diff_builder_manager) {

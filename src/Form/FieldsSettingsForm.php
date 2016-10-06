@@ -4,6 +4,7 @@ namespace Drupal\diff\Form;
 
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\diff\DiffBuilderManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -32,7 +33,7 @@ class FieldsSettingsForm extends ConfigFormBase {
   /**
    * The entity field manager.
    *
-   * @var \Drupal\Core\Entity\EntityFieldManager
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
   protected $entityFieldManager;
 
@@ -51,17 +52,21 @@ class FieldsSettingsForm extends ConfigFormBase {
   protected $diffBuilderManager;
 
   /**
-   * FieldsSettingsForm constructor.
+   * Constructs a FieldsSettingsForm object.
    *
    * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
-   * @param \Drupal\Component\Plugin\PluginManagerInterface $diffBuilderManager
+   *   The plugin manager service.
+   * @param \Drupal\diff\DiffBuilderManager $diff_builder_manager
+   *   The diff builder manager.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
    */
-  public function __construct(PluginManagerInterface $plugin_manager, PluginManagerInterface $diffBuilderManager, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager) {
+  public function __construct(PluginManagerInterface $plugin_manager, DiffBuilderManager $diff_builder_manager, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager) {
     $this->config = $this->config('diff.plugins');
     $this->fieldTypePluginManager = $plugin_manager;
-    $this->diffBuilderManager = $diffBuilderManager;
+    $this->diffBuilderManager = $diff_builder_manager;
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
   }

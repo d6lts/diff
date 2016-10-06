@@ -18,14 +18,14 @@ class DiffPluginBase extends FieldPluginBase {
   use UncacheableFieldHandlerTrait;
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
   /**
-   * Constructs a new BulkForm object.
+   * Constructs a DiffPluginBase object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -34,7 +34,7 @@ class DiffPluginBase extends FieldPluginBase {
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity manager.
+   *   The entity type manager.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);

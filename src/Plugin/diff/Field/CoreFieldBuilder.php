@@ -30,7 +30,7 @@ class CoreFieldBuilder extends FieldDiffBuilderBase {
   protected $renderer;
 
   /**
-   * Constructs a FieldDiffBuilderBase object.
+   * Constructs a CoreFieldBuilder object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.

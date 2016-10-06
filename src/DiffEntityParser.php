@@ -26,17 +26,17 @@ class DiffEntityParser {
   protected $pluginsConfig;
 
   /**
-   * Constructs an EntityComparisonBase object.
+   * Constructs a DiffEntityParser object.
    *
-   * @param DiffBuilderManager $diffBuilderManager
-   *   The diff field builder plugin manager.
-   * @param ConfigFactoryInterface $configFactory
+   * @param \Drupal\diff\DiffBuilderManager $diff_builder_manager
+   *   The diff builder manager.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration factory.
    */
-  public function __construct(DiffBuilderManager $diffBuilderManager, ConfigFactoryInterface $configFactory) {
-    $this->config = $configFactory->get('diff.settings');
-    $this->pluginsConfig =  $configFactory->get('diff.plugins');
-    $this->diffBuilderManager = $diffBuilderManager;
+  public function __construct(DiffBuilderManager $diff_builder_manager, ConfigFactoryInterface $config_factory) {
+    $this->config = $config_factory->get('diff.settings');
+    $this->pluginsConfig =  $config_factory->get('diff.plugins');
+    $this->diffBuilderManager = $diff_builder_manager;
   }
 
   /**

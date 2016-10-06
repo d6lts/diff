@@ -12,7 +12,7 @@ use Drupal\diff\DiffLayoutManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\diff\DiffEntityComparison;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Base class for controllers that return responses on entity revision routes.
@@ -26,6 +26,8 @@ class PluginRevisionController extends ControllerBase {
 
   /**
    * The diff entity comparison service.
+   *
+   * @var \Drupal\diff\DiffEntityComparison
    */
   protected $entityComparison;
 
@@ -37,27 +39,27 @@ class PluginRevisionController extends ControllerBase {
   protected $diffLayoutManager;
 
   /**
-   * The current Request object.
+   * The request stack.
    *
-   * @var \Symfony\Component\HttpFoundation\Request
+   * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $request;
+  protected $requestStack;
 
   /**
    * Constructs a PluginRevisionController object.
    *
-   * @param DiffEntityComparison $entity_comparison
-   *   DiffEntityComparison service.
-   * @param DiffLayoutManager $diff_layout_manager
-   *   DiffLayoutManager service.
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The current request.
+   * @param \Drupal\diff\DiffEntityComparison $entity_comparison
+   *   The diff entity comparison service.
+   * @param \Drupal\diff\DiffLayoutManager $diff_layout_manager
+   *   The diff layout service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
    */
-  public function __construct(DiffEntityComparison $entity_comparison, DiffLayoutManager $diff_layout_manager, Request $request) {
+  public function __construct(DiffEntityComparison $entity_comparison, DiffLayoutManager $diff_layout_manager, RequestStack $request_stack) {
     $this->config = $this->config('diff.settings');
     $this->diffLayoutManager = $diff_layout_manager;
     $this->entityComparison = $entity_comparison;
-    $this->request = $request;
+    $this->requestStack = $request_stack;
   }
 
   /**
@@ -67,7 +69,7 @@ class PluginRevisionController extends ControllerBase {
     return new static(
       $container->get('diff.entity_comparison'),
       $container->get('plugin.manager.diff.layout'),
-      $container->get('request_stack')->getCurrentRequest()
+      $container->get('request_stack')
     );
   }
 
@@ -218,7 +220,7 @@ class PluginRevisionController extends ControllerBase {
     $revisions_count = count($revision_ids);
     $layout_options = &drupal_static(__FUNCTION__);
     if (!isset($layout_options)) {
-      $layout_options = UrlHelper::filterQueryParameters($this->request->query->all(), ['page']);
+      $layout_options = UrlHelper::filterQueryParameters($this->requestStack->getCurrentRequest()->query->all(), ['page']);
     }
     // If there are only 2 revision return an empty row.
     if ($revisions_count == 2) {

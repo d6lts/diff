@@ -42,19 +42,19 @@ class DiffLayoutManager extends DefaultPluginManager {
    *   Cache backend instance to use.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
-   * @param EntityTypeManagerInterface $entity_type_manager
-   *   Entity Manager service.
-   * @param ConfigFactoryInterface $configFactory
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration factory.
    */
-  public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $configFactory) {
+  public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $config_factory) {
     parent::__construct('Plugin/diff/Layout', $namespaces, $module_handler, '\Drupal\diff\DiffLayoutInterface', 'Drupal\diff\Annotation\DiffLayoutBuilder');
 
     $this->setCacheBackend($cache_backend, 'diff_layout_builder_plugins');
     $this->alterInfo('diff_layout_builder_info');
     $this->entityTypeManager = $entity_type_manager;
-    $this->config = $configFactory->get('diff.settings');
-    $this->layoutPluginsConfig =  $configFactory->get('diff.layout_plugins');
+    $this->config = $config_factory->get('diff.settings');
+    $this->layoutPluginsConfig =  $config_factory->get('diff.layout_plugins');
   }
 
   /**

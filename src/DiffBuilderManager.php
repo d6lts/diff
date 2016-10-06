@@ -43,7 +43,7 @@ class DiffBuilderManager extends DefaultPluginManager {
   protected $pluginDefinitions;
 
   /**
-   * Constructs a FieldDiffBuilderManager object.
+   * Constructs a DiffBuilderManager object.
    *
    * @param \Traversable $namespaces
    *   An object that implements \Traversable which contains the root paths
@@ -52,19 +52,19 @@ class DiffBuilderManager extends DefaultPluginManager {
    *   Cache backend instance to use.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
-   * @param EntityTypeManagerInterface $entity_type_manager
-   *   Entity Manager service.
-   * @param ConfigFactoryInterface $configFactory
-   *   The configuration factory.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
    */
-  public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $configFactory) {
+  public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $config_factory) {
     parent::__construct('Plugin/diff/Field', $namespaces, $module_handler, '\Drupal\diff\FieldDiffBuilderInterface', 'Drupal\diff\Annotation\FieldDiffBuilder');
 
     $this->setCacheBackend($cache_backend, 'field_diff_builder_plugins');
     $this->alterInfo('field_diff_builder_info');
     $this->entityTypeManager = $entity_type_manager;
-    $this->config = $configFactory->get('diff.settings');
-    $this->pluginsConfig =  $configFactory->get('diff.plugins');
+    $this->config = $config_factory->get('diff.settings');
+    $this->pluginsConfig =  $config_factory->get('diff.plugins');
 
   }
 

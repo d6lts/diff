@@ -30,6 +30,8 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
 
   /**
    * The diff entity comparison service.
+   *
+   * @var \Drupal\diff\DiffEntityComparison
    */
   protected $entityComparison;
 
@@ -41,7 +43,7 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
   protected $requestStack;
 
   /**
-   * Constructs a FieldDiffBuilderBase object.
+   * Constructs a UnifiedFieldsDiffLayout object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.

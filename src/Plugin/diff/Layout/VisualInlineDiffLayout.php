@@ -38,6 +38,8 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
 
   /**
    * The diff entity comparison service.
+   *
+   * @var \Drupal\diff\DiffEntityComparison
    */
   protected $entityComparison;
 
@@ -63,7 +65,7 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
   protected $entityDisplayRepository;
 
   /**
-   * Constructs a FieldDiffBuilderBase object.
+   * Constructs a VisualInlineDiffLayout object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.

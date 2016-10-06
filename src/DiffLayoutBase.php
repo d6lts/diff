@@ -51,7 +51,7 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
   protected $date;
 
   /**
-   * Constructs a FieldDiffBuilderBase object.
+   * Constructs a DiffLayoutBase object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
