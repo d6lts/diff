@@ -207,7 +207,7 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
       '#weight' => 10,
     ];
 
-    $build['#attached']['library'][] = 'diff/diff.html_diff';
+    $build['#attached']['library'][] = 'diff/diff.visual_inline';
     return $build;
   }
 

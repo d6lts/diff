@@ -24,8 +24,8 @@ diff.colors:
     theme:
       css/diff.colors.css: {}
 
-diff.html_diff:
+diff.visual_inline:
   version: VERSION
   css:
     base:
-      css/diff_html.css: {}
+      css/diff.visual-inline.css: {}
