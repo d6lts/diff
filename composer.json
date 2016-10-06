@@ -39,8 +39,5 @@
   "support": {
     "issues": "https://www.drupal.org/project/issues/diff",
     "source": "http://cgit.drupalcode.org/diff"
-  },
-  "require": {
-    "drupal/entity": "8.*"
   }
 }
