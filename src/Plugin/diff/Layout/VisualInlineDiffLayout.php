@@ -136,7 +136,7 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
     $build['diff_revisions'] = [
       '#type' => 'item',
       '#title' => $this->t('Comparing'),
-      'weight' => 0,
+      '#weight' => 0,
     ];
     $build['diff_revisions']['left_revision'] = $this->buildRevisionLinkVisualInline($left_revision);
     $build['diff_revisions']['left_revision']['#prefix'] = '<div class="comparation-flex-container">';
