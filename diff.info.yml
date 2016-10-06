@@ -3,5 +3,3 @@ type: module
 description: Shows differences between content revisions.
 core: 8.x
 configure: diff.general_settings
-test_dependencies:
-  - entity

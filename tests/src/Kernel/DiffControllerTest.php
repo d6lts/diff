@@ -24,7 +24,7 @@ class DiffControllerTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['diff', 'entity_test', 'diff_test', 'entity', 'system', 'user'];
+  public static $modules = ['diff', 'entity_test', 'diff_test', 'system', 'user'];
 
   /**
    * {@inheritdoc}
