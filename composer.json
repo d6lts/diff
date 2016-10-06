@@ -3,12 +3,6 @@
   "description": "Compares two entity revisions",
   "type": "drupal-module",
   "license": "GPL-2.0+",
-  "support": {
-    "issues": "https://www.drupal.org/project/issues/diff"
-  },
-  "require":{
-    "mkalkbrenner/php-htmldiff-advanced": "~0.0.8"
-  },
   "authors": [
     {
       "name": "Miro Dietiker (miro_dietiker)",
@@ -39,5 +33,8 @@
   "support": {
     "issues": "https://www.drupal.org/project/issues/diff",
     "source": "http://cgit.drupalcode.org/diff"
+  },
+  "require":{
+    "mkalkbrenner/php-htmldiff-advanced": "~0.0.8"
   }
 }
