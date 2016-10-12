@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @DiffLayoutBuilder(
  *   id = "split_fields",
  *   label = @Translation("Split fields"),
+ *   description = @Translation("Field based layout, revision comparison is made side by side."),
  * )
  */
 class SplitFieldsDiffLayout extends DiffLayoutBase {

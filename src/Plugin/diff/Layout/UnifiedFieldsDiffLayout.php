@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @DiffLayoutBuilder(
  *   id = "unified_fields",
  *   label = @Translation("Unified fields"),
+ *   description = @Translation("Field based layout, revision comparison is made line by line."),
  * )
  */
 class UnifiedFieldsDiffLayout extends DiffLayoutBase {

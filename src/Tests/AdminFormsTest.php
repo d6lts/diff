@@ -18,7 +18,10 @@ class AdminFormsTest extends DiffTestBase {
    *
    * @var array
    */
-  public static $modules = ['field_ui'];
+  public static $modules = [
+    'field_ui',
+    'help',
+  ];
 
   /**
    * {@inheritdoc}
@@ -27,6 +30,30 @@ class AdminFormsTest extends DiffTestBase {
     parent::setUp();
 
     $this->drupalLogin($this->rootUser);
+  }
+
+  /**
+   * Tests the descriptions in the Settings UI.
+   */
+  public function testSettingsUI() {
+    // Enable the help block.
+    $this->drupalPlaceBlock('help_block', ['region' => 'help']);
+
+    // Create a user with administer permissions.
+    $permissions = [
+      'administer site configuration',
+      'access administration pages',
+      'administer blocks',
+    ];
+    $admin_user = $this->drupalCreateUser($permissions);
+    $this->drupalLogin($admin_user);
+
+    $this->drupalGet('admin/config/content/diff/general');
+    // Check the settings introduction text.
+    $this->assertText('Configurations for the revision comparison functionality and diff layout plugins.');
+    // Check the layout plugins descriptions.
+    $this->assertText('Field based layout, revision comparison is made side by side.');
+    $this->assertText('Field based layout, revision comparison is made line by line.');
   }
 
   /**

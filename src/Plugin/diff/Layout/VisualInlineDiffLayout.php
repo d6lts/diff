@@ -25,6 +25,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @DiffLayoutBuilder(
  *   id = "visual_inline",
  *   label = @Translation("Visual Inline"),
+ *   description = @Translation("Visual layout, revision comparison is made as the content is rendered for the user."),
  * )
  */
 class VisualInlineDiffLayout extends DiffLayoutBase {
