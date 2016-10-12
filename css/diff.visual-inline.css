@@ -12,24 +12,21 @@ ins {
   justify-content: flex-start;
 }
 .comparation-flex-item-date {
-  flex-basis: auto;
-  min-width: 0;
+  flex-basis: 20%;
+  padding: 0 1em 0 0;
 }
 .comparation-flex-item-author {
-  flex-basis: 30%;
+  flex-basis: 25%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 15%;
   padding: 0 1em 0 1em;
-  text-align: center;
 }
 .comparation-flex-item-message {
   flex-basis: 35%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 15%;
 }
 @media screen and (min-width: 300px) and (max-width: 920px) {
   .comparation-flex-container {

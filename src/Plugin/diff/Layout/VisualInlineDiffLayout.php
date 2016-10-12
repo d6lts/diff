@@ -243,9 +243,8 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
           $entity_type_id => $revision->id(),
           $entity_type_id . '_revision' => $revision->getRevisionId(),
         ]),
-        '#attributes' => [
-          'class' => ['comparation-flex-item-date'],
-        ],
+        '#prefix' => '<div class="comparation-flex-item-date">',
+        '#suffix' => '</div>',
       ];
 
       $revision_link['author'] = [
@@ -254,9 +253,8 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
         '#url' => Url::fromUri(\Drupal::request()->getUriForPath('/user/' . $user_id)),
         '#theme' => 'username',
         '#account' => $revision->getRevisionUser(),
-        '#attributes' => [
-          'class' => ['comparation-flex-item-author'],
-        ],
+        '#prefix' => '<div class="comparation-flex-item-author">',
+        '#suffix' => '</div>',
       ];
 
       if ($revision_log) {
