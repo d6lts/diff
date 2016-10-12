@@ -133,3 +133,12 @@ function diff_update_8007() {
   $config->set('general_settings.visual_inline_theme', 'standard');
   $config->save();
 }
+
+/**
+ * Update settings, renamed 'standard' to 'default'.
+ */
+function diff_update_8008() {
+  $config = \Drupal::configFactory()->getEditable('diff.settings');
+  $config->set('general_settings.visual_inline_theme', 'default');
+  $config->save();
+}

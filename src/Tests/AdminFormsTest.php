@@ -52,8 +52,8 @@ class AdminFormsTest extends DiffTestBase {
     // Check the settings introduction text.
     $this->assertText('Configurations for the revision comparison functionality and diff layout plugins.');
     // Check the layout plugins descriptions.
-    $this->assertText('Field based layout, revision comparison is made side by side.');
-    $this->assertText('Field based layout, revision comparison is made line by line.');
+    $this->assertText('Field based layout, displays revision comparison side by side.');
+    $this->assertText('Field based layout, displays revision comparison line by line.');
   }
 
   /**

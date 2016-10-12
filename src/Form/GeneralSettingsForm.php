@@ -82,7 +82,6 @@ class GeneralSettingsForm extends ConfigFormBase {
       $weight++;
     }
 
-
     $form['layout_plugins'] = [
       '#type' => 'table',
       '#header' => [t('Layout'), t('Description'), t('Weight')],
@@ -143,15 +142,15 @@ class GeneralSettingsForm extends ConfigFormBase {
     $options = array_combine($context_lines, $context_lines);
     $form['field_based_settings']['context_lines_leading'] = array(
       '#type' => 'select',
-      '#title' => $this->t('Leading context lines'),
-      '#description' => $this->t('This governs the number of unchanged leading context "lines" to preserve.'),
+      '#title' => $this->t('Leading'),
+      '#description' => $this->t('This governs the number of unchanged <em>leading context "lines"</em> to preserve.'),
       '#default_value' => $config->get('general_settings' . '.' . 'context_lines_leading'),
       '#options' => $options,
     );
     $form['field_based_settings']['context_lines_trailing'] = array(
       '#type' => 'select',
-      '#title' => $this->t('Trailing context lines'),
-      '#description' => $this->t('This governs the number of unchanged trailing context "lines" to preserve.'),
+      '#title' => $this->t('Trailing'),
+      '#description' => $this->t('This governs the number of unchanged <em>trailing context "lines"</em> to preserve.'),
       '#default_value' => $config->get('general_settings' . '.' . 'context_lines_trailing'),
       '#options' => $options,
     );
@@ -160,7 +159,7 @@ class GeneralSettingsForm extends ConfigFormBase {
     if ($this->diffLayoutManager->hasDefinition('visual_inline')) {
       $form['visual_inline_settings'] = [
         '#type' => 'details',
-        '#title' => $this->t('Visual inline layout settings'),
+        '#title' => $this->t('Visual layout settings'),
         '#open' => TRUE,
         '#states' => [
           'visible' => [
@@ -169,14 +168,20 @@ class GeneralSettingsForm extends ConfigFormBase {
         ],
       ];
 
+      // Get the theme data to display the related theme name.
+      $default_theme_name = $this->config('system.theme')->get('default');
+      $admin_theme_name = $this->config('system.theme')->get('admin');
       $form['visual_inline_settings']['visual_inline_theme'] = [
         '#type' => 'select',
         '#title' => $this->t('Theme'),
         '#options' => [
-          'standard' => $this->t('Standard'),
+          'default' => $this->t('Default'),
           'admin' => $this->t('Admin'),
         ],
-        '#description' => $this->t('Theme used for Visual inline layout when comparing revisions.'),
+        '#description' => $this->t('Use Default to display the comparison as %default theme, or Admin as %admin theme.', [
+          '%default' => $default_theme_name,
+          '%admin' => $admin_theme_name,
+        ]),
         '#default_value' => $config->get('general_settings')['visual_inline_theme'],
       ];
     }

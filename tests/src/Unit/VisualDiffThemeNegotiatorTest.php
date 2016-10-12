@@ -85,7 +85,7 @@ class VisualDiffThemeNegotiatorTest extends UnitTestCase {
     $diff_config = $this->prophesize(ImmutableConfig::class);
     $this->configFactory->get('diff.settings')
       ->willReturn($diff_config->reveal());
-    $diff_config->get('general_settings.visual_inline_theme')->willReturn('standard');
+    $diff_config->get('general_settings.visual_inline_theme')->willReturn('default');
     \Drupal::setContainer($container->reveal());
 
     // Check if applies function returns true.

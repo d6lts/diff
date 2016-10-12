@@ -85,7 +85,7 @@ function diff_help($route_name, RouteMatchInterface $route_match) {
       return '<p>' . t('Revisions allow you to track differences between multiple versions of your content, and revert to older versions.') . '</p>';
 
     case 'diff.fields_list':
-      return '<p>' . t('This table provides a summary of the field support found on the system. For every field a diff plugin can be selected and configured. This settings are applied to Unified and Split fields layouts.') . '</p>';
+      return '<p>' . t('This table provides a summary of the field support found on the system. For every field, a diff plugin can be selected and configured. These settings are applied to Unified and Split fields layouts.') . '</p>';
   }
 }
 

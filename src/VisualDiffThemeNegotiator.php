@@ -18,7 +18,7 @@ class VisualDiffThemeNegotiator extends AdminNegotiator {
   public function applies(RouteMatchInterface $routeMatch) {
     if ($routeMatch->getParameter('filter') === 'visual_inline') {
       if ($this->isDiffRoute($routeMatch)) {
-        if ($this->configFactory->get('diff.settings')->get('general_settings.visual_inline_theme') === 'standard') {
+        if ($this->configFactory->get('diff.settings')->get('general_settings.visual_inline_theme') === 'default') {
           return TRUE;
         }
       }
