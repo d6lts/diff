@@ -268,15 +268,57 @@ class DiffEntityComparison {
    *   The revision log message.
    */
   public function getRevisionDescription(ContentEntityInterface $revision, ContentEntityInterface $previous_revision = NULL) {
+    $auto_generated = FALSE;
+    $revision_summary = [];
+    // Check if the revision has a revision log message.
     if ($revision instanceof RevisionLogInterface) {
       $revision_summary = Xss::filter($revision->getRevisionLogMessage());
       if ($revision_summary == '') {
-        $revision_summary = $this->summary($revision, $previous_revision);
+        $auto_generated = TRUE;
+        $revision_summary = [];
       }
     }
-    else {
-      $revision_summary = $this->summary($revision, $previous_revision);
+    else{
+      $auto_generated = TRUE;
     }
+    // Auto generate the revision log.
+    if ($auto_generated) {
+      // If there is a previous revision, load values of both revisions, loop
+      // over the current revision fields.
+      if ($previous_revision) {
+        $left_values = $this->summary($previous_revision);
+        $right_values = $this->summary($revision);
+        foreach ($right_values as $key => $value) {
+          // Unset left values after comparing. Add right value label to the
+          // summary if it is changed or new.
+          if (isset($left_values[$key])) {
+            if ($value != $left_values[$key]) {
+              $revision_summary[] = $value['label'];
+            }
+            unset($left_values[$key]);
+          }
+          else {
+            $revision_summary[] = $value['label'];
+          }
+        }
+        // Add the remaining left values if not present in the right entity.
+        foreach ($left_values as $key => $value) {
+          if (!isset($right_values[$key])) {
+            $revision_summary[] = $value['label'];
+          }
+        }
+        if (count($revision_summary) > 0) {
+          $revision_summary = 'Changes on: ' . implode(', ', $revision_summary);
+        }
+        else {
+          $revision_summary = 'No changes.';
+        }
+      }
+      else {
+        $revision_summary = 'Initial revision.';
+      }
+    }
+
     return $revision_summary;
   }
 
@@ -285,31 +327,39 @@ class DiffEntityComparison {
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $revision
    *   The current revision.
-   * @param \Drupal\Core\Entity\ContentEntityInterface $previous_revision
-   *   (optional) The previous revision. Defaults to NULL.
    *
    * @return string
    *   The revision log message.
    */
-  protected function summary(ContentEntityInterface $revision, ContentEntityInterface $previous_revision = NULL) {
-    $summary = [];
-    if ($previous_revision) {
-      foreach ($previous_revision as $key => $value) {
-        if ($previous_revision->get($key)
-            ->getValue() != $revision->get($key)->getValue()
-          && $this->diffBuilderManager->getSelectedPluginForFieldDefinition($value->getFieldDefinition())
-        ) {
-          $summary[] = $value->getFieldDefinition()->getLabel();
-        }
-      }
-    }
-    if (count($summary) > 0) {
-      $summary = 'Changes on: ' . implode(', ', $summary);
-    }
-    else {
-      $summary = 'No changes.';
-    }
-    return $summary;
-  }
+   protected function summary(ContentEntityInterface $revision) {
+     $result = [];
+     $entity_type_id = $revision->getEntityTypeId();
+     // Loop through entity fields and transform every FieldItemList object
+     // into an array of strings according to field type specific settings.
+     foreach ($revision as $field_items) {
+       // Create a plugin instance for the field definition.
+       $plugin = $this->diffBuilderManager->createInstanceForFieldDefinition($field_items->getFieldDefinition());
+       if ($plugin) {
+         // Create the array with the fields of the entity. Recursive if the
+         // field contains entities.
+         if ($plugin instanceof FieldReferenceInterface) {
+           foreach ($plugin->getEntitiesToDiff($field_items) as $entity_key => $reference_entity) {
+             foreach($this->summary($reference_entity) as $key => $build) {
+               $result[$key] = $build;
+               $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel() . ' > ' . $result[$key]['label'];
+             };
+           }
+         }
+         else {
+           // Create a unique flat key.
+           $key = $revision->id() . ':' . $entity_type_id . '.' . $field_items->getName();
 
+           $result[$key] = $field_items->getValue();
+           $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel();
+         }
+       }
+     }
+
+     return $result;
+   }
 }

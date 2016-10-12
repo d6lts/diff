@@ -73,7 +73,7 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertEqual(count($rows), 2);
     // Assert the revision summary.
     $this->assertUniqueText('Revision 2 comment');
-    $this->assertText('No changes.');
+    $this->assertText('Initial revision.');
 
     // Compare the revisions in standard mode.
     $this->drupalPostForm(NULL, NULL, t('Compare'));
