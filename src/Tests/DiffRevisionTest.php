@@ -44,7 +44,6 @@ class DiffRevisionTest extends DiffTestBase {
       'body[0][value]' => '<p>Revision 1</p>
       <p>first_unique_text</p>
       <p>second_unique_text</p>',
-      'revision' => TRUE,
     );
     $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
     $node = $this->drupalGetNodeByTitle($title);
@@ -331,7 +330,6 @@ class DiffRevisionTest extends DiffTestBase {
     $edit = [
       'title[0][value]' => $title,
       'body[0][value]' => '<p>Revision 1</p>',
-      'revision' => TRUE,
     ];
     $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
     $node = $this->drupalGetNodeByTitle($title);
