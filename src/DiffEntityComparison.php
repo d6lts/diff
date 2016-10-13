@@ -269,13 +269,13 @@ class DiffEntityComparison {
    */
   public function getRevisionDescription(ContentEntityInterface $revision, ContentEntityInterface $previous_revision = NULL) {
     $auto_generated = FALSE;
-    $revision_summary = [];
+    $summary_elements = [];
+    $revision_summary = '';
     // Check if the revision has a revision log message.
     if ($revision instanceof RevisionLogInterface) {
       $revision_summary = Xss::filter($revision->getRevisionLogMessage());
       if ($revision_summary == '') {
         $auto_generated = TRUE;
-        $revision_summary = [];
       }
     }
     else{
@@ -293,22 +293,22 @@ class DiffEntityComparison {
           // summary if it is changed or new.
           if (isset($left_values[$key])) {
             if ($value != $left_values[$key]) {
-              $revision_summary[] = $value['label'];
+              $summary_elements[] = $value['label'];
             }
             unset($left_values[$key]);
           }
           else {
-            $revision_summary[] = $value['label'];
+            $summary_elements[] = $value['label'];
           }
         }
         // Add the remaining left values if not present in the right entity.
         foreach ($left_values as $key => $value) {
           if (!isset($right_values[$key])) {
-            $revision_summary[] = $value['label'];
+            $summary_elements[] = $value['label'];
           }
         }
-        if (count($revision_summary) > 0) {
-          $revision_summary = 'Changes on: ' . implode(', ', $revision_summary);
+        if (count($summary_elements) > 0) {
+          $revision_summary = 'Changes on: ' . implode(', ', $summary_elements);
         }
         else {
           $revision_summary = 'No changes.';
@@ -328,8 +328,8 @@ class DiffEntityComparison {
    * @param \Drupal\Core\Entity\ContentEntityInterface $revision
    *   The current revision.
    *
-   * @return string
-   *   The revision log message.
+   * @return array
+   *   Array of the revision fields with their value and label.
    */
    protected function summary(ContentEntityInterface $revision) {
      $result = [];
