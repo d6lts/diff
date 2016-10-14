@@ -153,12 +153,7 @@ class DiffBuilderManager extends DefaultPluginManager {
       // If entity is set load its form display settings.
       if ($bundle) {
         $storage = $this->entityTypeManager->getStorage('entity_form_display');
-        $view_mode = $this->config->get('content_type_settings.' . $bundle . '.view_mode');
-        // If no view mode is selected use the default view mode.
-        if ($view_mode == NULL) {
-          $view_mode = 'default';
-        }
-        if ($display = $storage->load($field_definition->getTargetEntityTypeId() . '.' . $bundle . '.' . $view_mode)) {
+        if ($display = $storage->load($field_definition->getTargetEntityTypeId() . '.' . $bundle . '.default')) {
           $visible = (bool) $display->getComponent($field_definition->getName());
         }
       }

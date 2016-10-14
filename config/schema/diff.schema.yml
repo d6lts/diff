@@ -43,16 +43,6 @@ diff.settings:
           sequence:
             - type: integer
               label: 'Compare base field'
-    content_type_settings:
-      type: sequence
-      label: 'Content type settings'
-      sequence:
-        type: mapping
-        label: 'Content type'
-        mapping:
-          view_mode:
-            type: string
-            label: 'View mode'
 
 diff.plugins:
   type: config_object

@@ -142,3 +142,12 @@ function diff_update_8008() {
   $config->set('general_settings.visual_inline_theme', 'default');
   $config->save();
 }
+
+/**
+ * Remove content type settings.
+ */
+ function diff_update_8009() {
+   $config = \Drupal::configFactory()->getEditable('diff.settings');
+   $config->clear('content_type_settings');
+   $config->save();
+}

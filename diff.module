@@ -8,57 +8,6 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Implements hook_form_BASE_FORM_ID_alter().
- */
-function diff_form_node_type_edit_form_alter(&$form, FormStateInterface $form_state) {
-  // @todo Follow this issue: https://www.drupal.org/node/1728788.
-  $type = $form_state->getFormObject()->getEntity();
-  if ($type->id()) {
-    $config = \Drupal::configFactory()->get('diff.settings');
-
-    $form['diff'] = array(
-      '#title' => t('Compare revisions'),
-      '#type' => 'details',
-      '#group' => 'additional_settings',
-      '#tree' => FALSE,
-    );
-
-    $options = array();
-    // Get all view modes for node entity type.
-    /* @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_service */
-    $entity_display_service = \Drupal::service('entity_display.repository');
-    $node_view_modes = $entity_display_service->getViewModes('node');
-    foreach ($node_view_modes as $view_mode => $view_mode_info) {
-      $options[$view_mode] = $view_mode_info['label'];
-    }
-
-    $form['diff']['view_mode'] = array(
-      '#type' => 'select',
-      '#title' => t('View mode to use to compare revisions'),
-      '#description' => t('This view mode will be used to compare revisions. You can select which fields should be shown at the Manage display tab.'),
-      '#options' => $options,
-      '#weight' => 13,
-      '#default_value' => $config->get('content_type_settings.' . $type->id() . '.view_mode'),
-      '#empty_value' => '',
-    );
-
-    $form['actions']['submit']['#submit'][] = 'diff_form_node_type_form_submit';
-  }
-}
-
-/**
- * Submit handler for forms with menu options.
- *
- * @see diff_form_node_type_edit_form_alter().
- */
-function diff_form_node_type_form_submit(&$form, $form_state) {
-  $type = $form_state->getFormObject()->getEntity();
-  \Drupal::configFactory()->getEditable('diff.settings')
-    ->set('content_type_settings.' . $type->id() . '.view_mode', $form_state->getValue('view_mode'))
-    ->save();
-}
-
-/**
  * Implements hook_help().
  */
 function diff_help($route_name, RouteMatchInterface $route_match) {

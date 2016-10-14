@@ -99,17 +99,6 @@ class AdminFormsTest extends DiffTestBase {
   /**
    * Tests the Compare Revisions vertical tab.
    */
-  public function testCompareRevisionsTab() {
-    $edit = [
-      'view_mode' => 'full',
-    ];
-    $this->drupalPostForm('admin/structure/types/manage/article', $edit, t('Save content type'));
-    $this->assertText('The content type Article has been updated.');
-  }
-
-  /**
-   * Tests the Compare Revisions vertical tab.
-   */
   public function testPluginWeight() {
     // Create a node with a revision.
     $edit = [
