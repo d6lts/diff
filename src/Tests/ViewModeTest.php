@@ -25,24 +25,6 @@ class ViewModeTest extends DiffTestBase {
    */
   public function testViewMode() {
     $this->drupalLogin($this->rootUser);
-    // Set the Article content type to use the diff view mode.
-    $edit = [
-      'view_mode' => 'diff',
-    ];
-    $this->drupalPostForm('admin/structure/types/manage/article', $edit, t('Save content type'));
-    $this->assertText('The content type Article has been updated.');
-
-    // Specialize the 'diff' view mode, check that the field is displayed the same.
-    $edit = array(
-      "display_modes_custom[diff]" => TRUE,
-    );
-    $this->drupalPostForm('admin/structure/types/manage/article/display', $edit, t('Save'));
-
-    // Set the Body field to hidden in the diff view mode.
-    $edit = array(
-      'fields[body][type]' => 'hidden',
-    );
-    $this->drupalPostForm('admin/structure/types/manage/article/display/diff', $edit, t('Save'));
 
     // Create a node.
     $node = $this->drupalCreateNode([
@@ -60,9 +42,15 @@ class ViewModeTest extends DiffTestBase {
     );
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
+    // Set the Body field to hidden in the diff view mode.
+    $edit = [
+      'fields[body][type]' => 'hidden',
+    ];
+    $this->drupalPostForm('admin/structure/types/manage/article/form-display', $edit, t('Save'));
+
     // Check the difference between the last two revisions.
-    $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->drupalGet('node/' . $node->id() . '/revisions');
+    $this->drupalPostForm(NULL, [], t('Compare'));
     $this->assertNoText('Body');
     $this->assertNoText('Foo');
     $this->assertNoText('Fighters');

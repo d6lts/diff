@@ -4,6 +4,7 @@ namespace Drupal\diff;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -88,7 +89,8 @@ class DiffBuilderManager extends DefaultPluginManager {
       // Do not display the field, if it is the bundle or revision field of the
       // entity.
       $entity_type = $this->entityTypeManager->getDefinition($field_storage_definition->getTargetEntityTypeId());
-      if (in_array($field_storage_definition->getName(), [$entity_type->getKey('bundle'), $entity_type->getKey('revision')])) {
+      // @todo Don't hard code fields after: https://www.drupal.org/node/2248983
+      if (in_array($field_storage_definition->getName(), ['revision_log', 'revision_uid' , $entity_type->getKey('bundle'), $entity_type->getKey('revision')])) {
         $show_diff = FALSE;
       }
     }
@@ -102,13 +104,16 @@ class DiffBuilderManager extends DefaultPluginManager {
    *
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    *   The field definition.
+   * @param string $bundle
+   *   (optional) The entity bundle where to check form display when selecting
+   *   the plugin for a field.
    *
    * @return object
    *   The plugin instance, NULL if none.
    */
-  public function createInstanceForFieldDefinition(FieldDefinitionInterface $field_definition) {
+  public function createInstanceForFieldDefinition(FieldDefinitionInterface $field_definition, $bundle = NULL) {
     $plugin = NULL;
-    $selected_plugin = $this->getSelectedPluginForFieldDefinition($field_definition);
+    $selected_plugin = $this->getSelectedPluginForFieldDefinition($field_definition, $bundle);
     if ($selected_plugin && $selected_plugin['type'] != 'hidden') {
       if (!empty($selected_plugin['settings'])) {
         $plugin = $this->createInstance($selected_plugin['type'], $selected_plugin['settings']);
@@ -128,31 +133,38 @@ class DiffBuilderManager extends DefaultPluginManager {
    *
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    *   The field definition.
+   * @param string $bundle
+   *   (optional) The entity bundle where to check the form display if no
+   *   setting is set for a field.
    *
    * @return array
    *   The plugin instance, NULL if none.
    */
-  public function getSelectedPluginForFieldDefinition(FieldDefinitionInterface $field_definition) {
+  public function getSelectedPluginForFieldDefinition(FieldDefinitionInterface $field_definition, $bundle = NULL) {
     $selected_plugin = NULL;
     $visible = TRUE;
-    $storage = $this->entityTypeManager->getStorage('entity_view_display');
-    if ($target_bundle = $field_definition->getTargetBundle()) {
-      $view_mode = $this->config->get('content_type_settings.' . $target_bundle . '.view_mode');
-      // If no view mode is selected use the default view mode.
-      if ($view_mode == NULL) {
-        $view_mode = 'default';
-      }
-      if ($display = $storage->load($field_definition->getTargetEntityTypeId() . '.' . $target_bundle . '.' . $view_mode)) {
-        $visible = (bool) $display->getComponent($field_definition->getName());
-      }
-    }
-    elseif ($field_definition instanceof BaseFieldDefinition) {
-      if (!$display = $field_definition->getDisplayOptions('view')) {
-        $visible = FALSE;
-      }
-    }
-    if ($visible) {
+    $field_key = $field_definition->getFieldStorageDefinition()->getTargetEntityTypeId() . '.' . $field_definition->getName();
+    // Do not check the entity form display if there are plugins settings stored
+    // for the current field.
+    if ($this->pluginsConfig->get('fields.' . $field_key)) {
       $selected_plugin = $this->getSelectedPluginForFieldStorageDefinition($field_definition->getFieldStorageDefinition());
+    }
+    else {
+      // If entity is set load its form display settings.
+      if ($bundle) {
+        $storage = $this->entityTypeManager->getStorage('entity_form_display');
+        $view_mode = $this->config->get('content_type_settings.' . $bundle . '.view_mode');
+        // If no view mode is selected use the default view mode.
+        if ($view_mode == NULL) {
+          $view_mode = 'default';
+        }
+        if ($display = $storage->load($field_definition->getTargetEntityTypeId() . '.' . $bundle . '.' . $view_mode)) {
+          $visible = (bool) $display->getComponent($field_definition->getName());
+        }
+      }
+      if ($visible) {
+        $selected_plugin = $this->getSelectedPluginForFieldStorageDefinition($field_definition->getFieldStorageDefinition());
+      }
     }
     return $selected_plugin;
   }
