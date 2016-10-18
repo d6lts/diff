@@ -20,3 +20,41 @@
   display: inline-table;
   padding: 0 1em 0 0;
 }
+.comparison-flex-container {
+  display: flex;
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  width: 100%;
+}
+.comparison-flex-item-date {
+  flex-basis: 20%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 1em 0 0;
+}
+.comparison-flex-item-author {
+  flex-basis: 20%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 1em 0 0;
+}
+.comparison-flex-item-message {
+  flex-basis: 40%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media screen and (max-width: 780px) {
+  .comparison-flex-item-message {
+    flex-basis: 30%;
+  }
+  .comparison-flex-item-date {
+    flex-basis: 30%;
+  }
+  .comparison-flex-item-author {
+    flex-basis: 25%;
+  }
+}

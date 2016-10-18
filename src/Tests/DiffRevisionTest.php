@@ -92,9 +92,8 @@ class DiffRevisionTest extends DiffTestBase {
     $rows = $this->xpath('//tbody/tr');
     $head = $this->xpath('//thead/tr');
     $diff_row = $rows[1]->td;
-    $comment = $head[0]->th[1];
     // Assert the revision comment.
-    $this->assertEqual((string) $comment, 'Revision 2 comment');
+    $this->assertRaw('comparison-flex-item-message">Revision 2 comment');
     // Assert changes made to the body, text 1 changed to 2.
     $this->assertEqual((string) ($diff_row[0]), '1');
     $this->assertEqual((string) ($diff_row[1]), '-');

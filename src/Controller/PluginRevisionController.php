@@ -228,7 +228,7 @@ class PluginRevisionController extends ControllerBase {
     }
     else {
       $left_link = $right_link = '';
-      $element['diff_navigation'] = [
+      $element = [
         '#type' => 'item',
         '#title' => $this->t('Navigation'),
         '#weight' => 1,
@@ -242,7 +242,7 @@ class PluginRevisionController extends ControllerBase {
         // build the left link.
         $left_link = Link::fromTextAndUrl($this->t('< Previous change'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter, $layout_options))->toString();
       }
-      $element['diff_navigation']['left'] = [
+      $element['left'] = [
         '#type' => 'markup',
         '#markup' => $left_link,
         '#prefix' => '<span class="navigation-link">',
@@ -257,7 +257,7 @@ class PluginRevisionController extends ControllerBase {
         // Build the right link.
         $right_link = Link::fromTextAndUrl($this->t('Next change >'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i], $filter, $layout_options))->toString();
       }
-      $element['diff_navigation']['right'] = [
+      $element['right'] = [
         '#type' => 'markup',
         '#markup' => $right_link,
         '#prefix' => '<span class="navigation-link">',

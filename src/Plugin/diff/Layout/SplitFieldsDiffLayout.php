@@ -96,6 +96,9 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
    * {@inheritdoc}
    */
   public function build(EntityInterface $left_revision, EntityInterface $right_revision, EntityInterface $entity) {
+    // Build the revisions data.
+    $build = $this->buildRevisionsData($left_revision, $right_revision);
+
     $active_filter = $this->requestStack->getCurrentRequest()->query->get('filter') ?: 'raw';
     $build['filter'] = [
       '#type' => 'item',
