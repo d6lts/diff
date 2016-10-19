@@ -139,12 +139,12 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
       '#suffix' => '</div>',
     ];
 
-    $build['diff_revisions']['left_revision'] = $this->buildRevisionData($left_revision);
-    $build['diff_revisions']['left_revision']['#prefix'] = '<div class="comparison-flex-container">';
-    $build['diff_revisions']['left_revision']['#suffix'] = '</div>';
     $build['diff_revisions']['right_revision'] = $this->buildRevisionData($right_revision);
     $build['diff_revisions']['right_revision']['#prefix'] = '<div class="comparison-flex-container">';
     $build['diff_revisions']['right_revision']['#suffix'] = '</div>';
+    $build['diff_revisions']['left_revision'] = $this->buildRevisionData($left_revision);
+    $build['diff_revisions']['left_revision']['#prefix'] = '<div class="comparison-flex-container">';
+    $build['diff_revisions']['left_revision']['#suffix'] = '</div>';
 
     return $build;
   }

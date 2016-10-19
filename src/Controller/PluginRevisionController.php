@@ -249,6 +249,7 @@ class PluginRevisionController extends ControllerBase {
         '#markup' => $left_link,
         '#prefix' => '<span class="navigation-link">',
         '#suffix' => '</span>',
+        '#weight' => 1,
       ];
       // Find the next revision.
       $i = 0;
@@ -264,6 +265,7 @@ class PluginRevisionController extends ControllerBase {
         '#markup' => $right_link,
         '#prefix' => '<span class="navigation-link">',
         '#suffix' => '</span>',
+        '#weight' => 0,
       ];
       return $element;
     }

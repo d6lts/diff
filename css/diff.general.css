@@ -67,7 +67,7 @@
   }
   .navigation-link {
     text-align: left;
-    display: block;
+    display: inline-block;
     width: 100%;
   }
   .revisions-data div {
