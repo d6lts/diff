@@ -153,13 +153,13 @@ class DiffLocaleTest extends DiffTestBase {
     $this->assertEqual($diffs[1], 'english_revision_1');
 
     // Check next difference.
-    $this->clickLink('Next change >');
+    $this->clickLink('Next change');
     $diffs = $this->xpath('//span[@class="diffchange"]');
     $this->assertEqual($diffs[0], 'english_revision_1');
     $this->assertEqual($diffs[1], 'english_revision_2');
 
     // There shouldn't be other differences in the current language.
-    $this->assertNoLink('Next change >');
+    $this->assertNoLink('Next change');
   }
 
   /**
@@ -198,7 +198,7 @@ class DiffLocaleTest extends DiffTestBase {
     $this->assertEqual($diffs[1], 'undefined_language_revision_1');
 
     // Compare the next two revisions.
-    $this->clickLink('Next change >');
+    $this->clickLink('Next change');
     $diffs = $this->xpath('//span[@class="diffchange"]');
     $this->assertEqual($diffs[0], 'undefined_language_revision_1');
     $this->assertEqual($diffs[1], 'undefined_language_revision_2');

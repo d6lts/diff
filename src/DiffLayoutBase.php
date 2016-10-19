@@ -134,7 +134,9 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
     $build['diff_revisions'] = [
       '#type' => 'item',
       '#title' => $this->t('Comparing'),
-      '#weight' => 0,
+      '#weight' => 1,
+      '#prefix' => '<div class="revisions-data">',
+      '#suffix' => '</div>',
     ];
 
     $build['diff_revisions']['left_revision'] = $this->buildRevisionData($left_revision);

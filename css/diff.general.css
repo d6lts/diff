@@ -28,14 +28,14 @@
   width: 100%;
 }
 .comparison-flex-item-date {
-  flex-basis: 20%;
+  flex-basis: 25%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 0 1em 0 0;
 }
 .comparison-flex-item-author {
-  flex-basis: 20%;
+  flex-basis: 25%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -47,7 +47,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-@media screen and (max-width: 780px) {
+@media screen and (max-width: 920px) {
   .comparison-flex-item-message {
     flex-basis: 30%;
   }
@@ -55,6 +55,23 @@
     flex-basis: 30%;
   }
   .comparison-flex-item-author {
-    flex-basis: 25%;
+    flex-basis: 30%;
+  }
+}
+
+@media screen and (min-width: 920px) {
+  .navigation-links div {
+    float: left;
+    width: 25%;
+    display: block;
+  }
+  .navigation-link {
+    text-align: left;
+    display: block;
+    width: 100%;
+  }
+  .revisions-data div {
+    float: left;
+    width: 75%;
   }
 }

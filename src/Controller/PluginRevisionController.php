@@ -231,7 +231,9 @@ class PluginRevisionController extends ControllerBase {
       $element = [
         '#type' => 'item',
         '#title' => $this->t('Navigation'),
-        '#weight' => 1,
+        '#weight' => 0,
+        '#prefix' => '<div class="navigation-links">',
+        '#suffix' => '</div>',
       ];
       $i = 0;
       // Find the previous revision.
@@ -240,7 +242,7 @@ class PluginRevisionController extends ControllerBase {
       }
       if ($i != 0) {
         // build the left link.
-        $left_link = Link::fromTextAndUrl($this->t('< Previous change'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter, $layout_options))->toString();
+        $left_link = Link::fromTextAndUrl($this->t('Previous change'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter, $layout_options))->toString();
       }
       $element['left'] = [
         '#type' => 'markup',
@@ -255,7 +257,7 @@ class PluginRevisionController extends ControllerBase {
       }
       if ($revisions_count != $i && $revision_ids[$i - 1] != $revision_ids[$revisions_count - 1]) {
         // Build the right link.
-        $right_link = Link::fromTextAndUrl($this->t('Next change >'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i], $filter, $layout_options))->toString();
+        $right_link = Link::fromTextAndUrl($this->t('Next change'), $this->diffRoute($entity, $right_revision_id, $revision_ids[$i], $filter, $layout_options))->toString();
       }
       $element['right'] = [
         '#type' => 'markup',
