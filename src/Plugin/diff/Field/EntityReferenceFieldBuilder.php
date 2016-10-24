@@ -31,9 +31,9 @@ class EntityReferenceFieldBuilder extends FieldDiffBuilderBase {
       if (!$field_item->isEmpty()) {
         $values = $field_item->getValue();
         // Compare entity ids.
-        if (isset($values['target_id'])) {
+        if ($field_item->entity) {
           if ($this->configuration['compare_entity_reference'] == COMPARE_ENTITY_REFERENCE_LABEL) {
-            $entity = $field_item->__get('entity');
+            $entity = $field_item->entity;
             $result[$field_key][] = $entity->label();
           }
           else {

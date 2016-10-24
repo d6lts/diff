@@ -389,4 +389,57 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertLinkByHref('node/1/revisions/view/1/3');
   }
 
+  /**
+   * Tests Reference to Deleted Entities.
+   */
+  public function testEntityReference() {
+    // Login as admin with the required permissions.
+    $this->loginAsAdmin([
+      'administer node fields'
+    ]);
+
+    // Adding Entity Reference to Article Content Type.
+    $this->drupalPostForm('admin/structure/types/manage/article/fields/add-field', [
+      'new_storage_type' => 'field_ui:entity_reference:node',
+      'label' => 'Content reference test',
+      'field_name' => 'content',
+    ], t('Save and continue'));
+
+    // Create an first article.
+    $title = 'test_title_1';
+    $edit = [
+      'title[0][value]' => $title,
+      'body[0][value]' => '<p>First article</p>',
+    ];
+    $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
+    $node_one = $this->drupalGetNodeByTitle($title);
+
+    // Create second article.
+    $title = 'test_title_2';
+    $edit = [
+      'title[0][value]' => $title,
+      'body[0][value]' => '<p>Second article</p>',
+    ];
+    $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
+    $node_two = $this->drupalGetNodeByTitle($title);
+
+    // Create revision and add entity reference from second node to first.
+    $edit = [
+      'body[0][value]' => '<p>First Revision</p>',
+      'field_content[0][target_id]' => $node_two->getTitle(),
+      'revision' => TRUE,
+    ];
+    $this->drupalPostForm('node/' . $node_one->id() . '/edit', $edit, t('Save and keep published'));
+
+    // Delete referenced node.
+    $node_two->delete();
+
+    // Access revision of first node.
+    $this->drupalGet('/node/' . $node_one->id());
+    $this->clickLink(t('Revisions'));
+    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    // Revision section should appear.
+    $this->assertResponse(200);
+  }
+
 }
