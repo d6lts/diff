@@ -244,6 +244,9 @@ class RevisionOverviewForm extends FormBase {
                 'class' => array('revision-current'),
               )
             );
+            $row['#attributes'] = [
+              'class' => ['revision-current'],
+            ];
           }
           else {
             $route_params = array(
@@ -302,7 +305,7 @@ class RevisionOverviewForm extends FormBase {
     $build['pager'] = array(
       '#type' => 'pager',
     );
-
+    $build['#attached']['library'][] = 'node/drupal.node.admin';
     return $build;
   }
 
