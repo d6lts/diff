@@ -7,6 +7,7 @@ diff.general:
     js/diff.js: {}
   dependencies:
     - core/drupalSettings
+    - core/jquery.once
 
 diff.double_column:
   version: 1.x
