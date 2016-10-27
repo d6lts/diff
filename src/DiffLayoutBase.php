@@ -130,23 +130,30 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
    *   Header link for a revision in the revision comparison display.
    */
   public function buildRevisionsData(EntityInterface $left_revision, EntityInterface $right_revision) {
+    $right_revision = $this->buildRevisionData($right_revision);
+    $right_revision['#prefix'] = '<div class="diff-revision__items-group">';
+    $right_revision['#suffix'] = '</div>';
+
+    $left_revision = $this->buildRevisionData($left_revision);
+    $left_revision['#prefix'] = '<div class="diff-revision__items-group">';
+    $left_revision['#suffix'] = '</div>';
+
     // Show the revisions that are compared.
-    $build['diff_revisions'] = [
-      '#type' => 'item',
-      '#title' => $this->t('Comparing'),
-      '#weight' => 1,
-      '#prefix' => '<div class="revisions-data">',
-      '#suffix' => '</div>',
+    return [
+      'header' => [
+        'diff_revisions' => [
+          '#type' => 'item',
+          '#title' => $this->t('Comparing'),
+          '#wrapper_attributes' => ['class' => 'diff-revision'],
+          'items' => [
+            '#prefix' => '<div class="diff-revision__items">',
+            '#suffix' => '</div></div>',
+            'right_revision' => $right_revision,
+            'left_revision' => $left_revision,
+          ],
+        ]
+      ],
     ];
-
-    $build['diff_revisions']['right_revision'] = $this->buildRevisionData($right_revision);
-    $build['diff_revisions']['right_revision']['#prefix'] = '<div class="comparison-flex-container">';
-    $build['diff_revisions']['right_revision']['#suffix'] = '</div>';
-    $build['diff_revisions']['left_revision'] = $this->buildRevisionData($left_revision);
-    $build['diff_revisions']['left_revision']['#prefix'] = '<div class="comparison-flex-container">';
-    $build['diff_revisions']['left_revision']['#suffix'] = '</div>';
-
-    return $build;
   }
 
   /**
@@ -179,7 +186,7 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
           $entity_type_id => $revision->id(),
           $entity_type_id . '_revision' => $revision->getRevisionId(),
         ]),
-        '#prefix' => '<div class="comparison-flex-item-date">',
+        '#prefix' => '<div class="diff-revision__item diff-revision__item-date">',
         '#suffix' => '</div>',
       ];
 
@@ -189,14 +196,14 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
         '#url' => Url::fromUri(\Drupal::request()->getUriForPath('/user/' . $user_id)),
         '#theme' => 'username',
         '#account' => $revision->getRevisionUser(),
-        '#prefix' => '<div class="comparison-flex-item-author">',
+        '#prefix' => '<div class="diff-revision__item diff-revision__item-author">',
         '#suffix' => '</div>',
       ];
 
       if ($revision_log) {
         $revision_link['message'] = [
           '#type' => 'markup',
-          '#prefix' => '<div class="comparison-flex-item-message">',
+          '#prefix' => '<div class="diff-revision__item diff-revision__item-message">',
           '#suffix' => '</div>',
           '#markup' => $revision_log,
         ];
@@ -207,7 +214,7 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
         '#type' => 'link',
         '#title' => $revision->label(),
         '#url' => $revision->toUrl('revision'),
-        '#prefix' => '<div class="comparison-flex-item-date">',
+        '#prefix' => '<div class="diff-revision__item diff-revision__item-date">',
         '#suffix' => '</div>',
       ];
     }
@@ -260,8 +267,6 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
     $build['options'] = [
       '#type' => 'operations',
       '#links' => $options,
-      '#prefix' => '<div class="diff-filter">',
-      '#suffix' => '</div>',
     ];
     return $build;
   }

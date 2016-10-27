@@ -162,18 +162,14 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
     unset($options[$active_view_mode]);
     array_unshift($options, $filter);
 
-    $build['view_mode'] = [
+    $build['controls']['view_mode'] = [
       '#type' => 'item',
       '#title' => $this->t('View mode'),
-      '#weight' => 3,
-      '#prefix' => '<div class="diff-layout">',
-      '#suffix' => '</div>',
-    ];
-    $build['view_mode']['filter'] = [
-      '#type' => 'operations',
-      '#links' => $options,
-      '#prefix' => '<div class="diff-filter">',
-      '#suffix' => '</div>',
+      '#wrapper_attributes' => ['class' => 'diff-controls__item'],
+      'filter' => [
+        '#type' => 'operations',
+        '#links' => $options,
+      ]
     ];
 
     $view_builder = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId());

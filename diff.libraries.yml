@@ -5,6 +5,8 @@ diff.general:
       css/diff.general.css: {}
   js:
     js/diff.js: {}
+  dependencies:
+    - core/drupalSettings
 
 diff.double_column:
   version: 1.x

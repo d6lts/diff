@@ -100,14 +100,12 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
     $build = $this->buildRevisionsData($left_revision, $right_revision);
 
     $active_filter = $this->requestStack->getCurrentRequest()->query->get('filter') ?: 'raw';
-    $build['filter'] = [
+    $build['controls']['filter'] = [
       '#type' => 'item',
       '#title' => $this->t('Filter'),
-      '#weight' => 3,
-      '#prefix' => '<div class="diff-layout">',
-      '#suffix' => '</div>',
+      '#wrapper_attributes' => ['class' => 'diff-controls__item'],
+      'options' => $this->buildFilterNavigation($entity, $left_revision, $right_revision, 'unified_fields', $active_filter),
     ];
-    $build['filter']['options'] = $this->buildFilterNavigation($entity, $left_revision, $right_revision, 'unified_fields', $active_filter);
 
     // Build the diff comparison table.
     $diff_header = $this->buildTableHeader($right_revision);

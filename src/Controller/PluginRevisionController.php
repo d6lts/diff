@@ -2,17 +2,17 @@
 
 namespace Drupal\diff\Controller;
 
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
-use Drupal\diff\DiffLayoutManager;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\diff\DiffLayoutManager;
 use Drupal\diff\DiffEntityComparison;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Base class for controllers that return responses on entity revision routes.
@@ -132,28 +132,37 @@ class PluginRevisionController extends ControllerBase {
       }
     }
 
-    $build = array(
+    $build = [
       '#title' => $this->t('Changes to %title', ['%title' => $entity->label()]),
-    );
+      'header' => [
+        '#prefix' => '<header class="diff-header">',
+        '#suffix' => '</header>',
+      ],
+      'controls' => [
+        '#prefix' => '<div class="diff-controls">',
+        '#suffix' => '</div>',
+      ],
+    ];
 
     // Build the navigation links.
-    $build['diff_navigation'] = $this->buildRevisionsNavigation($entity, $revisions_ids, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter);
+    $build['header']['diff_navigation'] = $this->buildRevisionsNavigation($entity, $revisions_ids, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter);
 
     // Build the layout filter.
-    $build['diff_layout'] = [
+    $build['controls']['diff_layout'] = [
       '#type' => 'item',
       '#title' => $this->t('Layout'),
-      '#weight' => 2,
-      '#prefix' => '<div class="diff-layout">',
-      '#suffix' => '</div>',
+      '#wrapper_attributes' => ['class' => 'diff-controls__item'],
+      'filter' => $this->buildLayoutNavigation($entity, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter),
     ];
-    $build['diff_layout']['filter'] = $this->buildLayoutNavigation($entity, $left_revision->getRevisionId(), $right_revision->getRevisionId(), $filter);
 
     // Perform comparison only if both entity revisions loaded successfully.
     if ($left_revision != FALSE && $right_revision != FALSE) {
       // Build the diff comparison with the plugin.
       if ($plugin = $this->diffLayoutManager->createInstance($filter)) {
-        $build += $plugin->build($left_revision, $right_revision, $entity);
+        $build = array_merge_recursive($build, $plugin->build($left_revision, $right_revision, $entity));
+        $build['diff']['#prefix'] = '<div class="diff-responsive-table-wrapper">';
+        $build['diff']['#suffix'] = '<div>';
+        $build['diff']['#attributes']['class'][] = 'diff-responsive-table';
       }
     }
 
@@ -194,8 +203,6 @@ class PluginRevisionController extends ControllerBase {
     $filter = [
       '#type' => 'operations',
       '#links' => $links,
-      '#prefix' => '<div class="diff-filter">',
-      '#suffix' => '</div>',
     ];
 
     return $filter;
@@ -231,9 +238,7 @@ class PluginRevisionController extends ControllerBase {
       $element = [
         '#type' => 'item',
         '#title' => $this->t('Navigation'),
-        '#weight' => 0,
-        '#prefix' => '<div class="navigation-links">',
-        '#suffix' => '</div>',
+        '#wrapper_attributes' => ['class' => 'diff-navigation'],
       ];
       $i = 0;
       // Find the previous revision.
@@ -247,9 +252,8 @@ class PluginRevisionController extends ControllerBase {
       $element['left'] = [
         '#type' => 'markup',
         '#markup' => $left_link,
-        '#prefix' => '<span class="navigation-link">',
-        '#suffix' => '</span>',
-        '#weight' => 1,
+        '#prefix' => '<div class="diff-navigation__link prev-link">',
+        '#suffix' => '</div>',
       ];
       // Find the next revision.
       $i = 0;
@@ -263,9 +267,8 @@ class PluginRevisionController extends ControllerBase {
       $element['right'] = [
         '#type' => 'markup',
         '#markup' => $right_link,
-        '#prefix' => '<span class="navigation-link">',
-        '#suffix' => '</span>',
-        '#weight' => 0,
+        '#prefix' => '<div class="diff-navigation__link next-link">',
+        '#suffix' => '</div>',
       ];
       return $element;
     }
