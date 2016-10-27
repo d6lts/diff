@@ -44,7 +44,7 @@ class ViewModeTest extends DiffTestBase {
 
     // Set the Body field to hidden in the diff view mode.
     $edit = [
-      'fields[body][type]' => 'hidden',
+      'fields[body][region]' => 'hidden',
     ];
     $this->drupalPostForm('admin/structure/types/manage/article/form-display', $edit, t('Save'));
 
