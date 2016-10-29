@@ -78,10 +78,21 @@ class DiffPluginTest extends DiffTestBase {
     $this->drupalLogin($this->rootUser);
   }
 
+  public function testPlugins() {
+    $this->doTestCommentPlugin();
+    $this->doTestCorePlugin();
+    $this->doTestLinkPlugin();
+    $this->doTestListPlugin();
+    $this->doTestTextPlugin();
+    $this->doTestTextWithSummaryPlugin();
+  }
+
   /**
    * Tests the comment plugin.
+   *
+   * @see \Drupal\diff\Plugin\diff\Field\CommentFieldBuilder
    */
-  public function testCommentPlugin() {
+  public function doTestCommentPlugin() {
     // Create an article with comments enabled..
     $title = 'Sample article';
     $edit = array(
@@ -109,8 +120,10 @@ class DiffPluginTest extends DiffTestBase {
 
   /**
    * Tests the Core plugin.
+   *
+   * @see \Drupal\diff\Plugin\diff\Field\CoreFieldBuilder
    */
-  public function testCorePlugin() {
+  public function doTestCorePlugin() {
     // Add an email field (supported by the Diff core plugin) to the Article
     // content type.
     $field_name = 'field_email';
@@ -243,8 +256,10 @@ class DiffPluginTest extends DiffTestBase {
 
   /**
    * Tests the EntityReference plugin.
+   *
+   * @see \Drupal\diff\Plugin\diff\Field\EntityReferenceFieldBuilder
    */
-  public function testEntityReferencePlugin() {
+  public function TestEntityReferencePlugin() {
     // Add an entity reference field to the article content type.
     $bundle_path = 'admin/structure/types/manage/article';
     $field_name = 'reference';
@@ -291,8 +306,10 @@ class DiffPluginTest extends DiffTestBase {
 
   /**
    * Tests the File plugin.
+   *
+   * @see \Drupal\diff\Plugin\diff\Field\FileFieldBuilder
    */
-  public function testFilePlugin() {
+  public function TestFilePlugin() {
     // Add file field to the article content type.
     $file_field_name = 'field_file';
     $field_storage = FieldStorageConfig::create(array(
@@ -360,8 +377,10 @@ class DiffPluginTest extends DiffTestBase {
 
   /**
    * Tests the Image plugin.
+   *
+   * @see \Drupal\diff\Plugin\diff\Field\ImageFieldBuilder
    */
-  public function testImagePlugin() {
+  public function TestImagePlugin() {
     // Add image field to the article content type.
     $image_field_name = 'field_image';
     FieldStorageConfig::create([
@@ -437,8 +456,10 @@ class DiffPluginTest extends DiffTestBase {
 
   /**
    * Tests the Link plugin.
+   *
+   * @see \Drupal\diff\Plugin\diff\Field\LinkFieldBuilder
    */
-  public function testLinkPlugin() {
+  public function doTestLinkPlugin() {
     // Add a link field to the article content type.
     $field_name = 'field_link';
     $this->fieldStorage = FieldStorageConfig::create([
@@ -506,8 +527,10 @@ class DiffPluginTest extends DiffTestBase {
 
   /**
    * Tests the List plugin.
+   *
+   * @see \Drupal\diff\Plugin\diff\Field\ListFieldBuilder
    */
-  public function testListPlugin() {
+  public function doTestListPlugin() {
     // Add a list field to the article content type.
     $field_name = 'field_list';
     $this->fieldStorage = FieldStorageConfig::create([
@@ -563,8 +586,10 @@ class DiffPluginTest extends DiffTestBase {
 
   /**
    * Tests the Text plugin.
+   *
+   * @see \Drupal\diff\Plugin\diff\Field\TextFieldBuilder
    */
-  public function testTextPlugin() {
+  public function doTestTextPlugin() {
     // Add a text and a text long field to the Article content type.
     $this->addTextField('field_text', 'Text Field', 'string', 'string_textfield');
     $this->addTextField('field_text_long', 'Text Long Field', 'string_long', 'string_textarea');
@@ -661,8 +686,10 @@ class DiffPluginTest extends DiffTestBase {
 
   /**
    * Tests the TextWithSummary plugin.
+   *
+   * @see \Drupal\diff\Plugin\diff\Field\TextWithSummaryFieldBuilder
    */
-  public function testTextWithSummaryPlugin() {
+  public function doTestTextWithSummaryPlugin() {
     // Enable the comparison of the summary.
     $config = \Drupal::configFactory()->getEditable('diff.plugins');
     $settings['compare_summary'] = TRUE;
