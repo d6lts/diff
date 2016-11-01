@@ -76,7 +76,16 @@ class AdminFormsTest extends DiffTestBase {
     module_load_install('diff');
     $requirements = diff_requirements('runtime');
     $this->assertEqual($requirements['html_diff_advanced']['title'], 'Diff');
-    $this->assertEqual($requirements['html_diff_advanced']['value'], 'Visual inline layout');
+
+    $has_htmlDiffAdvanced = class_exists('\HtmlDiffAdvanced');
+    if (!$has_htmlDiffAdvanced) {
+      // The plugin is disabled dependencies are missing.
+      $this->assertEqual($requirements['html_diff_advanced']['value'], 'Visual inline layout');
+    }
+    else {
+      // The plugin is enabled by default if dependencies are met.
+      $this->assertEqual($requirements['html_diff_advanced']['value'], 'Installed correctly');
+    }
   }
 
   /**

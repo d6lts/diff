@@ -50,6 +50,10 @@ abstract class DiffTestBase extends WebTestBase {
     // Place the blocks that Diff module uses.
     $this->drupalPlaceBlock('local_tasks_block');
     $this->drupalPlaceBlock('local_actions_block');
+
+    // Make sure HTML Diff is disabled.
+    $config = \Drupal::configFactory()->getEditable('diff.settings');
+    $config->set('general_settings.layout_plugins.visual_inline.enabled', FALSE)->save();
   }
 
   /**

@@ -23,6 +23,10 @@ class DiffViewsTest extends ViewTestBase {
    * Tests the behavior of a view that uses the diff_from and diff_to fields.
    */
   public function testDiffView() {
+    // Make sure HTML Diff is disabled.
+    $config = \Drupal::configFactory()->getEditable('diff.settings');
+    $config->set('general_settings.layout_plugins.visual_inline.enabled', FALSE)->save();
+
     $node_type = NodeType::create([
       'type' => 'article',
       'label' => 'Article',
