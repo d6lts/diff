@@ -292,7 +292,7 @@ class DiffEntityComparison {
           // Unset left values after comparing. Add right value label to the
           // summary if it is changed or new.
           if (isset($left_values[$key])) {
-            if ($value != $left_values[$key]) {
+            if ($value['value'] != $left_values[$key]['value']) {
               $summary_elements[] = $value['label'];
             }
             unset($left_values[$key]);
@@ -308,7 +308,7 @@ class DiffEntityComparison {
           }
         }
         if (count($summary_elements) > 0) {
-          $revision_summary = 'Changes on: ' . implode(', ', $summary_elements);
+          $revision_summary = 'Changes on: ' . implode(' - ', $summary_elements);
         }
         else {
           $revision_summary = 'No changes.';
@@ -346,7 +346,7 @@ class DiffEntityComparison {
            foreach ($plugin->getEntitiesToDiff($field_items) as $entity_key => $reference_entity) {
              foreach($this->summary($reference_entity) as $key => $build) {
                $result[$key] = $build;
-               $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel() . ' > ' . $result[$key]['label'];
+               $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel() . '<sub>' . ($entity_key + 1) . '</sub> ' . $result[$key]['label'];
              };
            }
          }
@@ -354,7 +354,7 @@ class DiffEntityComparison {
            // Create a unique flat key.
            $key = $revision->id() . ':' . $entity_type_id . '.' . $field_items->getName();
 
-           $result[$key] = $field_items->getValue();
+           $result[$key]['value'] = $field_items->value;
            $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel();
          }
        }

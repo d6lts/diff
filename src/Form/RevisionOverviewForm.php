@@ -356,7 +356,7 @@ class RevisionOverviewForm extends FormBase {
         'username' => $this->renderer->renderPlain($username),
         'message' => [
           '#markup' => $this->entityComparison->getRevisionDescription($revision, $previous_revision),
-          '#allowed_tags' => Xss::getHtmlTagList()
+          '#allowed_tags' => Xss::getAdminTagList()
         ],
       ],
     ];

@@ -229,7 +229,7 @@ class DiffRevisionTest extends DiffTestBase {
 
     $this->clickLink(t('Revisions'));
     // Assert the revision summary.
-    $this->assertNoUniqueText('Changes on: Title, Body');
+    $this->assertNoUniqueText('Changes on: Title - Body');
     $this->assertText('Copy of the revision from');
     $edit = [
       'radios_left' => 3,
