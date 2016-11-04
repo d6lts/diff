@@ -2,29 +2,51 @@
 
 namespace Drupal\diff;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\user\Theme\AdminNegotiator;
+use Drupal\Core\Theme\ThemeNegotiatorInterface;
 
 /**
  * Visual inline layout theme negotiator.
  *
  * @package Drupal\diff
  */
-class VisualDiffThemeNegotiator extends AdminNegotiator {
+class VisualDiffThemeNegotiator implements ThemeNegotiatorInterface {
+
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * VisualDiffThemeNegotiator constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory) {
+    $this->configFactory = $config_factory;
+  }
 
   /**
    * {@inheritdoc}
    */
   public function applies(RouteMatchInterface $routeMatch) {
-    if ($routeMatch->getParameter('filter') === 'visual_inline') {
-      if ($this->isDiffRoute($routeMatch)) {
-        if ($this->configFactory->get('diff.settings')->get('general_settings.visual_inline_theme') === 'default') {
-          return TRUE;
-        }
-      }
+    if ($routeMatch->getParameter('filter') !== 'visual_inline') {
+      return FALSE;
     }
 
-    return FALSE;
+    if (!$this->isDiffRoute($routeMatch)) {
+      return FALSE;
+    }
+
+    if ($this->configFactory->get('diff.settings')->get('general_settings.visual_inline_theme') !== 'default') {
+      return FALSE;
+    }
+
+    return TRUE;
   }
 
   /**
@@ -43,9 +65,10 @@ class VisualDiffThemeNegotiator extends AdminNegotiator {
    * @return bool
    *   Return TRUE if route name is ok.
    */
-  public function isDiffRoute(RouteMatchInterface $route_match) {
+  protected function isDiffRoute(RouteMatchInterface $route_match) {
     $regex_pattern = '/^entity\..*\.revisions_diff$/';
     return $route_match->getRouteName() === 'diff.revisions_diff' ||
       preg_match($regex_pattern, $route_match->getRouteName());
   }
+
 }
