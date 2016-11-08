@@ -308,7 +308,7 @@ class DiffEntityComparison {
           }
         }
         if (count($summary_elements) > 0) {
-          $revision_summary = 'Changes on: ' . implode(' - ', $summary_elements);
+          $revision_summary = 'Changes on: ' . implode(', ', $summary_elements);
         }
         else {
           $revision_summary = 'No changes.';
@@ -337,6 +337,7 @@ class DiffEntityComparison {
      // Loop through entity fields and transform every FieldItemList object
      // into an array of strings according to field type specific settings.
      foreach ($revision as $field_items) {
+       $show_delta = FALSE;
        // Create a plugin instance for the field definition.
        $plugin = $this->diffBuilderManager->createInstanceForFieldDefinition($field_items->getFieldDefinition(), $revision->bundle());
        if ($plugin && $this->diffBuilderManager->showDiff($field_items->getFieldDefinition()->getFieldStorageDefinition())) {
@@ -345,8 +346,12 @@ class DiffEntityComparison {
          if ($plugin instanceof FieldReferenceInterface) {
            foreach ($plugin->getEntitiesToDiff($field_items) as $entity_key => $reference_entity) {
              foreach($this->summary($reference_entity) as $key => $build) {
+               if ($field_items->getFieldDefinition()->getFieldStorageDefinition()->getCardinality() != 1) {
+                 $show_delta = TRUE;
+               }
                $result[$key] = $build;
-               $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel() . '<sub>' . ($entity_key + 1) . '</sub> ' . $result[$key]['label'];
+               $delta = $show_delta ? '<sub>' . ($entity_key + 1) . '</sub> ' : ' - ';
+               $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel() . $delta . $result[$key]['label'];
              };
            }
          }
@@ -354,7 +359,7 @@ class DiffEntityComparison {
            // Create a unique flat key.
            $key = $revision->id() . ':' . $entity_type_id . '.' . $field_items->getName();
 
-           $result[$key]['value'] = $field_items->value;
+           $result[$key]['value'] = $field_items->getvalue();
            $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel();
          }
        }
