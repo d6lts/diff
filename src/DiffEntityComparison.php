@@ -128,19 +128,6 @@ class DiffEntityComparison {
       $result[$right_key]['#data'] += $this->combineFields([], $right_values[$right_key]);
     }
 
-    // Field rows. Recurse through all child elements.
-    foreach (Element::children($result) as $key) {
-      // Ensure that the element follows the #states format.
-      if (isset($result[$key]['#data']['#left'])) {
-        // We need to trim spaces and new lines from the end of the string
-        // otherwise in some cases we have a blank not needed line.
-        $result[$key]['#data']['#left'] = trim($result[$key]['#data']['#left']);
-      }
-      if (isset($result[$key]['#data']['#right'])) {
-        $result[$key]['#data']['#right'] = trim($result[$key]['#data']['#right']);
-      }
-    }
-
     return $result;
   }
 
@@ -246,13 +233,6 @@ class DiffEntityComparison {
     }
     else {
       $diff['#data']['#count_right'] = 0;
-    }
-    // Do an extra trim for removing whitespaces after explode the data.
-    foreach ($diff['#data']['#left'] as $key => $value) {
-      $diff['#data']['#left'][$key] = trim($diff['#data']['#left'][$key]);
-    }
-    foreach ($diff['#data']['#right'] as $key => $value) {
-      $diff['#data']['#right'][$key] = trim($diff['#data']['#right'][$key]);
     }
   }
 

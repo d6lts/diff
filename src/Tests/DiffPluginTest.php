@@ -774,4 +774,38 @@ class DiffPluginTest extends DiffTestBase {
     $this->assertText('nicer_not_applicable');
   }
 
+  /**
+   * Tests field content trimming.
+   */
+  public function testTrimmingField() {
+    // Create a node.
+    $node = $this->drupalCreateNode([
+      'type' => 'article',
+      'title' => 'test_trim',
+      'body' => '<p>body</p>',
+    ]);
+    $node->save();
+
+    // Create a revision adding a new empty line to the body.
+    $node = $this->drupalGetNodeByTitle('test_trim');
+    $edit = [
+      'revision' => TRUE,
+      'body[0][value]' => '<p>body</p>
+',
+    ];
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+
+    // Assert the revision summary.
+    $this->drupalGet('node/' . $node->id() . '/revisions');
+    $this->assertText('Changes on: Body');
+
+    // Assert the revision comparison.
+    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->assertNoText('No visible changes.');
+    $rows = $this->xpath('//tbody/tr');
+    $diff_row = $rows[1]->td;
+    $this->assertEqual(count($rows), 3);
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[2]->asXML())), '<p>body</p>');
+  }
+
 }

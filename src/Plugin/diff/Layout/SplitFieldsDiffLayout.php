@@ -154,11 +154,11 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
       foreach ($field_diff_rows as $key => $value) {
         $show_left = FALSE;
         $show_right = FALSE;
-        if (isset($field_diff_rows[$key][1]['data']) && trim($field_diff_rows[$key][1]['data']['#markup']) != '') {
+        if (isset($field_diff_rows[$key][1]['data']) && $field_diff_rows[$key][1]['data']['#markup'] != '') {
           $show_left = TRUE;
           $row_count_left++;
         }
-        if (isset($field_diff_rows[$key][3]['data']) && trim($field_diff_rows[$key][3]['data']['#markup']) != '') {
+        if (isset($field_diff_rows[$key][3]['data']) && $field_diff_rows[$key][3]['data']['#markup'] != '') {
           $show_right = TRUE;
           $row_count_right++;
         }
