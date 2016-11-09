@@ -11,7 +11,7 @@ namespace Drupal\diff\Tests;
  *
  * @group diff
  */
-class AdminFormsTest extends DiffTestBase {
+class DiffAdminFormsTest extends DiffTestBase {
 
   /**
    * Modules to enable.
@@ -33,20 +33,22 @@ class AdminFormsTest extends DiffTestBase {
   }
 
   /**
+   * Run all independent tests.
+   */
+  public function testAll() {
+    $this->doTestSettingsUI();
+    $this->doTestSettingsTab();
+    $this->doTestRequirements();
+    $this->doTestConfigurableFieldsTab();
+    $this->doTestPluginWeight();
+  }
+
+  /**
    * Tests the descriptions in the Settings UI.
    */
-  public function testSettingsUI() {
+  public function doTestSettingsUI() {
     // Enable the help block.
     $this->drupalPlaceBlock('help_block', ['region' => 'help']);
-
-    // Create a user with administer permissions.
-    $permissions = [
-      'administer site configuration',
-      'access administration pages',
-      'administer blocks',
-    ];
-    $admin_user = $this->drupalCreateUser($permissions);
-    $this->drupalLogin($admin_user);
 
     $this->drupalGet('admin/config/content/diff/general');
     // Check the settings introduction text.
@@ -59,7 +61,7 @@ class AdminFormsTest extends DiffTestBase {
   /**
    * Tests the Settings tab.
    */
-  public function testSettingsTab() {
+  public function doTestSettingsTab() {
     $edit = [
       'radio_behavior' => 'linear',
       'context_lines_leading' => 10,
@@ -72,7 +74,7 @@ class AdminFormsTest extends DiffTestBase {
   /**
    * Tests the module requirements.
    */
-  public function testRequirements() {
+  public function doTestRequirements() {
     module_load_install('diff');
     $requirements = diff_requirements('runtime');
     $this->assertEqual($requirements['html_diff_advanced']['title'], 'Diff');
@@ -91,7 +93,7 @@ class AdminFormsTest extends DiffTestBase {
   /**
    * Tests the Configurable Fields tab.
    */
-  public function testConfigurableFieldsTab() {
+  public function doTestConfigurableFieldsTab() {
     $this->drupalGet('admin/config/content/diff/fields');
     $this->drupalPostAjaxForm(NULL, [], 'node.body_settings_edit');
     $this->assertText('Plugin settings: Text');
@@ -108,7 +110,7 @@ class AdminFormsTest extends DiffTestBase {
   /**
    * Tests the Compare Revisions vertical tab.
    */
-  public function testPluginWeight() {
+  public function doTestPluginWeight() {
     // Create a node with a revision.
     $edit = [
       'title[0][value]' => 'great_title',

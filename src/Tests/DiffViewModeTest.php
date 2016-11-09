@@ -11,7 +11,7 @@ namespace Drupal\diff\Tests;
  *
  * @group diff
  */
-class ViewModeTest extends DiffTestBase {
+class DiffViewModeTest extends DiffTestBase {
 
   /**
    * Modules to enable.
