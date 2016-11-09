@@ -15,7 +15,7 @@ use Drupal\field\Entity\FieldStorageConfig;
  *
  * @group diff
  */
-abstract class DiffPluginTest extends DiffPluginTestBase {
+class DiffPluginTest extends DiffPluginTestBase {
 
   use CommentTestTrait;
 

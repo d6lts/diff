@@ -11,7 +11,7 @@ namespace Drupal\diff\Tests;
  *
  * @group diff
  */
-class DiffPluginTestBase extends DiffTestBase {
+abstract class DiffPluginTestBase extends DiffTestBase {
 
   /**
    * Modules to enable.
