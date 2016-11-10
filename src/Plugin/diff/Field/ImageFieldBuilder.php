@@ -43,7 +43,7 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
 
         // Compare Title fields.
         if ($this->configuration['compare_title_field']) {
-          if (isset($values['title'])) {
+          if (!empty($values['title'])) {
             $result[$field_key][] = $this->t('Title: @title', array('@title' => $values['title']));
           }
         }
@@ -118,8 +118,8 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
   public function defaultConfiguration() {
     $default_configuration = array(
       'show_id' => 1,
-      'compare_alt_field' => 0,
-      'compare_title_field' => 0,
+      'compare_alt_field' => 1,
+      'compare_title_field' => 1,
       'property_separator' => 'nl',
     );
     $default_configuration += parent::defaultConfiguration();
