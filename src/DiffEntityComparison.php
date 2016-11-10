@@ -185,15 +185,6 @@ class DiffEntityComparison {
    *   formatter when format a diff.
    */
   public function getRows($a, $b, $show_header = FALSE, &$line_stats = NULL) {
-    $a = is_array($a) ? $a : explode("\n", $a);
-    $b = is_array($b) ? $b : explode("\n", $b);
-
-    // Temporary workaround: when comparing with an empty string, Diff Component
-    // returns a change OP instead of an add OP.
-    if (count($a) == 1 && $a[0] == "") {
-      $a = array();
-    }
-
     if (!isset($line_stats)) {
       $line_stats = array(
         'counter' => array('x' => 0, 'y' => 0),
@@ -216,7 +207,7 @@ class DiffEntityComparison {
    */
   public function processStateLine(&$diff) {
     $data = $diff['#data'];
-    if (isset($data['#left'])) {
+    if (isset($data['#left']) && $data['#left'] != '') {
       if (is_string($data['#left'])) {
         $diff['#data']['#left'] = explode("\n", $data['#left']);
       }
@@ -224,8 +215,9 @@ class DiffEntityComparison {
     }
     else {
       $diff['#data']['#count_left'] = 0;
+      $diff['#data']['#left'] = [];
     }
-    if (isset($data['#right'])) {
+    if (isset($data['#right']) && $data['#right'] != '') {
       if (is_string($data['#right'])) {
         $diff['#data']['#right'] = explode("\n", $data['#right']);
       }
@@ -233,6 +225,7 @@ class DiffEntityComparison {
     }
     else {
       $diff['#data']['#count_right'] = 0;
+      $diff['#data']['#right'] = [];
     }
   }
 

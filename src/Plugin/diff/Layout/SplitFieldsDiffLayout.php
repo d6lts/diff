@@ -154,36 +154,48 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
       foreach ($field_diff_rows as $key => $value) {
         $show_left = FALSE;
         $show_right = FALSE;
-        if (isset($field_diff_rows[$key][1]['data']) && $field_diff_rows[$key][1]['data']['#markup'] != '') {
+        if (isset($field_diff_rows[$key][1]['data'])) {
           $show_left = TRUE;
           $row_count_left++;
         }
-        if (isset($field_diff_rows[$key][3]['data']) && $field_diff_rows[$key][3]['data']['#markup'] != '') {
+        if (isset($field_diff_rows[$key][3]['data'])) {
           $show_right = TRUE;
           $row_count_right++;
         }
         $final_diff[] = [
           'left-line-number' => [
             'data' => $show_left ? $row_count_left : NULL,
-            'class' => ['diff-line-number', isset($field_diff_rows[$key][1]['data']) ? $field_diff_rows[$key][1]['class'] : NULL],
+            'class' => [
+              'diff-line-number',
+              isset($field_diff_rows[$key][1]['data']) ? $field_diff_rows[$key][1]['class'] : NULL
+            ],
           ],
-          'left-row-sign' =>[
+          'left-row-sign' => [
             'data' => isset($field_diff_rows[$key][0]['data']) ? $field_diff_rows[$key][0]['data'] : NULL,
-            'class' => [isset($field_diff_rows[$key][0]['class']) ? $field_diff_rows[$key][0]['class'] : NULL, isset($field_diff_rows[$key][1]['data']) ? $field_diff_rows[$key][1]['class'] : NULL],
+            'class' => [
+              isset($field_diff_rows[$key][0]['class']) ? $field_diff_rows[$key][0]['class'] : NULL,
+              isset($field_diff_rows[$key][1]['data']) ? $field_diff_rows[$key][1]['class'] : NULL
+            ],
           ],
-          'left-row-data' =>[
+          'left-row-data' => [
             'data' => isset($field_diff_rows[$key][1]['data']) ? $field_diff_rows[$key][1]['data'] : NULL,
             'class' => isset($field_diff_rows[$key][1]['data']) ? $field_diff_rows[$key][1]['class'] : NULL,
           ],
-          'right-line-number' =>[
+          'right-line-number' => [
             'data' => $show_right ? $row_count_right : NULL,
-            'class' => ['diff-line-number', isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['class'] : NULL],
+            'class' => [
+              'diff-line-number',
+              isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['class'] : NULL
+            ],
           ],
-          'right-row-sign' =>[
+          'right-row-sign' => [
             'data' => isset($field_diff_rows[$key][2]['data']) ? $field_diff_rows[$key][2]['data'] : NULL,
-            'class' => [isset($field_diff_rows[$key][2]['class']) ? $field_diff_rows[$key][2]['class'] : NULL, isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['class'] : NULL],
+            'class' => [
+              isset($field_diff_rows[$key][2]['class']) ? $field_diff_rows[$key][2]['class'] : NULL,
+              isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['class'] : NULL
+            ],
           ],
-          'right-row-data' =>[
+          'right-row-data' => [
             'data' => isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['data'] : NULL,
             'class' => isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['class'] : NULL,
           ]

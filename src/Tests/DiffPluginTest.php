@@ -212,6 +212,25 @@ class DiffPluginTest extends DiffPluginTestBase {
     $diff_row = $rows[1]->td;
     $this->assertEqual(count($rows), 3);
     $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[2]->asXML())), '<p>body</p>');
+
+    // Create a new revision and update the body.
+    $edit = [
+      'revision' => TRUE,
+      'body[0][value]' => '<p>body</p>
+
+<p>body_new</p>
+',
+    ];
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalGet('node/' . $node->id() . '/revisions');
+    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->assertNoText('No visible changes.');
+    // Assert that empty rows also show a line number.
+    $rows = $this->xpath('//tbody/tr');
+    $this->assertEqual(count($rows), 5);
+    $diff_row = $rows[4]->td;
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[3]->asXML())), '4');
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($diff_row[0]->asXML())), '2');
   }
 
 }
