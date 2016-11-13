@@ -117,7 +117,7 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
    */
   public function defaultConfiguration() {
     $default_configuration = array(
-      'show_id' => 1,
+      'show_id' => 0,
       'compare_alt_field' => 1,
       'compare_title_field' => 1,
       'property_separator' => 'nl',

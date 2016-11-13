@@ -203,12 +203,13 @@ class DiffPluginFileTest extends DiffPluginTestBase {
     $this->drupalPostForm(NULL, $edit, t('Compare'));
     $this->assertText('Image');
     $this->assertText('Image: image-test-transparent-indexed.gif');
-    $this->assertText('File ID: 2');
     // Image title must be absent since it is not set in previous revisions.
     $this->assertNoText('Title');
 
     // Enable Title field in instance settings.
-    $this->drupalPostForm('admin/structure/types/manage/article/fields/node.article.field_image', ['settings[title_field]' => 1], 'Save settings');
+    $this->drupalPostForm('admin/structure/types/manage/article/fields/node.article.field_image', [
+      'settings[title_field]' => 1,
+    ], 'Save settings');
 
     // Add image title and alt text.
     $edit = [
@@ -222,29 +223,49 @@ class DiffPluginFileTest extends DiffPluginTestBase {
     // Image title and alternative text must be shown.
     $this->assertEqual(htmlspecialchars_decode(strip_tags($rows[2]->td[2]->asXML())), 'Alt: Image alt updated');
     $this->assertEqual(htmlspecialchars_decode(strip_tags($rows[2]->td[5]->asXML())), 'Alt: Image alt updated new');
-    $this->assertEqual(htmlspecialchars_decode(strip_tags($rows[3]->td[5]->asXML())), 'Title: Image title updated');
     $this->assertEqual(htmlspecialchars_decode(strip_tags($rows[3]->td[2]->asXML())), '');
+    $this->assertEqual(htmlspecialchars_decode(strip_tags($rows[3]->td[5]->asXML())), 'Title: Image title updated');
 
-    // Disable alt and title image fields.
-    $this->disableAltAndTitleImageFields();
+    // Show File ID.
+    $this->drupalGet('admin/config/content/diff/fields');
+    $this->drupalPostAjaxForm(NULL, [], 'node.field_image_settings_edit');
+    $edit = [
+      'fields[node.field_image][settings_edit_form][settings][show_id]' => TRUE,
+    ];
+    $this->drupalPostAjaxForm(NULL, $edit, 'node.field_image_plugin_settings_update');
+    $this->drupalPostForm(NULL, [], t('Save'));
     $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare'));
     // Alt and title must be hidden.
-    $this->assertNoText('Alt: Image alt updated');
-    $this->assertNoText('Alt: Image alt updated new ');
-    $this->assertNoText('Title: Image title updated');
-  }
+    $this->assertText('File ID: 2');
 
-  /**
-   * Disable alt and title in the image plugin for comparison.
-   */
-  protected function disableAltAndTitleImageFields() {
+    // Disable alt image fields.
     $this->drupalGet('admin/config/content/diff/fields');
     $this->drupalPostAjaxForm(NULL, [], 'node.field_image_settings_edit');
     $edit = [
       'fields[node.field_image][settings_edit_form][settings][compare_alt_field]' => FALSE,
+    ];
+    $this->drupalPostAjaxForm(NULL, $edit, 'node.field_image_plugin_settings_update');
+    $this->drupalPostForm(NULL, [], t('Save'));
+    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare'));
+    // Alt and title must be hidden.
+    $this->assertNoText('Alt: Image alt updated');
+    $this->assertNoText('Alt: Image alt updated new');
+    $this->assertText('Title: Image title updated');
+
+    // Disable title image fields, reenable alt.
+    $this->drupalGet('admin/config/content/diff/fields');
+    $this->drupalPostAjaxForm(NULL, [], 'node.field_image_settings_edit');
+    $edit = [
+      'fields[node.field_image][settings_edit_form][settings][compare_alt_field]' => TRUE,
       'fields[node.field_image][settings_edit_form][settings][compare_title_field]' => FALSE,
     ];
     $this->drupalPostAjaxForm(NULL, $edit, 'node.field_image_plugin_settings_update');
     $this->drupalPostForm(NULL, [], t('Save'));
+    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare'));
+    $this->assertText('Alt: Image alt updated');
+    $this->assertText('Alt: Image alt updated new');
+    $this->assertNoText('Title: Image title updated');
+
   }
+
 }
