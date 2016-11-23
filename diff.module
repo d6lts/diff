@@ -329,7 +329,7 @@ function diff_node_view_alter(&$build) {
 function diff_form_node_form_alter(&$form, $form_state) {
   // Add a 'View changes' button on the node edit form.
   $node = $form['#node'];
-  if (variable_get('diff_show_preview_changes_node_' . $node->type, TRUE) && !empty($node->nid)) {
+  if (!empty($node->nid) && diff_node_revision_access($node, 'view')) {
     $form['actions']['preview_changes'] = array(
       '#type' => 'submit',
       '#value' => t('View changes'),
