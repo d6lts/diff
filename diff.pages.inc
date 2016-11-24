@@ -472,6 +472,9 @@ function diff_compare_entities($left_entity, $right_entity, $context) {
   if (!isset($diff['#sorted'])) {
     uasort($diff, 'element_sort');
   }
+  else {
+    unset($diff['#sorted']);
+  }
 
   // Process the array and get line counts per field.
   array_walk($diff, 'diff_process_state_lines');
