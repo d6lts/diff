@@ -64,7 +64,7 @@ e.g. http://www.example.com/admin/structure/types/manage/page
          that they have access to.
   
     iii) "Standard comparison preview" option allows you to control how the most
-          current revision is show on the revision comparision page.
+          current revision is shown on the revision comparison page.
        
   b) Publishing options
 

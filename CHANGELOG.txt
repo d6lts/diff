@@ -130,7 +130,7 @@ Diff 7.x-2.x
     o #114308 by Alan D.: add jQuery for hiding radios that shouldn't show diffs
     o #1688840 by Alan D.: Enable new JScript behaviour by default
     o #372957 by erykmynn, JuliaKM, lsrzj, andrew_rs, alexpott, et al: HTML Strip for Diff, WYSIWYG Friendly
-      (This was refactored in the 7.x-3.x branch from the commited 7.x-2.x code)    
+      (This was refactored in the 7.x-3.x branch from the committed 7.x-2.x code)    
     o #521212 by Alan D., blakehall: Make diff comparison page themable
     o #1671484 by Alan D.: Show number of lines changed on revisions page
     o #114699 by smokris, Alan D.: Diff module should support Token

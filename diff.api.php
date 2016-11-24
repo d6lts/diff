@@ -62,7 +62,7 @@
  *     ),
  *   );
  *
- *   For backwards compatability, no changes are required to support states,
+ *   For backwards compatibility, no changes are required to support states,
  *   but it is recommended to provide a better UI for end users.
  *
  *   For example, the following example is equivalent to returning the raw
