@@ -38,19 +38,20 @@ function diff_node_revisions($form, $form_state, $node) {
     '#value' => $node->nid,
   );
 
-  $revision_list = node_revision_list($node);
+  $revision_list = diff_node_revision_list($node);
+  $revision_count = count($revision_list);
 
-  if (count($revision_list) > REVISION_LIST_SIZE) {
+  if ($revision_count > REVISION_LIST_SIZE) {
     // If the list of revisions is longer than the number shown on one page
     // split the array.
     $page = isset($_GET['page']) ? $_GET['page'] : '0';
-    $revision_chunks = array_chunk(node_revision_list($node), REVISION_LIST_SIZE);
+    $revision_chunks = array_chunk($revision_list, REVISION_LIST_SIZE);
     $revisions = $revision_chunks[$page];
     // Set up global pager variables as would 'pager_query' do.
     // These variables are then used in the theme('pager') call later.
     global $pager_page_array, $pager_total, $pager_total_items;
-    $pager_total_items[0] = count($revision_list);
-    $pager_total[0] = ceil(count($revision_list) / REVISION_LIST_SIZE);
+    $pager_total_items[0] = $revision_count;
+    $pager_total[0] = ceil($revision_count / REVISION_LIST_SIZE);
     $pager_page_array[0] = max(0, min($page, ((int) $pager_total[0]) - 1));
   }
   else {
@@ -76,6 +77,7 @@ function diff_node_revisions($form, $form_state, $node) {
         '#markup' => t('!date by !username', array(
           '!date' => l(format_date($revision->timestamp, 'small'), "node/$node->nid"),
           '!username' => theme('username', array('account' => $revision)))) . $revision_log,
+        '#revision' => $revision,
       );
     }
     else {
@@ -85,6 +87,7 @@ function diff_node_revisions($form, $form_state, $node) {
           '!date' => $diff_date,
           '!username' => theme('username', array('account' => $revision)))
         ) . $revision_log,
+        '#revision' => $revision,
       );
       if ($revert_permission) {
         $operations[] = array(
@@ -120,7 +123,7 @@ function diff_node_revisions($form, $form_state, $node) {
 
   $form['submit'] = array('#type' => 'submit', '#value' => t('Compare'));
 
-  if (count($revision_list) > REVISION_LIST_SIZE) {
+  if ($revision_count > REVISION_LIST_SIZE) {
     $form['#suffix'] = theme('pager');
   }
   $form['#attached'] = diff_build_attachments(TRUE);

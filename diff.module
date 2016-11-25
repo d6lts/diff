@@ -248,6 +248,28 @@ function diff_entity_info_alter(&$entity_info) {
 }
 
 /**
+ * Returns a list of all the existing revision numbers.
+ *
+ * Clone of node_revision_list() with revision status included. This would be
+ * an additional join in Drupal 8.x to the {node_field_revision} table.
+ *
+ * @param $node
+ *   The node object.
+ *
+ * @return
+ *   An associative array keyed by node revision number.
+ */
+function diff_node_revision_list($node) {
+  $revisions = array();
+  $result = db_query('SELECT r.vid, r.title, r.log, r.uid, n.vid AS current_vid, r.status AS status, r.timestamp, u.name FROM {node_revision} r LEFT JOIN {node} n ON n.vid = r.vid INNER JOIN {users} u ON u.uid = r.uid WHERE r.nid = :nid ORDER BY r.vid DESC', array(':nid' => $node->nid));
+  foreach ($result as $revision) {
+    $revisions[$revision->vid] = $revision;
+  }
+
+  return $revisions;
+}
+
+/**
  * Implements hook_block_info().
  */
 function diff_block_info() {
@@ -296,7 +318,7 @@ function diff_block_view($delta) {
     $enabled_types = variable_get('diff_show_diff_inline_node_bundles', array());
     if (!empty($enabled_types[$node->type])) {
       $block = array();
-      $revisions = node_revision_list($node);
+      $revisions = diff_node_revision_list($node);
       if (count($revisions) > 1) {
         $block['subject'] = t('Highlight changes');
         $block['content'] = drupal_get_form('diff_inline_form', $node, $revisions);

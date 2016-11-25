@@ -48,8 +48,15 @@ function theme_diff_node_revisions($vars) {
           'data' => drupal_render($form['diff']['new'][$key]),
           'class' => array('revision-current'),
         );
+        $revision = $form['info'][$key]['#revision'];
+        if ($revision && !empty($revision->status)) {
+          $message = t('This is the published revision.');
+        }
+        else {
+          $message = t('This is the current revision.');
+        }
         $row[] = array(
-          'data' => '<strong>' . t('This is the published revision.') . '</strong>',
+          'data' => '<strong>' . $message . '</strong>',
           'class' => array('revision-current'),
           'colspan' => '2',
         );
