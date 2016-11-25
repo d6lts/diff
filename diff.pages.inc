@@ -636,13 +636,13 @@ function _diff_default_header($old_header = '', $new_header = '') {
  * normally rendered content of the specified revision.
  */
 function diff_inline_show($node, $vid = 0, $metadata = TRUE) {
-  $new_node = $vid ? node_load($node->nid, $vid, TRUE) : clone $node;
+  $new_node = $vid ? node_load($node->nid, $vid) : clone $node;
   node_build_content($new_node);
   $new = drupal_render($new_node->content);
 
   $old = $vid ? _diff_get_previous_vid(node_revision_list($node), $vid) : 0;
   if ($old) {
-    $old_node = node_load($node->nid, $old, TRUE);
+    $old_node = node_load($node->nid, $old);
     node_build_content($old_node);
     $old = drupal_render($old_node->content);
     $output = $metadata ? theme('diff_inline_metadata', array('node' => $new_node)) : '';
