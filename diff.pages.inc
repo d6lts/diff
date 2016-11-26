@@ -131,16 +131,6 @@ function diff_node_revisions($form, $form_state, $node) {
 }
 
 /**
- * Submit code for input form to select two revisions.
- */
-function diff_node_revisions_submit($form, &$form_state) {
-  // The ids are ordered so the old revision is always on the left.
-  $old_vid = min($form_state['values']['old'], $form_state['values']['new']);
-  $new_vid = max($form_state['values']['old'], $form_state['values']['new']);
-  $form_state['redirect'] = 'node/' . $form_state['values']['nid'] . '/revisions/view/' . $old_vid . '/' . $new_vid;
-}
-
-/**
  * Validation for input form to select two revisions.
  */
 function diff_node_revisions_validate($form, &$form_state) {
@@ -149,6 +139,19 @@ function diff_node_revisions_validate($form, &$form_state) {
   if ($old_vid == $new_vid || !$old_vid || !$new_vid) {
     form_set_error('diff', t('Select different revisions to compare.'));
   }
+}
+
+/**
+ * Submit code for input form to select two revisions.
+ */
+function diff_node_revisions_submit($form, &$form_state) {
+  // The ids are ordered so the old revision is always on the left.
+  $old_vid = min($form_state['values']['old'], $form_state['values']['new']);
+  $new_vid = max($form_state['values']['old'], $form_state['values']['new']);
+  if (isset($_GET['destination'])) {
+    unset($_GET['destination']);
+  }
+  $form_state['redirect'] = 'node/' . $form_state['values']['nid'] . '/revisions/view/' . $old_vid . '/' . $new_vid;
 }
 
 /**
