@@ -58,6 +58,9 @@ e.g. http://www.example.com/admin/structure/types/manage/page
   
     i) "Show View changes button on node edit form" adds a new "Preview" like
         submit button to node editing pages. This shows a diff preview.
+        
+        This can be conditionally restricted per role using the user permission
+        "Access View changes button".
   
     ii) "Enable the Revisions page for this content type" adds the revisioning
          tab to content. This allows users to compare between various revisions

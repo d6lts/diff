@@ -207,6 +207,18 @@ function diff_node_revision_access($node, $op = 'view') {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function diff_permission() {
+  return array(
+    'diff view changes' => array(
+      'title' => t('Access %view button', array('%view' => t('View changes'))),
+      'description' => t('Controls access to the %view button when editing content.', array('%view' => t('View changes'))),
+    ),
+  );
+}
+
+/**
  * Implements hook_hook_info().
  */
 function diff_hook_info() {
@@ -351,7 +363,9 @@ function diff_node_view_alter(&$build) {
 function diff_form_node_form_alter(&$form, $form_state) {
   // Add a 'View changes' button on the node edit form.
   $node = $form['#node'];
-  if (!empty($node->nid) && diff_node_revision_access($node, 'view')) {
+  if (variable_get('diff_show_preview_changes_node_' . $node->type, TRUE)
+      && user_access('diff view changes')
+      && !empty($node->nid)) {
     $form['actions']['preview_changes'] = array(
       '#type' => 'submit',
       '#value' => t('View changes'),
@@ -378,6 +392,9 @@ function diff_form_node_type_form_alter(&$form, $form_state) {
       '#title' => t('Show <em>View changes</em> button on node edit form'),
       '#weight' => 10,
       '#default_value' => variable_get('diff_show_preview_changes_node_' . $type->type, TRUE),
+      '#description' => t('You can refine access using the "!perm" permission.', array(
+        '!perm' => t('Access %view button', array('%view' => t('View changes'))),
+      )),
     );
     $form['diff']['diff_enable_revisions_page_node'] = array(
       '#type' => 'checkbox',

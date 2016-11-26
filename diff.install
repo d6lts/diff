@@ -131,3 +131,11 @@ function diff_update_7305() {
 function diff_update_7306() {
   variable_set('diff_additional_options_node', array('title' => 'title'));
 }
+
+/**
+ * Grants access to the Diff "View Changes" button permission to all users.
+ */
+function diff_update_7307() {
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('diff view changes'));
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('diff view changes'));
+}
