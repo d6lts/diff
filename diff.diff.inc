@@ -138,10 +138,18 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context, $default_la
         $func = 'diff_field_diff_view';
       }
 
+      // Copy the static ID cache to ensure this is the same for each comparison.
+      $original_html_ids = drupal_static('drupal_html_id');
+      $html_ids = &drupal_static('drupal_html_id');
+
       // These callbacks should be independent of revision.
       $old_context = $field_context;
       $old_context['entity'] = $old_entity;
       $old_values = $func($old_items, $old_context);
+
+      // Restores the ID cache to the original.
+      $html_ids = $original_html_ids;
+
       $new_context = $field_context;
       $new_context['entity'] = $new_entity;
       $new_values = $func($new_items, $new_context);
