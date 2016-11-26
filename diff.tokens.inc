@@ -52,7 +52,10 @@ function diff_tokens($type, $tokens, array $data = array(), array $options = arr
             unset($build['diff_preview']);
 
             $output = drupal_render_children($build);
-            $replacements[$original] = $sanitize ? check_plain($output) : $output;
+            if ($sanitize) {
+              $output = filter_xss($output, array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'th', 'td'));
+            }
+            $replacements[$original] = $output;
           }
           break;
 
