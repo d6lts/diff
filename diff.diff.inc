@@ -202,6 +202,13 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context, $default_la
  *   An array of strings representing the value, keyed by delta index.
  */
 function diff_field_diff_view($items, $context) {
+  // Prevent unnecessary rendering of the field. This also prevents issues
+  // where field_view_field() will use a language fallback for display that
+  // may not match the requested diff comparison language.
+  if (!$items) {
+    return array();
+  }
+
   $diff_items = array();
    $entity = clone $context['entity'];
    $langcode = field_language($context['entity_type'], $entity, $context['field']['field_name']);
