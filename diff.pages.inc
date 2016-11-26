@@ -288,7 +288,7 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
     }
     $build['diff_preview']['header']['#markup'] = $header;
     // Don't include node links or comments when viewing the diff.
-    $build['diff_preview']['content'] = node_view($new_node, $view_mode);
+    $build['diff_preview']['content'] = function_exists('entity_view') ? entity_view('node', array($new_node), $view_mode) : node_view($new_node, $view_mode);
     if (isset($build['diff_preview']['content']['links'])) {
       unset($build['diff_preview']['content']['links']);
     }
