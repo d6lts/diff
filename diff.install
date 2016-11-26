@@ -6,6 +6,14 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function diff_install() {
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('diff view changes'));
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('diff view changes'));
+}
+
+/**
  * Implements hook_uninstall().
  */
 function diff_uninstall() {
