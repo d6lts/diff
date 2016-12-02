@@ -80,6 +80,9 @@ function _node_entity_diff_additional_options_revision_author($old_node, $new_no
   return _node_entity_diff_additional_options_account(t('Revision author'), $old_author, $new_author, $context, -3.9);
 }
 
+/**
+ * Private callback function to render the author field.
+ */
 function _node_entity_diff_additional_options_account($label, $old_author, $new_author, $context, $weight = 0) {
   $row = array(
     '#name' => $label,

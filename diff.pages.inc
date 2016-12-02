@@ -158,10 +158,10 @@ function diff_node_revisions_submit($form, &$form_state) {
  * Create a comparison for the node between versions 'old_vid' and 'new_vid'.
  *
  * @param object $node
- *   Node on which to perform comparison
- * @param integer $old_vid
+ *   Node on which to perform comparison.
+ * @param int $old_vid
  *   Version ID of the old revision.
- * @param integer $new_vid
+ * @param int $new_vid
  *   Version ID of the new revision.
  */
 function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
@@ -488,6 +488,9 @@ function diff_compare_entities($left_entity, $right_entity, $context) {
   return $diff;
 }
 
+/**
+ * Helper function to get line counts per field.
+ */
 function diff_process_state_lines(&$diff, $key) {
   foreach ($diff['#states'] as $state => $data) {
     if (isset($data['#old'])) {
@@ -537,13 +540,16 @@ function diff_markdown_state(&$diff, $state) {
   }
 }
 
+/**
+ * Helper function to clear newlines from the content.
+ */
 function _diff_apply_markdown($markdown, $items) {
   if (!$markdown) {
     return $items;
   }
   if (is_array($items)) {
     $items = array_map($markdown, $items);
-    foreach($items as &$item) {
+    foreach ($items as &$item) {
       $item = trim($item, "\n");
     }
     return $items;
@@ -561,7 +567,7 @@ function _diff_apply_markdown($markdown, $items) {
  * @param int $vid
  *   Version ID to look for.
  *
- * @return boolean|integer
+ * @return bool|int
  *   Returns FALSE if $vid is the last entry.
  */
 function _diff_get_next_vid($node_revisions, $vid) {
@@ -580,10 +586,10 @@ function _diff_get_next_vid($node_revisions, $vid) {
  *
  * @param array $node_revisions
  *   Array of node revision IDs in descending order.
- * @param integer $vid
+ * @param int $vid
  *   Version ID to look for.
  *
- * @return boolean|integer
+ * @return bool|int
  *   Returns FALSE if $vid is the first entry.
  */
 function _diff_get_previous_vid($node_revisions, $vid) {

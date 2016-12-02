@@ -79,10 +79,6 @@ function theme_diff_node_revisions($vars) {
 }
 
 /**
- * Theme functions
- */
-
-/**
  * Theme function for a header line in the diff.
  */
 function theme_diff_header_line($vars) {
@@ -146,11 +142,15 @@ function theme_diff_inline_chunk($vars) {
   switch ($vars['type']) {
     case 'add':
       return "<span class='diff-added'>{$vars['text']}</span>";
+
     case 'change':
       return "<span class='diff-changed'>{$vars['text']}</span>";
+
     case 'delete':
       return "<span class='diff-deleted'>{$vars['text']}</span>";
+
     default:
       return $vars['text'];
+
   }
 }
