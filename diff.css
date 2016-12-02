@@ -1,4 +1,6 @@
-html.js .diff-js-hidden { display:none; }
+html.js .diff-js-hidden {
+  display:none;
+}
 
 /**
  * Inline diff metadata

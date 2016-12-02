@@ -75,9 +75,11 @@
  *   );
  */
 function hook_entity_diff($old_entity, $new_entity, $context) {
+  $results = array();
+
   if ($context['entity_type'] == 'node') {
     $type = node_type_get_type($new_entity);
-    $result['title'] = array(
+    $results['title'] = array(
       '#name' => $type->title_label,
       '#old' => array($old_entity->title),
       '#new' => array($new_entity->title),
@@ -87,6 +89,8 @@ function hook_entity_diff($old_entity, $new_entity, $context) {
       ),
     );
   }
+
+  return $results;
 }
 
 /**

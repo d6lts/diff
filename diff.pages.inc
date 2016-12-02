@@ -405,7 +405,7 @@ function diff_entity_body_rows($entity_type, $left_entity, $right_entity, $conte
  *   Node for comparison which will be displayed on the left side.
  * @param object $new_node
  *   Node for comparison which will be displayed on the right side.
- * @param boolean $state
+ * @param bool $state
  *   The state to render for the diff.
  */
 function _diff_body_rows($old_node, $new_node, $state = 'raw') {

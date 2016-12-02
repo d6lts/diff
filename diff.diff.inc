@@ -56,7 +56,7 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context, $default_la
   $field_context = $context;
 
   $actual_mode = FALSE;
-  list(,, $bundle_name) = entity_extract_ids($entity_type, $new_entity);
+  list(, , $bundle_name) = entity_extract_ids($entity_type, $new_entity);
   $instances = field_info_instances($entity_type, $bundle_name);
 
   // Some fields piggy back the display settings, so we need to fake these by
