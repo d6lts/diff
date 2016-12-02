@@ -492,6 +492,24 @@ function diff_node_form_build_preview_changes($form, &$form_state) {
 }
 
 /**
+ * Implementation of hook_features_pipe_COMPONENT_alter().
+ */
+function diff_features_pipe_node_alter(&$pipe, $data, $export) {
+  if (!empty($data)) {
+    $variables = array(
+      'diff_show_preview_changes_node',
+      'diff_enable_revisions_page_node',
+      'diff_view_mode_preview_node',
+    );
+    foreach ($data as $node_type) {
+      foreach ($variables as $variable_name) {
+        $pipe['variable'][] = $variable_name . '_' . $node_type;
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_theme().
  */
 function diff_theme() {
