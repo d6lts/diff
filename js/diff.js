@@ -25,24 +25,29 @@
             $row.addClass('selected');
             $oldRadio.css('visibility', 'visible');
             $newRadio.css('visibility', 'hidden');
-          } else if ($newRadio.attr('checked')) {
+          }
+          else if ($newRadio.attr('checked')) {
             newTd = true;
             $row.addClass('selected');
             $oldRadio.css('visibility', 'hidden');
             $newRadio.css('visibility', 'visible');
-          } else {
+          }
+          else {
             if (Drupal.settings.diffRevisionRadios == 'linear') {
               if (newTd && oldTd) {
                 $oldRadio.css('visibility', 'visible');
                 $newRadio.css('visibility', 'hidden');
-              } else if (newTd) {
+              }
+              else if (newTd) {
                 $newRadio.css('visibility', 'visible');
                 $oldRadio.css('visibility', 'visible');
-              } else {
+              }
+              else {
                 $newRadio.css('visibility', 'visible');
                 $oldRadio.css('visibility', 'hidden');
               }
-            } else {
+            }
+            else {
               $newRadio.css('visibility', 'visible');
               $oldRadio.css('visibility', 'visible');
             }
