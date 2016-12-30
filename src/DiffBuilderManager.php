@@ -4,7 +4,6 @@ namespace Drupal\diff;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -108,7 +107,7 @@ class DiffBuilderManager extends DefaultPluginManager {
    *   (optional) The entity bundle where to check form display when selecting
    *   the plugin for a field.
    *
-   * @return object
+   * @return \Drupal\diff\FieldDiffBuilderInterface
    *   The plugin instance, NULL if none.
    */
   public function createInstanceForFieldDefinition(FieldDefinitionInterface $field_definition, $bundle = NULL) {

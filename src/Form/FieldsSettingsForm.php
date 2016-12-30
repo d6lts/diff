@@ -449,6 +449,7 @@ class FieldsSettingsForm extends ConfigFormBase {
         // Get plugin settings. They lie either directly in submitted form
         // values (if the whole form was submitted while some plugin settings
         // were being edited), or have been persisted in $form_state.
+        /** @var \Drupal\diff\FieldDiffBuilderInterface $plugin */
         $plugin = $this->diffBuilderManager->createInstance($field_values['plugin']['type']);
         // Form submitted without pressing update button on plugin settings form.
         if (isset($field_values['settings_edit_form']['settings'])) {
