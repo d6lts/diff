@@ -9,7 +9,7 @@ use Drupal\diff\VisualDiffThemeNegotiator;
 use Drupal\Tests\UnitTestCase;
 
 /**
- * Class VisualDiffThemeNegotiatorTest
+ * Tests theme negotiator.
  *
  * @coversDefaultClass \Drupal\diff\VisualDiffThemeNegotiator
  * @group diff

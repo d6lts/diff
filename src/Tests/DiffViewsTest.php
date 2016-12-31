@@ -65,14 +65,14 @@ class DiffViewsTest extends ViewTestBase {
     $this->drupalPostForm(NULL, $edit, t('Compare'));
     $expected_url = Url::fromRoute(
       'diff.revisions_diff',
-      // Route parameters
+      // Route parameters.
       [
         'node' => $node->id(),
         'left_revision' => $revision1,
         'right_revision' => $revision2,
         'filter' => 'split_fields',
       ],
-      // Additional route options
+      // Additional route options.
       [
         'query' => [
           'destination' => Url::fromUri("internal:/node/{$node->id()}/diff-views")->toString(),

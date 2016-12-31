@@ -15,6 +15,8 @@ use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Form\FormState;
 
 /**
+ * Configure fields with their diff builder plugin settings.
+ *
  * This form lists all the field types from the system and for every field type
  * it provides a select-box having as options all the FieldDiffBuilder plugins
  * that support that field type.
@@ -491,8 +493,14 @@ class FieldsSettingsForm extends ConfigFormBase {
 
   /**
    * Returns a plugin object or NULL if no plugin could be found.
+   *
+   * @param array $configuration
+   *   The plugin configuration.
+   *
+   * @return \Drupal\diff\FieldDiffBuilderInterface
+   *   The plugin.
    */
-  protected function getPlugin($configuration) {
+  protected function getPlugin(array $configuration) {
     $plugin = NULL;
 
     if ($configuration && isset($configuration['type']) && $configuration['type'] != 'hidden') {

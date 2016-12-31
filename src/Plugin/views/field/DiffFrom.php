@@ -2,13 +2,14 @@
 
 namespace Drupal\diff\Plugin\views\field;
 
-use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\node\NodeInterface;
 
 /**
+ * Provides View field diff from plugin.
+ *
  * @ViewsField("diff__from")
  */
 class DiffFrom extends DiffPluginBase {

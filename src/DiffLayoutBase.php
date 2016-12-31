@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Mail\MailFormatHelper;
@@ -18,6 +19,9 @@ use Drupal\diff\Controller\PluginRevisionController;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Base class for diff layout plugins.
+ */
 abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface, ContainerFactoryPluginInterface {
 
   use StringTranslationTrait;
@@ -103,7 +107,7 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
    */
   protected function buildRevisionLink(EntityInterface $revision) {
     $entity_type_id = $revision->getEntityTypeId();
-    if ($revision instanceof EntityRevisionLogInterface || $revision instanceof NodeInterface) {
+    if ($revision instanceof RevisionLogInterface || $revision instanceof NodeInterface) {
       $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
       $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
       $revision_link = Link::fromTextAndUrl($revision_date, Url::fromRoute($route_name, [
@@ -167,10 +171,10 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
    */
   protected function buildRevisionData(EntityInterface $revision) {
     $entity_type_id = $revision->getEntityTypeId();
-    if ($revision instanceof EntityRevisionLogInterface || $revision instanceof NodeInterface) {
+    if ($revision instanceof RevisionLogInterface || $revision instanceof NodeInterface) {
       $revision_log = '';
 
-      if ($revision instanceof EntityRevisionLogInterface) {
+      if ($revision instanceof RevisionLogInterface) {
         $revision_log = Xss::filter($revision->getRevisionLogMessage());
       }
       elseif ($revision instanceof NodeInterface) {
@@ -274,10 +278,10 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
   /**
    * Applies a markdown function to a string.
    *
-   * @param $markdown
+   * @param string $markdown
    *   Key of the markdown function to be applied to the items.
    *   One of drupal_html_to_text, filter_xss, filter_xss_all.
-   * @param $items
+   * @param string $items
    *   String to be processed.
    *
    * @return array|string

@@ -46,15 +46,16 @@ class DiffLocaleTest extends DiffTestBase {
   /**
    * Run all independent tests.
    */
-  function testAll() {
+  public function testAll() {
     $this->doTestTranslationRevisions();
     $this->doTestUndefinedTranslationFilter();
     $this->doTestTranslationFilter();
   }
+
   /**
    * Test Diff functionality for the revisions of a translated node.
    */
-  function doTestTranslationRevisions() {
+  protected function doTestTranslationRevisions() {
 
     // Create an article and its translation. Assert aliases.
     $edit = array(
@@ -105,7 +106,7 @@ class DiffLocaleTest extends DiffTestBase {
   /**
    * Tests the translation filtering when navigating trough revisions.
    */
-  function doTestTranslationFilter() {
+  protected function doTestTranslationFilter() {
     // Create a node in English.
     $node = $this->drupalCreateNode([
       'type' => 'article',
@@ -161,7 +162,7 @@ class DiffLocaleTest extends DiffTestBase {
   /**
    * Tests the undefined translation filtering when navigating trough revisions.
    */
-  function doTestUndefinedTranslationFilter() {
+  protected function doTestUndefinedTranslationFilter() {
     // Create a node in with undefined langcode.
     $node = $this->drupalCreateNode([
       'type' => 'article',
@@ -201,4 +202,5 @@ class DiffLocaleTest extends DiffTestBase {
     $this->assertEqual($diffs[0], 'undefined_language_revision_1');
     $this->assertEqual($diffs[1], 'undefined_language_revision_2');
   }
+
 }

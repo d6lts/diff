@@ -4,6 +4,7 @@ namespace Drupal\diff;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -14,6 +15,12 @@ use Drupal\Core\Plugin\DefaultPluginManager;
  * Plugin type manager for field diff builders.
  *
  * @ingroup field_diff_builder
+ *
+ * Plugin directory Plugin/diff/Field.
+ *
+ * @see \Drupal\diff\Annotation\FieldDiffBuilder
+ * @see \Drupal\diff\FieldDiffBuilderInterface
+ * @see plugin_api
  */
 class DiffBuilderManager extends DefaultPluginManager {
 
@@ -33,6 +40,8 @@ class DiffBuilderManager extends DefaultPluginManager {
 
   /**
    * Wrapper object for simple configuration from diff.plugins.yml.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $pluginsConfig;
 
@@ -158,6 +167,7 @@ class DiffBuilderManager extends DefaultPluginManager {
       // If entity is set load its form display settings.
       if ($bundle) {
         $storage = $this->entityTypeManager->getStorage('entity_form_display');
+        /** @var EntityViewDisplay $display */
         if ($display = $storage->load($field_definition->getTargetEntityTypeId() . '.' . $bundle . '.default')) {
           $visible = (bool) $display->getComponent($field_definition->getName());
         }
@@ -216,11 +226,16 @@ class DiffBuilderManager extends DefaultPluginManager {
     if (isset($plugins[$field_definition->getType()])) {
       // Sort the plugins based on their weight.
       uasort($plugins[$field_definition->getType()], 'Drupal\Component\Utility\SortArray::sortByWeightElement');
+
       foreach ($plugins[$field_definition->getType()] as $id => $weight) {
         $definition = $this->getDefinition($id, FALSE);
         // Check if the plugin is applicable.
-        if (isset($definition['class']) && in_array($field_definition->getType(), $definition['field_types']) && $definition['class']::isApplicable($field_definition)) {
-          $plugin_options[$id] = $this->getDefinitions()[$id]['label'];
+        if (isset($definition['class']) && in_array($field_definition->getType(), $definition['field_types'])) {
+          /** @var FieldDiffBuilderInterface $class */
+          $class = $definition['class'];
+          if ($class::isApplicable($field_definition)) {
+            $plugin_options[$id] = $this->getDefinitions()[$id]['label'];
+          }
         }
       }
     }
@@ -245,7 +260,7 @@ class DiffBuilderManager extends DefaultPluginManager {
           // and for every such field type add the id of the plugin.
           if (!isset($plugin_definition['weight'])) {
             $plugin_definition['weight'] = 0;
-          };
+          }
 
           foreach ($plugin_definition['field_types'] as $id) {
             $this->pluginDefinitions[$id][$plugin_definition['id']]['weight'] = $plugin_definition['weight'];

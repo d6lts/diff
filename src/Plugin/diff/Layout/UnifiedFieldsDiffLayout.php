@@ -14,6 +14,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
+ * Provides Unified fields diff layout.
+ *
  * @DiffLayoutBuilder(
  *   id = "unified_fields",
  *   label = @Translation("Unified fields"),
@@ -100,6 +102,8 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
     $build = $this->buildRevisionsData($left_revision, $right_revision);
 
     $active_filter = $this->requestStack->getCurrentRequest()->query->get('filter') ?: 'raw';
+    $raw_active = $active_filter == 'raw';
+
     $build['controls']['filter'] = [
       '#type' => 'item',
       '#title' => $this->t('Filter'),
@@ -124,7 +128,6 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
         ];
       }
 
-      $raw_active = $active_filter == 'raw';
       if (!$raw_active) {
         $field_settings = $field['#settings'];
         if (!empty($field_settings['settings']['markdown'])) {
@@ -193,19 +196,19 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
               ],
               'row-sign' => [
                 'data' => isset($field_diff_rows[$key][2]['data']) ? $field_diff_rows[$key][2]['data'] : NULL,
-                'class' => [isset($field_diff_rows[$key][2]['class']) ? $field_diff_rows[$key][2]['class'] : NULL, $field_diff_rows[$key][3]['class']]
+                'class' => [isset($field_diff_rows[$key][2]['class']) ? $field_diff_rows[$key][2]['class'] : NULL, $field_diff_rows[$key][3]['class']],
               ],
               'row-data' => [
                 'data' => $field_diff_rows[$key][3]['data'],
                 'colspan' => 2,
                 'class' => $field_diff_rows[$key][3]['class'],
-              ]
+              ],
             ];
           }
         }
       }
 
-      // Add the field label to the table only if there are changes to that field.
+      // Add field label to the table only if there are changes to that field.
       if (!empty($final_diff) && !empty($field_label_row)) {
         $diff_rows[] = [$field_label_row];
       }

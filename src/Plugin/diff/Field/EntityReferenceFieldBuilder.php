@@ -2,6 +2,7 @@
 
 namespace Drupal\diff\Plugin\diff\Field;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\diff\FieldDiffBuilderBase;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -35,6 +36,7 @@ class EntityReferenceFieldBuilder extends FieldDiffBuilderBase {
         // Compare entity ids.
         if ($field_item->entity) {
           if ($this->configuration['compare_entity_reference'] == COMPARE_ENTITY_REFERENCE_LABEL) {
+            /** @var EntityInterface $entity */
             $entity = $field_item->entity;
             $result[$field_key][] = $entity->label();
           }

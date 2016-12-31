@@ -83,7 +83,7 @@ class PluginRevisionController extends ControllerBase {
    * @param int $entity_id
    *   The entity to find revisions of.
    *
-   * @return array
+   * @return int[]
    *   The revision ids.
    */
   public function getRevisionIds(EntityStorageInterface $storage, $entity_id) {
@@ -179,11 +179,11 @@ class PluginRevisionController extends ControllerBase {
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity to be compared.
-   * @param $left_revision_id
+   * @param int $left_revision_id
    *   Revision id of the left revision.
-   * @param $right_revision_id
+   * @param int $right_revision_id
    *   Revision id of the right revision.
-   * @param $active_filter
+   * @param string $active_filter
    *   The active filter.
    *
    * @return array
@@ -217,12 +217,14 @@ class PluginRevisionController extends ControllerBase {
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity to be compared.
-   * @param $revision_ids
+   * @param array $revision_ids
    *   The revision ids.
-   * @param $left_revision_id
+   * @param int $left_revision_id
    *   Revision id of the left revision.
-   * @param $right_revision_id
+   * @param int $right_revision_id
    *   Revision id of the right revision.
+   * @param string $filter
+   *   The filter.
    *
    * @return array
    *   The revision navigation links.
@@ -283,19 +285,19 @@ class PluginRevisionController extends ControllerBase {
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity to be compared.
-   * @param $left_revision_id
+   * @param int $left_revision_id
    *   Revision id of the left revision.
-   * @param $right_revision_id
+   * @param int $right_revision_id
    *   Revision id of the right revision.
-   * @param $layout
+   * @param string $layout
    *   (optional) The filter/layout added to the route.
-   * @param $layout_options
+   * @param array $layout_options
    *   (optional) The layout options provided by the selected layout.
    *
    * @return \Drupal\Core\Url
    *   The URL object.
    */
-  public static function diffRoute(EntityInterface $entity, $left_revision_id, $right_revision_id, $layout = NULL, $layout_options = NULL) {
+  public static function diffRoute(EntityInterface $entity, $left_revision_id, $right_revision_id, $layout = NULL, array $layout_options = NULL) {
     $entity_type_id = $entity->getEntityTypeId();
     // @todo Remove the diff.revisions_diff route so we avoid adding extra cases.
     if ($entity->getEntityTypeId() == 'node') {

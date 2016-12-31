@@ -9,6 +9,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\diff\DiffLayoutManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Configure global diff settings.
+ */
 class GeneralSettingsForm extends ConfigFormBase {
 
   /**
@@ -169,7 +172,7 @@ class GeneralSettingsForm extends ConfigFormBase {
         '#open' => TRUE,
         '#states' => [
           'visible' => [
-            ':input[name="layout_plugins[visual_inline][enabled]"]' => ['checked' => TRUE]
+            ':input[name="layout_plugins[visual_inline][enabled]"]' => ['checked' => TRUE],
           ],
         ],
       ];
@@ -195,6 +198,9 @@ class GeneralSettingsForm extends ConfigFormBase {
     return parent::buildForm($form, $form_state);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
 

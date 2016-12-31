@@ -1,15 +1,11 @@
 <?php
 
-/**
- * @ingroup diff
- */
-
 namespace Drupal\diff\Tests;
 
 /**
  * Tests the Diff module plugins.
  *
- * @group diff
+ * @ingroup diff
  */
 abstract class DiffPluginTestBase extends DiffTestBase {
 
@@ -49,6 +45,5 @@ abstract class DiffPluginTestBase extends DiffTestBase {
 
     $this->drupalLogin($this->rootUser);
   }
-
 
 }

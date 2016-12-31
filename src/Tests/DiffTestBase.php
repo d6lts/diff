@@ -41,6 +41,9 @@ abstract class DiffTestBase extends WebTestBase {
    */
   protected $adminUser;
 
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp();
 
@@ -65,10 +68,10 @@ abstract class DiffTestBase extends WebTestBase {
    *   Flag to determine if default admin permissions will be replaced by
    *   $additional_permissions.
    *
-   * @return object
+   * @return \Drupal\user\Entity\User|false
    *   Newly created and logged in user object.
    */
-  function loginAsAdmin($additional_permissions = [], $reset_permissions = FALSE) {
+  protected function loginAsAdmin(array $additional_permissions = [], $reset_permissions = FALSE) {
     $permissions = $this->adminPermissions;
 
     if ($reset_permissions) {

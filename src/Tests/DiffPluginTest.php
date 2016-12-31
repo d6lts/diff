@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @ingroup diff
- */
-
 namespace Drupal\diff\Tests;
 
 use Drupal\comment\Tests\CommentTestTrait;
@@ -119,7 +115,7 @@ class DiffPluginTest extends DiffPluginTestBase {
     $node->save();
 
     // Check the "Text Field No Access" field is not displayed.
-    $this->drupalGet('node/'. $node->id() .'/revisions');
+    $this->drupalGet('node/'. $node->id() . '/revisions');
     $this->drupalPostForm(NULL, [], t('Compare'));
     $this->assertResponse(200);
     $this->assertNoText('field_diff_deny_access');

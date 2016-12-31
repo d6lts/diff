@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @ingroup diff
- */
-
 namespace Drupal\diff\Tests;
 
 use Drupal\language\Entity\ConfigurableLanguage;
@@ -26,9 +22,12 @@ class DiffRevisionTest extends DiffTestBase {
   public static $modules = [
     'diff_test',
     'content_translation',
-    'field_ui'
+    'field_ui',
   ];
 
+  /**
+   * Run all test fragments.
+   */
   public function testAll() {
     $this->doTestRevisionDiffOverview();
     $this->doTestOverviewPager();
@@ -39,7 +38,7 @@ class DiffRevisionTest extends DiffTestBase {
   /**
    * Tests the revision diff overview.
    */
-  public function doTestRevisionDiffOverview() {
+  protected function doTestRevisionDiffOverview() {
     $this->drupalPlaceBlock('system_breadcrumb_block');
     // Login as admin with the required permission.
     $this->loginAsAdmin(['delete any article content']);
@@ -270,7 +269,10 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertNoLink(t('Set as current revision'));
   }
 
-  public function doTestOverviewPager() {
+  /**
+   * Tests pager on diff overview.
+   */
+  protected function doTestOverviewPager() {
     $config = \Drupal::configFactory()->getEditable('diff.settings');
     $config->set('general_settings.revision_pager_limit', 10)->save();
 
@@ -306,7 +308,7 @@ class DiffRevisionTest extends DiffTestBase {
    *
    * @todo Move to DiffLocaleTest?
    */
-  public function doTestRevisionOverviewErrorMessages() {
+  protected function doTestRevisionOverviewErrorMessages() {
     // Enable some languages for this test.
     $language = ConfigurableLanguage::createFromLangcode('de');
     $language->save();
@@ -399,10 +401,10 @@ class DiffRevisionTest extends DiffTestBase {
   /**
    * Tests Reference to Deleted Entities.
    */
-  public function doTestEntityReference() {
+  protected function doTestEntityReference() {
     // Login as admin with the required permissions.
     $this->loginAsAdmin([
-      'administer node fields'
+      'administer node fields',
     ]);
 
     // Adding Entity Reference to Article Content Type.

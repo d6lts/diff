@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @ingroup diff
- */
-
 namespace Drupal\diff\Tests;
 
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;

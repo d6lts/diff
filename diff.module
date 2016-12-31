@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains hooks.
+ * This is the diff module to compare revisions.
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;

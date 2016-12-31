@@ -33,6 +33,7 @@ class FileFieldBuilder extends FieldDiffBuilderBase {
 
         // Add file name to the comparison.
         if (isset($values['target_id'])) {
+          /** @var \Drupal\file\Entity\File $file */
           $file = $fileManager->load($values['target_id']);
           $result[$field_key][] = $this->t('File: :image', [
             ':image' => $file->getFilename(),

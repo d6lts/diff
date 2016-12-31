@@ -6,6 +6,10 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Component\Plugin\ConfigurablePluginInterface;
 
+/**
+ * Interface DiffLayoutInterface
+ * @package Drupal\diff
+ */
 interface DiffLayoutInterface extends PluginFormInterface, ConfigurablePluginInterface {
 
   /**

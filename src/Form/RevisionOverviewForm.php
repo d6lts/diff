@@ -319,11 +319,11 @@ class RevisionOverviewForm extends FormBase {
   /**
    * Set column attributes and return config array.
    *
-   * @param $name
+   * @param string $name
    *   Name attribute.
-   * @param $return_val
+   * @param string $return_val
    *   Return value attribute.
-   * @param $default_val
+   * @param string $default_val
    *   Default value attribute.
    *
    * @return array
@@ -344,7 +344,7 @@ class RevisionOverviewForm extends FormBase {
    *
    * @param $link
    *   Link attribute.
-   * @param $username
+   * @param string $username
    *   Username attribute.
    * @param \Drupal\Core\Entity\ContentEntityInterface $revision
    *   Revision parameter for getRevisionDescription function.

@@ -11,6 +11,9 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
+/**
+ * Base class for field diff builder plugins.
+ */
 abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuilderInterface, ContainerFactoryPluginInterface {
 
   use StringTranslationTrait;
@@ -168,4 +171,5 @@ abstract class FieldDiffBuilderBase extends PluginBase implements FieldDiffBuild
   public static function isApplicable(FieldStorageDefinitionInterface $field_definition) {
     return TRUE;
   }
+
 }

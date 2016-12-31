@@ -8,7 +8,6 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Component\Diff\Diff;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Component\Utility\Xss;
-use Drupal\Core\Field\FieldItemListInterface;
 
 /**
  * Entity comparison service that prepares a diff of a pair of entities.
@@ -24,6 +23,8 @@ class DiffEntityComparison {
 
   /**
    * Wrapper object for simple configuration from diff.plugins.yml.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $pluginsConfig;
 
@@ -178,7 +179,7 @@ class DiffEntityComparison {
    * @param bool $show_header
    *   Display diff context headers. For example, "Line x".
    * @param array $line_stats
-   *   This structure tracks line numbers across multiple calls to DiffFormatter.
+   *   Tracks line numbers across multiple calls to DiffFormatter.
    *
    * @see \Drupal\Component\Diff\DiffFormatter::format
    *
@@ -311,7 +312,7 @@ class DiffEntityComparison {
     $entity_type_id = $revision->getEntityTypeId();
     // Loop through entity fields and transform every FieldItemList object
     // into an array of strings according to field type specific settings.
-    /** @var FieldItemListInterface $field_items */
+    /** @var \Drupal\Core\Field\FieldItemListInterface $field_items */
     foreach ($revision as $field_items) {
       $show_delta = FALSE;
       // Create a plugin instance for the field definition.

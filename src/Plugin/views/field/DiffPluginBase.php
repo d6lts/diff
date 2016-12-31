@@ -13,6 +13,9 @@ use Drupal\views\Plugin\views\field\UncacheableFieldHandlerTrait;
 use Drupal\views\ResultRow;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Base class for diff view field plugins.
+ */
 class DiffPluginBase extends FieldPluginBase {
 
   use UncacheableFieldHandlerTrait;

@@ -32,6 +32,7 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
 
         // Compare file names.
         if (isset($values['target_id'])) {
+          /** @var \Drupal\file\Entity\File $image */
           $image = $fileManager->load($values['target_id']);
           $result[$field_key][] = $this->t('Image: @image', [
             '@image' => $image->getFilename(),
@@ -81,7 +82,7 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Show image ID'),
       '#default_value' => $this->configuration['show_id'],
-     );
+    );
     $form['compare_alt_field'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Compare <em>Alt</em> field'),
@@ -136,4 +137,5 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
 
     return $default_configuration;
   }
+
 }

@@ -18,6 +18,8 @@ use HtmlDiffAdvancedInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
+ * Provides Visual Inline diff layout.
+ *
  * @DiffLayoutBuilder(
  *   id = "visual_inline",
  *   label = @Translation("Visual Inline"),

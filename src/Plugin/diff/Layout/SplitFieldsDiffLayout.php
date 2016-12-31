@@ -14,6 +14,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
+ * Provides Split fields diff layout.
+ *
  * @DiffLayoutBuilder(
  *   id = "split_fields",
  *   label = @Translation("Split fields"),

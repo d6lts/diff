@@ -6,6 +6,9 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Language\LanguageInterface;
 
+/**
+ * Transforms an entity into an array of strings for diff.
+ */
 class DiffEntityParser {
 
   /**
