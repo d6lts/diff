@@ -81,9 +81,9 @@ class DiffEntityComparison {
   /**
    * This method should return an array of items ready to be compared.
    *
-   * @param ContentEntityInterface $left_entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $left_entity
    *   The left entity.
-   * @param ContentEntityInterface $right_entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $right_entity
    *   The right entity.
    *
    * @return array

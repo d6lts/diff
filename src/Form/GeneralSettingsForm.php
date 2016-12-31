@@ -92,7 +92,7 @@ class GeneralSettingsForm extends ConfigFormBase {
       '#type' => 'table',
       '#header' => [t('Layout'), t('Description'), t('Weight')],
       '#empty' => t('There are no items yet. Add an item.'),
-      '#suffix' => '<div class="description">' . $this->t('The layout plugins that are enabled to display the revision comparison.') .'</div>',
+      '#suffix' => '<div class="description">' . $this->t('The layout plugins that are enabled to display the revision comparison.') . '</div>',
       '#tabledrag' => [
         [
           'action' => 'order',
@@ -126,7 +126,7 @@ class GeneralSettingsForm extends ConfigFormBase {
         '#array_parents' => [
           'settings',
           'sites',
-          $id
+          $id,
         ],
         '#attributes' => ['class' => ['diff-layout-plugins-order-weight']],
       ];
@@ -140,7 +140,7 @@ class GeneralSettingsForm extends ConfigFormBase {
         'visible' => [
           [':input[name="layout_plugins[split_fields][enabled]"]' => ['checked' => TRUE]],
           [':input[name="layout_plugins[unified_fields][enabled]"]' => ['checked' => TRUE]],
-        ]
+        ],
       ],
     ];
 
@@ -170,7 +170,7 @@ class GeneralSettingsForm extends ConfigFormBase {
         '#states' => [
           'visible' => [
             ':input[name="layout_plugins[visual_inline][enabled]"]' => ['checked' => TRUE]
-          ]
+          ],
         ],
       ];
 

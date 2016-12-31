@@ -50,5 +50,4 @@ class NodeRevisionController extends PluginRevisionController {
     return $build;
   }
 
-
 }

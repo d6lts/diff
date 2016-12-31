@@ -4,7 +4,6 @@ namespace Drupal\diff;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Language\LanguageInterface;
 
 class DiffEntityParser {
@@ -17,12 +16,16 @@ class DiffEntityParser {
   protected $diffBuilderManager;
 
   /**
-   * Wrapper object for writing/reading simple configuration from diff.settings.yml
+   * Wrapper object for simple configuration from diff.settings.yml.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $config;
 
   /**
-   * Wrapper object for writing/reading simple configuration from diff.plugins.yml
+   * Wrapper object for simple configuration from diff.plugins.yml.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $pluginsConfig;
 
@@ -36,7 +39,7 @@ class DiffEntityParser {
    */
   public function __construct(DiffBuilderManager $diff_builder_manager, ConfigFactoryInterface $config_factory) {
     $this->config = $config_factory->get('diff.settings');
-    $this->pluginsConfig =  $config_factory->get('diff.plugins');
+    $this->pluginsConfig = $config_factory->get('diff.plugins');
     $this->diffBuilderManager = $diff_builder_manager;
   }
 
@@ -64,7 +67,7 @@ class DiffEntityParser {
     $entity_type_id = $entity->getEntityTypeId();
     // Loop through entity fields and transform every FieldItemList object
     // into an array of strings according to field type specific settings.
-    /** @var FieldItemListInterface $field_items */
+    /** @var \Drupal\Core\Field\FieldItemListInterface $field_items */
     foreach ($entity as $field_items) {
       // Define if the current field should be displayed as a diff change.
       $show_diff = $this->diffBuilderManager->showDiff($field_items->getFieldDefinition()->getFieldStorageDefinition());
@@ -97,4 +100,5 @@ class DiffEntityParser {
     $this->diffBuilderManager->clearCachedDefinitions();
     return $result;
   }
+
 }

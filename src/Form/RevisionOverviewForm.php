@@ -54,12 +54,14 @@ class RevisionOverviewForm extends FormBase {
   /**
    * The language manager.
    *
-   * @var \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   * @var \Drupal\Core\Language\LanguageManagerInterface
    */
   protected $languageManager;
 
   /**
-   * Wrapper object for writing/reading simple configuration from diff.settings.yml
+   * Wrapper object for simple configuration from diff.settings.yml.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $config;
 
@@ -247,7 +249,7 @@ class RevisionOverviewForm extends FormBase {
               '#suffix' => '</em>',
               '#attributes' => array(
                 'class' => array('revision-current'),
-              )
+              ),
             );
             $row['#attributes'] = [
               'class' => ['revision-current'],
@@ -271,7 +273,7 @@ class RevisionOverviewForm extends FormBase {
             if ($delete_permission) {
               $links['delete'] = array(
                 'title' => $this->t('Delete'),
-                'url' => Url::fromRoute('node.revision_delete_confirm', $route_params)
+                'url' => Url::fromRoute('node.revision_delete_confirm', $route_params),
               );
             }
 
@@ -281,7 +283,7 @@ class RevisionOverviewForm extends FormBase {
             $row = [
               'revision' => $this->buildRevision($link, $username, $revision, $previous_revision),
               'select_column_one' => $this->buildSelectColumn('radios_left', $vid,
-                isset ($vids[1]) ? $vids[1] : FALSE),
+                isset($vids[1]) ? $vids[1] : FALSE),
               'select_column_two' => $this->buildSelectColumn('radios_right', $vid, FALSE),
               'operations' => [
                 '#type' => 'operations',
@@ -333,19 +335,20 @@ class RevisionOverviewForm extends FormBase {
       '#title_display' => 'invisible',
       '#name' => $name,
       '#return_value' => $return_val,
-      '#default_value' => $default_val
+      '#default_value' => $default_val,
     ];
   }
 
   /**
    * Set and return configuration for revision.
+   *
    * @param $link
    *   Link attribute.
    * @param $username
    *   Username attribute.
    * @param \Drupal\Core\Entity\ContentEntityInterface $revision
    *   Revision parameter for getRevisionDescription function.
-   * @param  \Drupal\Core\Entity\ContentEntityInterface $previous_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $previous_revision
    *   (optional) Previous revision for getRevisionDescription function.
    *   Defaults to NULL.
    *
@@ -361,7 +364,7 @@ class RevisionOverviewForm extends FormBase {
         'username' => $this->renderer->renderPlain($username),
         'message' => [
           '#markup' => $this->entityComparison->getRevisionDescription($revision, $previous_revision),
-          '#allowed_tags' => Xss::getAdminTagList()
+          '#allowed_tags' => Xss::getAdminTagList(),
         ],
       ],
     ];

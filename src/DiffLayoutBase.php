@@ -151,7 +151,7 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
             'right_revision' => $right_revision,
             'left_revision' => $left_revision,
           ],
-        ]
+        ],
       ],
     ];
   }
@@ -349,4 +349,5 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
   public function calculateDependencies() {
     return [];
   }
+
 }

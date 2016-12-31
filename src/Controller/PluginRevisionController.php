@@ -2,7 +2,6 @@
 
 namespace Drupal\diff\Controller;
 
-use Drupal\Core\Config\ImmutableConfig;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Utility\UrlHelper;
@@ -251,7 +250,7 @@ class PluginRevisionController extends ControllerBase {
         $i += 1;
       }
       if ($i != 0) {
-        // build the left link.
+        // Build the left link.
         $left_link = Link::fromTextAndUrl($this->t('Previous change'), $this->diffRoute($entity, $revision_ids[$i - 1], $left_revision_id, $filter, $layout_options))->toString();
       }
       $element['left'] = [

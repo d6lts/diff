@@ -167,14 +167,14 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
             'data' => $show_left ? $row_count_left : NULL,
             'class' => [
               'diff-line-number',
-              isset($field_diff_rows[$key][1]['data']) ? $field_diff_rows[$key][1]['class'] : NULL
+              isset($field_diff_rows[$key][1]['data']) ? $field_diff_rows[$key][1]['class'] : NULL,
             ],
           ],
           'left-row-sign' => [
             'data' => isset($field_diff_rows[$key][0]['data']) ? $field_diff_rows[$key][0]['data'] : NULL,
             'class' => [
               isset($field_diff_rows[$key][0]['class']) ? $field_diff_rows[$key][0]['class'] : NULL,
-              isset($field_diff_rows[$key][1]['data']) ? $field_diff_rows[$key][1]['class'] : NULL
+              isset($field_diff_rows[$key][1]['data']) ? $field_diff_rows[$key][1]['class'] : NULL,
             ],
           ],
           'left-row-data' => [
@@ -185,24 +185,24 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
             'data' => $show_right ? $row_count_right : NULL,
             'class' => [
               'diff-line-number',
-              isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['class'] : NULL
+              isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['class'] : NULL,
             ],
           ],
           'right-row-sign' => [
             'data' => isset($field_diff_rows[$key][2]['data']) ? $field_diff_rows[$key][2]['data'] : NULL,
             'class' => [
               isset($field_diff_rows[$key][2]['class']) ? $field_diff_rows[$key][2]['class'] : NULL,
-              isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['class'] : NULL
+              isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['class'] : NULL,
             ],
           ],
           'right-row-data' => [
             'data' => isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['data'] : NULL,
             'class' => isset($field_diff_rows[$key][3]['data']) ? $field_diff_rows[$key][3]['class'] : NULL,
-          ]
+          ],
         ];
       }
 
-      // Add the field label to the table only if there are changes to that field.
+      // Add field label to the table only if there are changes to that field.
       if (!empty($final_diff) && !empty($field_label_row)) {
         $diff_rows[] = [$field_label_row];
       }
@@ -217,7 +217,7 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
         unset($diff_rows[$i]['left-line-number']);
         unset($diff_rows[$i]['right-line-number']);
       }
-      //Reduce the colspan.
+      // Reduce the colspan.
       $diff_header[0]['colspan'] = 2;
     }
 

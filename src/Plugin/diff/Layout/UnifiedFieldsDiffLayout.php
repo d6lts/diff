@@ -170,13 +170,13 @@ class UnifiedFieldsDiffLayout extends DiffLayoutBase {
             ],
             'row-sign' => [
               'data' => isset($field_diff_rows[$key][0]['data']) ? $field_diff_rows[$key][0]['data'] : NULL,
-              'class' => [isset($field_diff_rows[$key][0]['class']) ? $field_diff_rows[$key][0]['class'] : NULL, $field_diff_rows[$key][1]['class']]
+              'class' => [isset($field_diff_rows[$key][0]['class']) ? $field_diff_rows[$key][0]['class'] : NULL, $field_diff_rows[$key][1]['class']],
             ],
             'row-data' => [
               'data' => $field_diff_rows[$key][1]['data'],
               'colspan' => 2,
               'class' => $field_diff_rows[$key][1]['class'],
-            ]
+            ],
           ];
         }
         if ($field_diff_rows[$key][1] != $field_diff_rows[$key][3]) {

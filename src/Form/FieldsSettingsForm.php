@@ -22,7 +22,9 @@ use Drupal\Core\Form\FormState;
 class FieldsSettingsForm extends ConfigFormBase {
 
   /**
-   * Wrapper object for writing/reading configuration from diff.plugins.yml
+   * Wrapper object for configuration from diff.plugins.yml.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $config;
 
@@ -514,7 +516,7 @@ class FieldsSettingsForm extends ConfigFormBase {
       'field_name' => $this->t('Field'),
       'field_type' => $this->t('Field Type'),
       'plugin' => $this->t('Plugin'),
-      'settings_edit' => $this->t(''),
+      'settings_edit' => '',
     );
   }
 
