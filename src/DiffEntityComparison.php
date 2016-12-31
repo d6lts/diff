@@ -7,8 +7,8 @@ use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Component\Diff\Diff;
 use Drupal\Core\Entity\RevisionLogInterface;
-use Drupal\Core\Render\Element;
 use Drupal\Component\Utility\Xss;
+use Drupal\Core\Field\FieldItemListInterface;
 
 /**
  * Entity comparison service that prepares a diff of a pair of entities.
@@ -23,7 +23,7 @@ class DiffEntityComparison {
   protected $configFactory;
 
   /**
-   * Wrapper object for writing/reading simple configuration from diff.plugins.yml
+   * Wrapper object for simple configuration from diff.plugins.yml.
    */
   protected $pluginsConfig;
 
@@ -36,6 +36,8 @@ class DiffEntityComparison {
 
   /**
    * A list of all the field types from the system and their definitions.
+   *
+   * @var array
    */
   protected $fieldTypeDefinitions;
 
@@ -134,15 +136,15 @@ class DiffEntityComparison {
   /**
    * Combine two fields into an array with keys '#left' and '#right'.
    *
-   * @param $left_values
+   * @param array $left_values
    *   Entity field formatted into an array of strings.
-   * @param $right_values
+   * @param array $right_values
    *   Entity field formatted into an array of strings.
    *
    * @return array
    *   Array resulted after combining the left and right values.
    */
-  protected function combineFields($left_values, $right_values) {
+  protected function combineFields(array $left_values, array $right_values) {
     $result = array(
       '#left' => array(),
       '#right' => array(),
@@ -173,7 +175,7 @@ class DiffEntityComparison {
    *   The source string to compare from.
    * @param string $b
    *   The target string to compare to.
-   * @param boolean $show_header
+   * @param bool $show_header
    *   Display diff context headers. For example, "Line x".
    * @param array $line_stats
    *   This structure tracks line numbers across multiple calls to DiffFormatter.
@@ -184,7 +186,7 @@ class DiffEntityComparison {
    *   Array of rows usable with #type => 'table' returned by the core diff
    *   formatter when format a diff.
    */
-  public function getRows($a, $b, $show_header = FALSE, &$line_stats = NULL) {
+  public function getRows($a, $b, $show_header = FALSE, array &$line_stats = NULL) {
     if (!isset($line_stats)) {
       $line_stats = array(
         'counter' => array('x' => 0, 'y' => 0),
@@ -202,10 +204,10 @@ class DiffEntityComparison {
   /**
    * Splits the strings into lines and counts the resulted number of lines.
    *
-   * @param $diff
+   * @param array $diff
    *   Array of strings.
    */
-  public function processStateLine(&$diff) {
+  public function processStateLine(array &$diff) {
     $data = $diff['#data'];
     if (isset($data['#left']) && $data['#left'] != '') {
       if (is_string($data['#left'])) {
@@ -251,7 +253,7 @@ class DiffEntityComparison {
         $auto_generated = TRUE;
       }
     }
-    else{
+    else {
       $auto_generated = TRUE;
     }
     // Auto generate the revision log.
@@ -304,40 +306,42 @@ class DiffEntityComparison {
    * @return array
    *   Array of the revision fields with their value and label.
    */
-   protected function summary(ContentEntityInterface $revision) {
-     $result = [];
-     $entity_type_id = $revision->getEntityTypeId();
-     // Loop through entity fields and transform every FieldItemList object
-     // into an array of strings according to field type specific settings.
-     foreach ($revision as $field_items) {
-       $show_delta = FALSE;
-       // Create a plugin instance for the field definition.
-       $plugin = $this->diffBuilderManager->createInstanceForFieldDefinition($field_items->getFieldDefinition(), $revision->bundle());
-       if ($plugin && $this->diffBuilderManager->showDiff($field_items->getFieldDefinition()->getFieldStorageDefinition())) {
-         // Create the array with the fields of the entity. Recursive if the
-         // field contains entities.
-         if ($plugin instanceof FieldReferenceInterface) {
-           foreach ($plugin->getEntitiesToDiff($field_items) as $entity_key => $reference_entity) {
-             foreach($this->summary($reference_entity) as $key => $build) {
-               if ($field_items->getFieldDefinition()->getFieldStorageDefinition()->getCardinality() != 1) {
-                 $show_delta = TRUE;
-               }
-               $result[$key] = $build;
-               $delta = $show_delta ? '<sub>' . ($entity_key + 1) . '</sub> ' : ' - ';
-               $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel() . $delta . $result[$key]['label'];
-             };
-           }
-         }
-         else {
-           // Create a unique flat key.
-           $key = $revision->id() . ':' . $entity_type_id . '.' . $field_items->getName();
+  protected function summary(ContentEntityInterface $revision) {
+    $result = [];
+    $entity_type_id = $revision->getEntityTypeId();
+    // Loop through entity fields and transform every FieldItemList object
+    // into an array of strings according to field type specific settings.
+    /** @var FieldItemListInterface $field_items */
+    foreach ($revision as $field_items) {
+      $show_delta = FALSE;
+      // Create a plugin instance for the field definition.
+      $plugin = $this->diffBuilderManager->createInstanceForFieldDefinition($field_items->getFieldDefinition(), $revision->bundle());
+      if ($plugin && $this->diffBuilderManager->showDiff($field_items->getFieldDefinition()->getFieldStorageDefinition())) {
+        // Create the array with the fields of the entity. Recursive if the
+        // field contains entities.
+        if ($plugin instanceof FieldReferenceInterface) {
+          foreach ($plugin->getEntitiesToDiff($field_items) as $entity_key => $reference_entity) {
+            foreach ($this->summary($reference_entity) as $key => $build) {
+              if ($field_items->getFieldDefinition()->getFieldStorageDefinition()->getCardinality() != 1) {
+                $show_delta = TRUE;
+              }
+              $result[$key] = $build;
+              $delta = $show_delta ? '<sub>' . ($entity_key + 1) . '</sub> ' : ' - ';
+              $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel() . $delta . $result[$key]['label'];
+            };
+          }
+        }
+        else {
+          // Create a unique flat key.
+          $key = $revision->id() . ':' . $entity_type_id . '.' . $field_items->getName();
 
-           $result[$key]['value'] = $field_items->getvalue();
-           $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel();
-         }
-       }
-     }
+          $result[$key]['value'] = $field_items->getValue();
+          $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel();
+        }
+      }
+    }
 
-     return $result;
-   }
+    return $result;
+  }
+
 }

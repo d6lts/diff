@@ -7,6 +7,8 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
+ * Plugin to diff image fields.
+ *
  * @FieldDiffBuilder(
  *   id = "image_field_diff_builder",
  *   label = @Translation("Image Field Diff"),
@@ -31,27 +33,35 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
         // Compare file names.
         if (isset($values['target_id'])) {
           $image = $fileManager->load($values['target_id']);
-          $result[$field_key][] = $this->t('Image: @image', array('@image' => $image->getFilename()));
+          $result[$field_key][] = $this->t('Image: @image', [
+            '@image' => $image->getFilename(),
+          ]);
         }
 
         // Compare Alt fields.
         if ($this->configuration['compare_alt_field']) {
           if (isset($values['alt'])) {
-            $result[$field_key][] = $this->t('Alt: @alt', array('@alt' => $values['alt']));
+            $result[$field_key][] = $this->t('Alt: @alt', [
+              '@alt' => $values['alt'],
+            ]);
           }
         }
 
         // Compare Title fields.
         if ($this->configuration['compare_title_field']) {
           if (!empty($values['title'])) {
-            $result[$field_key][] = $this->t('Title: @title', array('@title' => $values['title']));
+            $result[$field_key][] = $this->t('Title: @title', [
+              '@title' => $values['title'],
+            ]);
           }
         }
 
         // Compare file id.
         if ($this->configuration['show_id']) {
           if (isset($values['target_id'])) {
-            $result[$field_key][] = $this->t('File ID: @fid', array('@fid' => $values['target_id']));
+            $result[$field_key][] = $this->t('File ID: @fid', [
+              '@fid' => $values['target_id'],
+            ]);
           }
         }
 

@@ -4,6 +4,7 @@ namespace Drupal\diff;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Language\LanguageInterface;
 
 class DiffEntityParser {
@@ -63,6 +64,7 @@ class DiffEntityParser {
     $entity_type_id = $entity->getEntityTypeId();
     // Loop through entity fields and transform every FieldItemList object
     // into an array of strings according to field type specific settings.
+    /** @var FieldItemListInterface $field_items */
     foreach ($entity as $field_items) {
       // Define if the current field should be displayed as a diff change.
       $show_diff = $this->diffBuilderManager->showDiff($field_items->getFieldDefinition()->getFieldStorageDefinition());
@@ -76,7 +78,7 @@ class DiffEntityParser {
         // field contains entities.
         if ($plugin instanceof FieldReferenceInterface) {
           foreach ($plugin->getEntitiesToDiff($field_items) as $entity_key => $reference_entity) {
-            foreach($this->parseEntity($reference_entity) as $key => $build) {
+            foreach ($this->parseEntity($reference_entity) as $key => $build) {
               $result[$key] = $build;
               $result[$key]['label'] = $field_items->getFieldDefinition()->getLabel() . ' > ' . $result[$key]['label'];
             };

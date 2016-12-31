@@ -7,6 +7,8 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
+ * Plugin to diff text with summary fields.
+ *
  * @FieldDiffBuilder(
  *   id = "text_summary_field_diff_builder",
  *   label = @Translation("Text with Summary Field"),

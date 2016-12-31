@@ -3,6 +3,7 @@
 namespace Drupal\diff\Form;
 
 use Drupal\Component\Utility\Xss;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\diff\DiffLayoutManager;
@@ -20,10 +21,14 @@ class GeneralSettingsForm extends ConfigFormBase {
   /**
    * GeneralSettingsForm constructor.
    *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
    * @param \Drupal\diff\DiffLayoutManager $diff_layout_manager
    *   The diff layout manager service.
    */
-  public function __construct(DiffLayoutManager $diff_layout_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, DiffLayoutManager $diff_layout_manager) {
+    parent::__construct($config_factory);
+
     $this->diffLayoutManager = $diff_layout_manager;
   }
 
@@ -32,6 +37,7 @@ class GeneralSettingsForm extends ConfigFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('config.factory'),
       $container->get('plugin.manager.diff.layout')
     );
   }
@@ -215,14 +221,14 @@ class GeneralSettingsForm extends ConfigFormBase {
       'context_lines_leading',
       'context_lines_trailing',
       'layout_plugins',
-      'visual_inline_theme'
+      'visual_inline_theme',
     );
     foreach ($keys as $key) {
       $config->set('general_settings.' . $key, $form_state->getValue($key));
     }
     $config->save();
 
-    return parent::submitForm($form, $form_state);
+    parent::submitForm($form, $form_state);
   }
 
 }

@@ -1,8 +1,10 @@
 <?php
 
 /**
+ * @file
  * Implements hook_views_data().
  */
+
 function diff_views_data() {
   $data = [];
 

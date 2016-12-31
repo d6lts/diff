@@ -2,10 +2,7 @@
 
 namespace Drupal\diff\Controller;
 
-use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
-use Drupal\diff\EntityComparisonBase;
-use Drupal\Component\Utility\Xss;
 
 /**
  * Returns responses for Node Revision routes.
@@ -39,7 +36,7 @@ class NodeRevisionController extends PluginRevisionController {
    *   Vid of the node revision from the right.
    * @param $filter
    *   If $filter == 'raw' raw text is compared (including html tags)
-   *   If filter == 'raw-plain' markdown function is applied to the text before comparison.
+   *   If $filter == 'raw-plain' markdown function is applied to the text before comparison.
    *
    * @return array
    *   Table showing the diff between the two node revisions.

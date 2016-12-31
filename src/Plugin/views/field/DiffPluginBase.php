@@ -81,7 +81,7 @@ class DiffPluginBase extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function viewsForm(&$form, FormStateInterface $form_state) {
+  public function viewsForm(array &$form, FormStateInterface $form_state) {
     if (!empty($this->view->result)) {
       $form[$this->options['id']]['#tree'] = TRUE;
       foreach ($this->view->result as $row_index => $row) {

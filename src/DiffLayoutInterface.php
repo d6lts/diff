@@ -15,8 +15,6 @@ interface DiffLayoutInterface extends PluginFormInterface, ConfigurablePluginInt
    * revisions of the same entity. It can build a table, navigation links and
    * headers of a diff comparison.
    *
-   * @see \Drupal\Plugin\Layout\ClassicDiffLayout
-   *
    * @param \Drupal\Core\Entity\EntityInterface $left_revision
    *   The left revision.
    * @param \Drupal\Core\Entity\EntityInterface $right_revision
@@ -24,8 +22,9 @@ interface DiffLayoutInterface extends PluginFormInterface, ConfigurablePluginInt
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity.
    *
-   * @return mixed
+   * @return array
    *   The modified build array that the plugin builds.
    */
   public function build(EntityInterface $left_revision, EntityInterface $right_revision, EntityInterface $entity);
+
 }

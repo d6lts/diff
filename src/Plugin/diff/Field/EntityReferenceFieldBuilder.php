@@ -11,6 +11,8 @@ const COMPARE_ENTITY_REFERENCE_LABEL = 1;
 
 
 /**
+ * Plugin to diff entity reference fields.
+ *
  * @FieldDiffBuilder(
  *   id = "entity_reference_field_diff_builder",
  *   label = @Translation("Entity Reference Field Diff"),
@@ -37,7 +39,9 @@ class EntityReferenceFieldBuilder extends FieldDiffBuilderBase {
             $result[$field_key][] = $entity->label();
           }
           else {
-            $result[$field_key][] = $this->t('Entity ID: ') . $values['target_id'];
+            $result[$field_key][] = $this->t('Entity ID: :id', [
+              ':id' => $values['target_id'],
+            ]);
           }
         }
       }

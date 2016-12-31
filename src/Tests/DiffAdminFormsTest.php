@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @ingroup diff
- */
-
 namespace Drupal\diff\Tests;
 
 /**
@@ -36,7 +32,7 @@ class DiffAdminFormsTest extends DiffTestBase {
    * Run all independent tests.
    */
   public function testAll() {
-    $this->doTestSettingsUI();
+    $this->doTestSettingsUi();
     $this->doTestSettingsTab();
     $this->doTestRequirements();
     $this->doTestConfigurableFieldsTab();
@@ -46,7 +42,7 @@ class DiffAdminFormsTest extends DiffTestBase {
   /**
    * Tests the descriptions in the Settings UI.
    */
-  public function doTestSettingsUI() {
+  public function doTestSettingsUi() {
     // Enable the help block.
     $this->drupalPlaceBlock('help_block', ['region' => 'help']);
 

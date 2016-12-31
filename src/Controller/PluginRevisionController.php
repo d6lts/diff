@@ -2,6 +2,7 @@
 
 namespace Drupal\diff\Controller;
 
+use Drupal\Core\Config\ImmutableConfig;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Utility\UrlHelper;
@@ -20,7 +21,9 @@ use Drupal\diff\DiffEntityComparison;
 class PluginRevisionController extends ControllerBase {
 
   /**
-   * Wrapper object for writing/reading configuration from diff.plugins.yml
+   * Wrapper object for writing/reading configuration from diff.plugins.yml.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $config;
 
@@ -76,12 +79,13 @@ class PluginRevisionController extends ControllerBase {
   /**
    * Get all the revision ids of given entity id.
    *
-   * @param $storage
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
    *   The entity storage manager.
-   * @param $entity_id
+   * @param int $entity_id
    *   The entity to find revisions of.
    *
    * @return array
+   *   The revision ids.
    */
   public function getRevisionIds(EntityStorageInterface $storage, $entity_id) {
     $result = $storage->getQuery()
@@ -111,6 +115,7 @@ class PluginRevisionController extends ControllerBase {
    */
   public function compareEntityRevisions(RouteMatchInterface $route_match, EntityInterface $left_revision, EntityInterface $right_revision, $filter) {
     $entity_type_id = $left_revision->getEntityTypeId();
+    /** @var EntityInterface $entity */
     $entity = $route_match->getParameter($entity_type_id);
 
     $entity_type_id = $entity->getEntityTypeId();

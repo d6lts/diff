@@ -7,6 +7,8 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
+ * Plugin to diff text fields.
+ *
  * @FieldDiffBuilder(
  *   id = "text_field_diff_builder",
  *   label = @Translation("Text Field Diff"),

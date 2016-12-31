@@ -6,7 +6,6 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
@@ -26,12 +25,14 @@ class DiffBuilderManager extends DefaultPluginManager {
   protected $entityTypeManager;
 
   /**
-   * Wrapper object for writing/reading simple configuration from diff.settings.yml
+   * Wrapper object for simple configuration from diff.settings.yml.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $config;
 
   /**
-   * Wrapper object for writing/reading simple configuration from diff.plugins.yml
+   * Wrapper object for simple configuration from diff.plugins.yml.
    */
   protected $pluginsConfig;
 
@@ -64,7 +65,7 @@ class DiffBuilderManager extends DefaultPluginManager {
     $this->alterInfo('field_diff_builder_info');
     $this->entityTypeManager = $entity_type_manager;
     $this->config = $config_factory->get('diff.settings');
-    $this->pluginsConfig =  $config_factory->get('diff.plugins');
+    $this->pluginsConfig = $config_factory->get('diff.plugins');
 
   }
 
@@ -89,7 +90,12 @@ class DiffBuilderManager extends DefaultPluginManager {
       // entity.
       $entity_type = $this->entityTypeManager->getDefinition($field_storage_definition->getTargetEntityTypeId());
       // @todo Don't hard code fields after: https://www.drupal.org/node/2248983
-      if (in_array($field_storage_definition->getName(), ['revision_log', 'revision_uid' , $entity_type->getKey('bundle'), $entity_type->getKey('revision')])) {
+      if (in_array($field_storage_definition->getName(), [
+        'revision_log',
+        'revision_uid',
+        $entity_type->getKey('bundle'),
+        $entity_type->getKey('revision'),
+      ])) {
         $show_diff = FALSE;
       }
     }
@@ -256,4 +262,5 @@ class DiffBuilderManager extends DefaultPluginManager {
   public function clearCachedDefinitions() {
     unset($this->pluginDefinitions);
   }
+
 }

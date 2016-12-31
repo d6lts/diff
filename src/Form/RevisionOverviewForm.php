@@ -164,7 +164,12 @@ class RevisionOverviewForm extends FormBase {
 
     $revision_count = count($vids);
 
-    $build['#title'] = $has_translations ? $this->t('@langname revisions for %title', ['@langname' => $langname, '%title' => $node->label()]) : $this->t('Revisions for %title', ['%title' => $node->label()]);
+    $build['#title'] = $has_translations ? $this->t('@langname revisions for %title', [
+      '@langname' => $langname,
+      '%title' => $node->label(),
+    ]) : $this->t('Revisions for %title', [
+      '%title' => $node->label(),
+    ]);
     $build['nid'] = array(
       '#type' => 'hidden',
       '#value' => $node->id(),

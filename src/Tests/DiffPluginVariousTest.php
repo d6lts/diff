@@ -119,25 +119,24 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
     // Add an email field (supported by the Diff core plugin) to the Article
     // content type.
     $field_name = 'field_email';
-    $this->fieldStorage = FieldStorageConfig::create([
+    $field_storage = FieldStorageConfig::create([
       'field_name' => $field_name,
       'entity_type' => 'node',
       'type' => 'email',
     ]);
-    $this->fieldStorage->save();
-    $this->field = FieldConfig::create([
-      'field_storage' => $this->fieldStorage,
+    $field_storage->save();
+    FieldConfig::create([
+      'field_storage' => $field_storage,
       'bundle' => 'article',
       'label' => 'Email',
-    ]);
-    $this->field->save();
+    ])->save();
 
     // Add the email field to the article form.
     $this->formDisplay->load('node.article.default')
       ->setComponent($field_name, ['type' => 'email_default'])
       ->save();
 
-    // Add the email field to the default display
+    // Add the email field to the default display.
     $this->viewDisplay->load('node.article.default')
       ->setComponent($field_name, ['type' => 'basic_string'])
       ->save();
@@ -172,25 +171,24 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
     // Add a timestamp field (supported by the Diff core plugin) to the Article
     // content type.
     $field_name = 'field_timestamp';
-    $this->fieldStorage = FieldStorageConfig::create([
+    $field_storage = FieldStorageConfig::create([
       'field_name' => $field_name,
       'entity_type' => 'node',
       'type' => 'timestamp',
     ]);
-    $this->fieldStorage->save();
-    $this->field = FieldConfig::create([
-      'field_storage' => $this->fieldStorage,
+    $field_storage->save();
+    FieldConfig::create([
+      'field_storage' => $field_storage,
       'bundle' => 'article',
       'label' => 'Timestamp test',
-    ]);
-    $this->field->save();
+    ])->save();
 
     // Add the timestamp field to the article form.
     $this->formDisplay->load('node.article.default')
       ->setComponent($field_name, ['type' => 'datetime_timestamp'])
       ->save();
 
-    // Add the timestamp field to the default display
+    // Add the timestamp field to the default display.
     $this->viewDisplay->load('node.article.default')
       ->setComponent($field_name, ['type' => 'timestamp'])
       ->save();
@@ -230,22 +228,21 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
   public function doTestLinkPlugin() {
     // Add a link field to the article content type.
     $field_name = 'field_link';
-    $this->fieldStorage = FieldStorageConfig::create([
+    $field_storage = FieldStorageConfig::create([
       'field_name' => $field_name,
       'entity_type' => 'node',
       'type' => 'link',
     ]);
-    $this->fieldStorage->save();
-    $this->field = FieldConfig::create([
-      'field_storage' => $this->fieldStorage,
+    $field_storage->save();
+    FieldConfig::create([
+      'field_storage' => $field_storage,
       'bundle' => 'article',
       'label' => 'Link',
       'settings' => array(
         'title' => DRUPAL_OPTIONAL,
         'link_type' => LinkItemInterface::LINK_GENERIC,
       ),
-    ]);
-    $this->field->save();
+    ])->save();
     $this->formDisplay->load('node.article.default')
       ->setComponent($field_name, [
         'type' => 'link_default',
@@ -301,7 +298,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
   public function doTestListPlugin() {
     // Add a list field to the article content type.
     $field_name = 'field_list';
-    $this->fieldStorage = FieldStorageConfig::create([
+    $field_storage = FieldStorageConfig::create([
       'field_name' => $field_name,
       'entity_type' => 'node',
       'type' => 'list_string',
@@ -313,9 +310,9 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
         ],
       ],
     ]);
-    $this->fieldStorage->save();
+    $field_storage->save();
 
-    $this->field = FieldConfig::create([
+    FieldConfig::create([
       'field_name' => $field_name,
       'entity_type' => 'node',
       'bundle' => 'article',

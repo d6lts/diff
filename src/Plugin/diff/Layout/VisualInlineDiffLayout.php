@@ -2,21 +2,17 @@
 
 namespace Drupal\diff\Plugin\diff\Layout;
 
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Link;
 use Drupal\Core\PhpStorage\PhpStorageFactory;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\Core\Url;
 use Drupal\diff\Controller\PluginRevisionController;
 use Drupal\diff\DiffEntityComparison;
 use Drupal\diff\DiffEntityParser;
 use Drupal\diff\DiffLayoutBase;
-use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use HtmlDiffAdvancedInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -169,7 +165,7 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
       'filter' => [
         '#type' => 'operations',
         '#links' => $options,
-      ]
+      ],
     ];
 
     $view_builder = $this->entityTypeManager->getViewBuilder($entity->getEntityTypeId());
@@ -183,7 +179,7 @@ class VisualInlineDiffLayout extends DiffLayoutBase {
     unset($left_view['#cache']);
     unset($right_view['#cache']);
 
-    $html_1= $this->renderer->render($left_view);
+    $html_1 = $this->renderer->render($left_view);
     $html_2 = $this->renderer->render($right_view);
 
     $this->htmlDiff->setOldHtml($html_1);

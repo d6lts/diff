@@ -2,8 +2,11 @@
 
 namespace Drupal\diff\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\diff\DiffBuilderManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\ConfigFormBase;
@@ -54,6 +57,8 @@ class FieldsSettingsForm extends ConfigFormBase {
   /**
    * Constructs a FieldsSettingsForm object.
    *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
    * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
    *   The plugin manager service.
    * @param \Drupal\diff\DiffBuilderManager $diff_builder_manager
@@ -63,7 +68,9 @@ class FieldsSettingsForm extends ConfigFormBase {
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager.
    */
-  public function __construct(PluginManagerInterface $plugin_manager, DiffBuilderManager $diff_builder_manager, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, PluginManagerInterface $plugin_manager, DiffBuilderManager $diff_builder_manager, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager) {
+    parent::__construct($config_factory);
+
     $this->config = $this->config('diff.plugins');
     $this->fieldTypePluginManager = $plugin_manager;
     $this->diffBuilderManager = $diff_builder_manager;
@@ -76,6 +83,7 @@ class FieldsSettingsForm extends ConfigFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('config.factory'),
       $container->get('plugin.manager.field.field_type'),
       $container->get('plugin.manager.diff.builder'),
       $container->get('entity_type.manager'),
@@ -122,7 +130,7 @@ class FieldsSettingsForm extends ConfigFormBase {
     // Build a row in the table for each field of each entity type. Get all the
     // field plugins.
     foreach ($this->entityTypeManager->getDefinitions() as $entity_type_name => $entity_type) {
-      // Exclude non-revisionable entities
+      // Exclude non-revisionable entities.
       if (!$entity_type->isRevisionable()) {
         continue;
       }
@@ -167,7 +175,7 @@ class FieldsSettingsForm extends ConfigFormBase {
    * @return array
    *   A table row for the field type listing table.
    */
-  protected function buildFieldRow($entity_type, $field_definition, FormStateInterface $form_state) {
+  protected function buildFieldRow(EntityTypeInterface $entity_type, FieldStorageDefinitionInterface $field_definition, FormStateInterface $form_state) {
     $entity_type_label = $entity_type->getLabel();
     $field_name = $field_definition->getName();
     $field_type = $field_definition->getType();
@@ -315,7 +323,7 @@ class FieldsSettingsForm extends ConfigFormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
    */
-  public function multiStepSubmit($form, FormStateInterface $form_state) {
+  public function multiStepSubmit(array $form, FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
     $op = $trigger['#op'];
 
@@ -351,6 +359,7 @@ class FieldsSettingsForm extends ConfigFormBase {
    *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state object.
+   *
    * @return array
    *   The fields form for a plugin.
    */
@@ -360,6 +369,8 @@ class FieldsSettingsForm extends ConfigFormBase {
       $op = $trigger['#op'];
 
       // Pick the elements that need to receive the ajax-new-content effect.
+      $updated_rows = [];
+      $updated_columns = [];
       switch ($op) {
         case 'edit':
           $updated_rows = [$trigger['#field_key']];

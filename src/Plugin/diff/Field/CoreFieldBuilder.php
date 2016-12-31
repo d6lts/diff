@@ -11,6 +11,8 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Plugin to diff core field types.
+ *
  * @FieldDiffBuilder(
  *   id = "core_field_diff_builder",
  *   label = @Translation("Core Field Diff"),

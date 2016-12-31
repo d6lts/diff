@@ -69,7 +69,7 @@ function diff_update_8001() {
 }
 
 /**
- * Update diff.settings to include general_settings.revision_pager_limit
+ * Update diff.settings to include general_settings.revision_pager_limit.
  */
 function diff_update_8002() {
   $config_factory = \Drupal::configFactory();
@@ -137,8 +137,8 @@ function diff_update_8008() {
 /**
  * Remove content type settings.
  */
- function diff_update_8009() {
-   $config = \Drupal::configFactory()->getEditable('diff.settings');
-   $config->clear('content_type_settings');
-   $config->save();
+function diff_update_8009() {
+  $config = \Drupal::configFactory()->getEditable('diff.settings');
+  $config->clear('content_type_settings');
+  $config->save();
 }
