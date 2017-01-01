@@ -65,16 +65,6 @@ class DiffPluginBase extends FieldPluginBase {
   }
 
   /**
-   * Returns the maximum possible age of cache items for this plugin.
-   *
-   * @return int
-   *   The maximum cache age in seconds.
-   */
-  public function getCacheMaxAge() {
-    return 0;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function getValue(ResultRow $row, $field = NULL) {
