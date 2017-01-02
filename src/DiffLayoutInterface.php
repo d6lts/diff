@@ -2,13 +2,12 @@
 
 namespace Drupal\diff;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Component\Plugin\ConfigurablePluginInterface;
 
 /**
- * Interface DiffLayoutInterface
- * @package Drupal\diff
+ * Builds a diff layout.
  */
 interface DiffLayoutInterface extends PluginFormInterface, ConfigurablePluginInterface {
 
@@ -19,16 +18,16 @@ interface DiffLayoutInterface extends PluginFormInterface, ConfigurablePluginInt
    * revisions of the same entity. It can build a table, navigation links and
    * headers of a diff comparison.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $left_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $left_revision
    *   The left revision.
-   * @param \Drupal\Core\Entity\EntityInterface $right_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $right_revision
    *   The right revision.
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity.
    *
    * @return array
    *   The modified build array that the plugin builds.
    */
-  public function build(EntityInterface $left_revision, EntityInterface $right_revision, EntityInterface $entity);
+  public function build(ContentEntityInterface $left_revision, ContentEntityInterface $right_revision, ContentEntityInterface $entity);
 
 }

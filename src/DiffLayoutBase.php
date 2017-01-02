@@ -5,6 +5,7 @@ namespace Drupal\diff;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Datetime\DateFormatter;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
@@ -125,15 +126,15 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
   /**
    * Build the revision link for the compared revisions.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $left_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $left_revision
    *   Left revision that is compared.
-   * @param \Drupal\Core\Entity\EntityInterface $right_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $right_revision
    *   Right revision that is compared.
    *
    * @return array
    *   Header link for a revision in the revision comparison display.
    */
-  public function buildRevisionsData(EntityInterface $left_revision, EntityInterface $right_revision) {
+  public function buildRevisionsData(ContentEntityInterface $left_revision, ContentEntityInterface $right_revision) {
     $right_revision = $this->buildRevisionData($right_revision);
     $right_revision['#prefix'] = '<div class="diff-revision__items-group">';
     $right_revision['#suffix'] = '</div>';

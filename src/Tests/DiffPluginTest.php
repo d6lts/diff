@@ -31,9 +31,9 @@ class DiffPluginTest extends DiffPluginTestBase {
    *   The machine field name.
    * @param string $label
    *   The field label.
-   * @param string $field_type.
+   * @param string $field_type
    *   The field type.
-   * @param string $widget_type.
+   * @param string $widget_type
    *   The widget type.
    */
   protected function addArticleTextField($field_name, $label, $field_type, $widget_type) {
@@ -115,7 +115,7 @@ class DiffPluginTest extends DiffPluginTestBase {
     $node->save();
 
     // Check the "Text Field No Access" field is not displayed.
-    $this->drupalGet('node/'. $node->id() . '/revisions');
+    $this->drupalGet('node/' . $node->id() . '/revisions');
     $this->drupalPostForm(NULL, [], t('Compare'));
     $this->assertResponse(200);
     $this->assertNoText('field_diff_deny_access');

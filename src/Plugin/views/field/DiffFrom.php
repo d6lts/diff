@@ -38,7 +38,7 @@ class DiffFrom extends DiffPluginBase {
   /**
    * Returns the diff_to field ID.
    *
-   * @return string
+   * @return string|null
    *   The diff_to field ID, or null if the field was not found on the view.
    */
   protected function getToFieldId() {

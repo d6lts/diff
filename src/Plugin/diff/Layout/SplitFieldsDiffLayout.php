@@ -4,7 +4,7 @@ namespace Drupal\diff\Plugin\diff\Layout;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DateFormatter;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\diff\DiffEntityComparison;
@@ -97,7 +97,7 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
   /**
    * {@inheritdoc}
    */
-  public function build(EntityInterface $left_revision, EntityInterface $right_revision, EntityInterface $entity) {
+  public function build(ContentEntityInterface $left_revision, ContentEntityInterface $right_revision, ContentEntityInterface $entity) {
     // Build the revisions data.
     $build = $this->buildRevisionsData($left_revision, $right_revision);
 
@@ -242,15 +242,15 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
   /**
    * Build the header for the diff table.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $left_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $left_revision
    *   Revision from the left hand side.
-   * @param \Drupal\Core\Entity\EntityInterface $right_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $right_revision
    *   Revision from the right hand side.
    *
    * @return array
    *   Header for Diff table.
    */
-  protected function buildTableHeader(EntityInterface $left_revision, EntityInterface $right_revision) {
+  protected function buildTableHeader(ContentEntityInterface $left_revision, ContentEntityInterface $right_revision) {
     $header = [];
     $header[] = [
       'data' => ['#markup' => $this->buildRevisionLink($left_revision)],

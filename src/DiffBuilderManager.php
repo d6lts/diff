@@ -4,7 +4,6 @@ namespace Drupal\diff;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -167,7 +166,7 @@ class DiffBuilderManager extends DefaultPluginManager {
       // If entity is set load its form display settings.
       if ($bundle) {
         $storage = $this->entityTypeManager->getStorage('entity_form_display');
-        /** @var EntityViewDisplay $display */
+        /** @var \Drupal\Core\Entity\Entity\EntityViewDisplay $display */
         if ($display = $storage->load($field_definition->getTargetEntityTypeId() . '.' . $bundle . '.default')) {
           $visible = (bool) $display->getComponent($field_definition->getName());
         }

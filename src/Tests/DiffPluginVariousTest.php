@@ -46,9 +46,9 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
    *   The machine field name.
    * @param string $label
    *   The field label.
-   * @param string $field_type.
+   * @param string $field_type
    *   The field type.
-   * @param string $widget_type.
+   * @param string $widget_type
    *   The widget type.
    */
   protected function addArticleTextField($field_name, $label, $field_type, $widget_type) {

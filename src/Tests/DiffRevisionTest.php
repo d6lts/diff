@@ -66,7 +66,7 @@ class DiffRevisionTest extends DiffTestBase {
       <p>first_unique_text</p>
       <p>second_unique_text</p>',
       'revision' => TRUE,
-      'revision_log[0][value]' => 'Revision 2 comment'
+      'revision_log[0][value]' => 'Revision 2 comment',
     );
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $this->drupalGet('node/' . $node->id());

@@ -229,7 +229,7 @@ class PluginRevisionController extends ControllerBase {
    * @return array
    *   The revision navigation links.
    */
-  protected function buildRevisionsNavigation(EntityInterface $entity, $revision_ids, $left_revision_id, $right_revision_id, $filter) {
+  protected function buildRevisionsNavigation(EntityInterface $entity, array $revision_ids, $left_revision_id, $right_revision_id, $filter) {
     $revisions_count = count($revision_ids);
     $layout_options = &drupal_static(__FUNCTION__);
     if (!isset($layout_options)) {

@@ -2,6 +2,7 @@
 
 namespace Drupal\diff\Controller;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\node\NodeInterface;
 
 /**
@@ -30,11 +31,11 @@ class NodeRevisionController extends PluginRevisionController {
    *
    * @param NodeInterface $node
    *   The node whose revisions are compared.
-   * @param $left_revision
+   * @param int $left_revision
    *   Vid of the node revision from the left.
-   * @param $right_revision
+   * @param int $right_revision
    *   Vid of the node revision from the right.
-   * @param $filter
+   * @param string $filter
    *   If $filter == 'raw' raw text is compared (including html tags)
    *   If $filter == 'raw-plain' markdown function is applied to the text before comparison.
    *

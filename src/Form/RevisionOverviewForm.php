@@ -228,7 +228,7 @@ class RevisionOverviewForm extends FormBase {
             $link = Link::fromTextAndUrl($revision_date, new Url('entity.node.revision', ['node' => $node->id(), 'node_revision' => $vid]))->toString();
           }
           else {
-            $link = $node->link($revision_date);
+            $link = $node->toLink($revision_date)->toString();
           }
 
           if ($vid == $default_revision) {
