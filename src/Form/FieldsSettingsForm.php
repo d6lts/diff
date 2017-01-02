@@ -497,22 +497,20 @@ class FieldsSettingsForm extends ConfigFormBase {
    * @param array $configuration
    *   The plugin configuration.
    *
-   * @return \Drupal\diff\FieldDiffBuilderInterface
+   * @return \Drupal\diff\FieldDiffBuilderInterface|null
    *   The plugin.
    */
   protected function getPlugin(array $configuration) {
-    $plugin = NULL;
-
     if ($configuration && isset($configuration['type']) && $configuration['type'] != 'hidden') {
       if (!isset($configuration['settings'])) {
         $configuration['settings'] = array();
       }
-      $plugin = $this->diffBuilderManager->createInstance(
+      return $this->diffBuilderManager->createInstance(
         $configuration['type'], $configuration['settings']
       );
     }
 
-    return $plugin;
+    return NULL;
   }
 
   /**

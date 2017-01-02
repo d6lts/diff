@@ -121,21 +121,21 @@ class DiffBuilderManager extends DefaultPluginManager {
    *   (optional) The entity bundle where to check form display when selecting
    *   the plugin for a field.
    *
-   * @return \Drupal\diff\FieldDiffBuilderInterface
+   * @return \Drupal\diff\FieldDiffBuilderInterface|null
    *   The plugin instance, NULL if none.
    */
   public function createInstanceForFieldDefinition(FieldDefinitionInterface $field_definition, $bundle = NULL) {
-    $plugin = NULL;
     $selected_plugin = $this->getSelectedPluginForFieldDefinition($field_definition, $bundle);
     if ($selected_plugin && $selected_plugin['type'] != 'hidden') {
       if (!empty($selected_plugin['settings'])) {
-        $plugin = $this->createInstance($selected_plugin['type'], $selected_plugin['settings']);
+        return $this->createInstance($selected_plugin['type'], $selected_plugin['settings']);
       }
       else {
-        $plugin = $this->createInstance($selected_plugin['type'], []);
+        return $this->createInstance($selected_plugin['type'], []);
       }
     }
-    return $plugin;
+
+    return NULL;
   }
 
   /**

@@ -53,7 +53,7 @@ class DiffEntityParser {
    * to be compared. Basically this function transforms an entity into an array
    * of strings.
    *
-   * @param ContentEntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   An entity containing fields.
    *
    * @return array

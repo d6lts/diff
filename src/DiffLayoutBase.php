@@ -6,7 +6,6 @@ use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -100,13 +99,13 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
   /**
    * Build the revision link for a revision.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $revision
    *   A revision where to add a link.
    *
    * @return \Drupal\Core\Link
    *   Header link for a revision in the table.
    */
-  protected function buildRevisionLink(EntityInterface $revision) {
+  protected function buildRevisionLink(ContentEntityInterface $revision) {
     $entity_type_id = $revision->getEntityTypeId();
     if ($revision instanceof RevisionLogInterface || $revision instanceof NodeInterface) {
       $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
@@ -164,13 +163,13 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
   /**
    * Build the revision link for a revision.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $revision
    *   Left revision that is compared.
    *
    * @return array
    *   Revision data about author, creation date and log.
    */
-  protected function buildRevisionData(EntityInterface $revision) {
+  protected function buildRevisionData(ContentEntityInterface $revision) {
     $entity_type_id = $revision->getEntityTypeId();
     if ($revision instanceof RevisionLogInterface || $revision instanceof NodeInterface) {
       $revision_log = '';
@@ -229,11 +228,11 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
   /**
    * Build the filter navigation for the diff comparison.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity.
-   * @param \Drupal\Core\Entity\EntityInterface $left_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $left_revision
    *   Revision from the left side.
-   * @param \Drupal\Core\Entity\EntityInterface $right_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $right_revision
    *   Revision from the right side.
    * @param string $layout
    *   The layout plugin selected.
@@ -243,7 +242,7 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
    * @return array
    *   The filter options.
    */
-  protected function buildFilterNavigation(EntityInterface $entity, EntityInterface $left_revision, EntityInterface $right_revision, $layout, $active_filter) {
+  protected function buildFilterNavigation(ContentEntityInterface $entity, ContentEntityInterface $left_revision, ContentEntityInterface $right_revision, $layout, $active_filter) {
     // Build the view modes filter.
     $options['raw'] = [
       'title' => $this->t('Raw'),

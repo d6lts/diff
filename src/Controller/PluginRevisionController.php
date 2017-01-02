@@ -2,10 +2,10 @@
 
 namespace Drupal\diff\Controller;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -101,9 +101,9 @@ class PluginRevisionController extends ControllerBase {
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match.
-   * @param \Drupal\Core\Entity\EntityInterface $left_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $left_revision
    *   The left revision.
-   * @param \Drupal\Core\Entity\EntityInterface $right_revision
+   * @param \Drupal\Core\Entity\ContentEntityInterface $right_revision
    *   The right revision.
    * @param string $filter
    *   If $filter == 'raw' raw text is compared (including html tags)
@@ -112,9 +112,9 @@ class PluginRevisionController extends ControllerBase {
    * @return array
    *   Table showing the diff between the two entity revisions.
    */
-  public function compareEntityRevisions(RouteMatchInterface $route_match, EntityInterface $left_revision, EntityInterface $right_revision, $filter) {
+  public function compareEntityRevisions(RouteMatchInterface $route_match, ContentEntityInterface $left_revision, ContentEntityInterface $right_revision, $filter) {
     $entity_type_id = $left_revision->getEntityTypeId();
-    /** @var EntityInterface $entity */
+    /** @var \Drupal\Core\Entity\EntityInterface $entity */
     $entity = $route_match->getParameter($entity_type_id);
 
     $entity_type_id = $entity->getEntityTypeId();
@@ -130,6 +130,7 @@ class PluginRevisionController extends ControllerBase {
     // Filter revisions of current translation and where the translation is
     // affected.
     foreach ($this->getRevisionIds($storage, $entity->id()) as $revision_id) {
+      /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
       $revision = $storage->loadRevision($revision_id);
       if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)->isRevisionTranslationAffected()) {
         $revisions_ids[] = $revision_id;
@@ -177,7 +178,7 @@ class PluginRevisionController extends ControllerBase {
   /**
    * Builds a navigation dropdown button between the layout plugins.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity to be compared.
    * @param int $left_revision_id
    *   Revision id of the left revision.
@@ -189,7 +190,7 @@ class PluginRevisionController extends ControllerBase {
    * @return array
    *   The layout filter.
    */
-  protected function buildLayoutNavigation(EntityInterface $entity, $left_revision_id, $right_revision_id, $active_filter) {
+  protected function buildLayoutNavigation(ContentEntityInterface $entity, $left_revision_id, $right_revision_id, $active_filter) {
     $links = [];
     $layouts = $this->diffLayoutManager->getPluginOptions();
     foreach ($layouts as $key => $value) {
@@ -215,7 +216,7 @@ class PluginRevisionController extends ControllerBase {
   /**
    * Creates navigation links between the previous changes and the new ones.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity to be compared.
    * @param array $revision_ids
    *   The revision ids.
@@ -229,7 +230,7 @@ class PluginRevisionController extends ControllerBase {
    * @return array
    *   The revision navigation links.
    */
-  protected function buildRevisionsNavigation(EntityInterface $entity, array $revision_ids, $left_revision_id, $right_revision_id, $filter) {
+  protected function buildRevisionsNavigation(ContentEntityInterface $entity, array $revision_ids, $left_revision_id, $right_revision_id, $filter) {
     $revisions_count = count($revision_ids);
     $layout_options = &drupal_static(__FUNCTION__);
     if (!isset($layout_options)) {
@@ -283,7 +284,7 @@ class PluginRevisionController extends ControllerBase {
   /**
    * Creates an url object for diff.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity to be compared.
    * @param int $left_revision_id
    *   Revision id of the left revision.
@@ -297,7 +298,7 @@ class PluginRevisionController extends ControllerBase {
    * @return \Drupal\Core\Url
    *   The URL object.
    */
-  public static function diffRoute(EntityInterface $entity, $left_revision_id, $right_revision_id, $layout = NULL, array $layout_options = NULL) {
+  public static function diffRoute(ContentEntityInterface $entity, $left_revision_id, $right_revision_id, $layout = NULL, array $layout_options = NULL) {
     $entity_type_id = $entity->getEntityTypeId();
     // @todo Remove the diff.revisions_diff route so we avoid adding extra cases.
     if ($entity->getEntityTypeId() == 'node') {

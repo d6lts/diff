@@ -2,7 +2,6 @@
 
 namespace Drupal\diff\Controller;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\node\NodeInterface;
 
 /**
@@ -16,7 +15,7 @@ class NodeRevisionController extends PluginRevisionController {
    * @todo This might be changed to a view when the issue at this link is
    *   resolved: https://drupal.org/node/1863906
    *
-   * @param NodeInterface $node
+   * @param \Drupal\node\NodeInterface $node
    *   The node whose revisions are inspected.
    *
    * @return array
@@ -29,7 +28,7 @@ class NodeRevisionController extends PluginRevisionController {
   /**
    * Returns a table which shows the differences between two node revisions.
    *
-   * @param NodeInterface $node
+   * @param \Drupal\node\NodeInterface $node
    *   The node whose revisions are compared.
    * @param int $left_revision
    *   Vid of the node revision from the left.
