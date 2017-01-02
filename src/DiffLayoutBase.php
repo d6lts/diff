@@ -107,7 +107,7 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
    */
   protected function buildRevisionLink(ContentEntityInterface $revision) {
     $entity_type_id = $revision->getEntityTypeId();
-    if ($revision instanceof RevisionLogInterface || $revision instanceof NodeInterface) {
+    if ($revision instanceof RevisionLogInterface) {
       $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
       $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
       $revision_link = Link::fromTextAndUrl($revision_date, Url::fromRoute($route_name, [
@@ -171,15 +171,8 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
    */
   protected function buildRevisionData(ContentEntityInterface $revision) {
     $entity_type_id = $revision->getEntityTypeId();
-    if ($revision instanceof RevisionLogInterface || $revision instanceof NodeInterface) {
-      $revision_log = '';
-
-      if ($revision instanceof RevisionLogInterface) {
-        $revision_log = Xss::filter($revision->getRevisionLogMessage());
-      }
-      elseif ($revision instanceof NodeInterface) {
-        $revision_log = $revision->revision_log->value;
-      }
+    if ($revision instanceof RevisionLogInterface) {
+      $revision_log = Xss::filter($revision->getRevisionLogMessage());
       $user_id = $revision->getRevisionUserId();
       $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
 

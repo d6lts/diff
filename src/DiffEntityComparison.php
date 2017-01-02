@@ -244,21 +244,14 @@ class DiffEntityComparison {
    *   The revision log message.
    */
   public function getRevisionDescription(ContentEntityInterface $revision, ContentEntityInterface $previous_revision = NULL) {
-    $auto_generated = FALSE;
     $summary_elements = [];
     $revision_summary = '';
     // Check if the revision has a revision log message.
     if ($revision instanceof RevisionLogInterface) {
       $revision_summary = Xss::filter($revision->getRevisionLogMessage());
-      if ($revision_summary == '') {
-        $auto_generated = TRUE;
-      }
-    }
-    else {
-      $auto_generated = TRUE;
     }
     // Auto generate the revision log.
-    if ($auto_generated) {
+    if ($revision_summary == '') {
       // If there is a previous revision, load values of both revisions, loop
       // over the current revision fields.
       if ($previous_revision) {
