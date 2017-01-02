@@ -54,6 +54,17 @@ class VisualDiffThemeNegotiatorTest extends UnitTestCase {
   }
 
   /**
+   * Tests if the theme negotiator applies under correct conditions.
+   *
+   * @param string $filter_parameter
+   *   The filter parameter.
+   * @param string $route_name
+   *   The route name.
+   * @param string $config_value
+   *   The configuration value of the element taken from the form values.
+   * @param bool $expected
+   *   The expected result.
+   *
    * @covers ::applies
    * @covers ::isDiffRoute
    *
