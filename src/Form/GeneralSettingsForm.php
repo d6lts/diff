@@ -83,10 +83,12 @@ class GeneralSettingsForm extends ConfigFormBase {
     $weight = count($layout_plugins) + 1;
     $layout_plugins_order = [];
     foreach ($layout_plugins as $id => $layout_plugin) {
+      $layout_plugin_settings = $config->get('general_settings.layout_plugins')[$id];
       $layout_plugins_order[$id] = [
         'label' => $layout_plugin['label'],
-        'enabled' => $config->get('general_settings' . '.' . 'layout_plugins')[$id]['enabled'],
-        'weight' => isset($config->get('general_settings' . '.' . 'layout_plugins')[$id]['weight']) ? $config->get('general_settings' . '.' . 'layout_plugins')[$id]['weight'] : $weight,
+        'description' => $layout_plugin['description'] ?: '',
+        'enabled' => $layout_plugin_settings['enabled'],
+        'weight' => isset($layout_plugin_settings['weight']) ? $layout_plugin_settings['weight'] : $weight,
       ];
       $weight++;
     }
@@ -108,30 +110,33 @@ class GeneralSettingsForm extends ConfigFormBase {
     uasort($layout_plugins_order, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
 
     foreach ($layout_plugins_order as $id => $layout_plugin) {
-      $description = $this->diffLayoutManager->getDefinition($id)['description'];
-      $form['layout_plugins'][$id]['#attributes']['class'][] = 'draggable';
-      $form['layout_plugins'][$id]['enabled'] = [
-        '#type' => 'checkbox',
-        '#title' => $layout_plugin['label'],
-        '#title_display' => 'after',
-        '#default_value' => $layout_plugin['enabled'],
-      ];
-      $form['layout_plugins'][$id]['description'] = [
-        '#type' => 'markup',
-        '#markup' => isset($description) ? Xss::filter($description) : '',
-      ];
-      $form['layout_plugins'][$id]['weight'] = [
-        '#type' => 'weight',
-        '#title' => t('Weight for @title', ['@title' => $layout_plugin['label']]),
-        '#title_display' => 'invisible',
-        '#delta' => 50,
-        '#default_value' => (int) $layout_plugin['weight'],
-        '#array_parents' => [
-          'settings',
-          'sites',
-          $id,
+      $form['layout_plugins'][$id] = [
+        '#attributes' => [
+          'class' => ['draggable'],
         ],
-        '#attributes' => ['class' => ['diff-layout-plugins-order-weight']],
+        'enabled' => [
+          '#type' => 'checkbox',
+          '#title' => $layout_plugin['label'],
+          '#title_display' => 'after',
+          '#default_value' => $layout_plugin['enabled'],
+        ],
+        'description' => [
+          '#type' => 'markup',
+          '#markup' => Xss::filter($layout_plugin['description']),
+        ],
+        'weight' => [
+          '#type' => 'weight',
+          '#title' => t('Weight for @title', ['@title' => $layout_plugin['label']]),
+          '#title_display' => 'invisible',
+          '#delta' => 50,
+          '#default_value' => (int) $layout_plugin['weight'],
+          '#array_parents' => [
+            'settings',
+            'sites',
+            $id,
+          ],
+          '#attributes' => ['class' => ['diff-layout-plugins-order-weight']],
+        ],
       ];
     }
 

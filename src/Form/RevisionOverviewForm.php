@@ -225,10 +225,10 @@ class RevisionOverviewForm extends FormBase {
           $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
           // Use revision link to link to revisions that are not active.
           if ($vid != $node->getRevisionId()) {
-            $link = Link::fromTextAndUrl($revision_date, new Url('entity.node.revision', ['node' => $node->id(), 'node_revision' => $vid]))->toString();
+            $link = Link::fromTextAndUrl($revision_date, new Url('entity.node.revision', ['node' => $node->id(), 'node_revision' => $vid]));
           }
           else {
-            $link = $node->toLink($revision_date)->toString();
+            $link = $node->toLink($revision_date);
           }
 
           if ($vid == $default_revision) {
@@ -342,7 +342,7 @@ class RevisionOverviewForm extends FormBase {
   /**
    * Set and return configuration for revision.
    *
-   * @param $link
+   * @param \Drupal\Core\Link $link
    *   Link attribute.
    * @param string $username
    *   Username attribute.
@@ -355,12 +355,12 @@ class RevisionOverviewForm extends FormBase {
    * @return array
    *   Configuration for revision.
    */
-  protected function buildRevision($link, $username, ContentEntityInterface $revision, ContentEntityInterface $previous_revision = NULL) {
+  protected function buildRevision(Link $link, $username, ContentEntityInterface $revision, ContentEntityInterface $previous_revision = NULL) {
     return [
       '#type' => 'inline_template',
       '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
       '#context' => [
-        'date' => $link,
+        'date' => $link->toString(),
         'username' => $this->renderer->renderPlain($username),
         'message' => [
           '#markup' => $this->entityComparison->getRevisionDescription($revision, $previous_revision),
