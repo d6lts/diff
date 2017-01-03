@@ -152,13 +152,26 @@ class DiffEntityComparison {
     );
     $max = max(array(count($left_values), count($right_values)));
     for ($delta = 0; $delta < $max; $delta++) {
+      // EXPERIMENTAL: Transform thumbnail from ImageFieldBuilder.
+      // @todo Make thumbnail / rich diff data pluggable.
+      // @see https://www.drupal.org/node/2840566
       if (isset($left_values[$delta])) {
         $value = $left_values[$delta];
-        $result['#left'][] = is_array($value) ? implode("\n", $value) : $value;
+        if (isset($value['#thumbnail'])) {
+          $result['#left_thumbnail'][] = $value['#thumbnail'];
+        }
+        else {
+          $result['#left'][] = is_array($value) ? implode("\n", $value) : $value;
+        }
       }
       if (isset($right_values[$delta])) {
         $value = $right_values[$delta];
-        $result['#right'][] = is_array($value) ? implode("\n", $value) : $value;
+        if (isset($value['#thumbnail'])) {
+          $result['#right_thumbnail'][] = $value['#thumbnail'];
+        }
+        else {
+          $result['#right'][] = is_array($value) ? implode("\n", $value) : $value;
+        }
       }
     }
 

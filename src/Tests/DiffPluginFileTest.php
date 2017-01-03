@@ -265,7 +265,24 @@ class DiffPluginFileTest extends DiffPluginTestBase {
     $this->assertText('Alt: Image alt updated');
     $this->assertText('Alt: Image alt updated new');
     $this->assertNoText('Title: Image title updated');
+    // Assert the thumbnail is displayed.
+    $img1_url = file_create_url(\Drupal::token()->replace("public://styles/thumbnail/public/[date:custom:Y]-[date:custom:m]/" . $test_files['1']->name));
+    $image_url = file_url_transform_relative($img1_url);
+    $this->assertRaw($image_url);
 
+    // Disable thumbnail image field.
+    $this->drupalPostAjaxForm('admin/config/content/diff/fields', [], 'node.field_image_settings_edit');
+    $edit = [
+      'fields[node.field_image][settings_edit_form][settings][show_thumbnail]' => FALSE,
+    ];
+    $this->drupalPostAjaxForm(NULL, $edit, 'node.field_image_plugin_settings_update');
+    $this->drupalPostForm(NULL, [], t('Save'));
+    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare'));
+
+    // Assert the thumbnail is not displayed.
+    $img1_url = file_create_url(\Drupal::token()->replace("public://styles/thumbnail/public/[date:custom:Y]-[date:custom:m]/" . $test_files['1']->name));
+    $image_url = file_url_transform_relative($img1_url);
+    $this->assertNoRaw($image_url);
   }
 
 }

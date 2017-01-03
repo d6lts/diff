@@ -149,6 +149,20 @@ class SplitFieldsDiffLayout extends DiffLayoutBase {
         $field['#data']['#right']
       );
 
+      // EXPERIMENTAL: Deal with magic thumbnail image data.
+      if (isset($field['#data']['#left_thumbnail'])) {
+        $field_diff_rows['#thumbnail'][1] = [
+          'data' => $field['#data']['#left_thumbnail'],
+          'class' => '',
+        ];
+      }
+      if (isset($field['#data']['#right_thumbnail'])) {
+        $field_diff_rows['#thumbnail'][3] = [
+          'data' => $field['#data']['#right_thumbnail'],
+          'class' => '',
+        ];
+      }
+
       $final_diff = [];
       $row_count_left = NULL;
       $row_count_right = NULL;

@@ -68,6 +68,24 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
 
         $separator = $this->configuration['property_separator'] == 'nl' ? "\n" : $this->configuration['property_separator'];
         $result[$field_key] = implode($separator, $result[$field_key]);
+
+        // EXPERIMENTAL: Attach thumbnail image data.
+        if ($this->configuration['show_thumbnail']) {
+          if (isset($values['target_id'])) {
+            $storage = $this->entityTypeManager->getStorage('entity_form_display');
+            $display = $storage->load($field_items->getFieldDefinition()->getTargetEntityTypeId() . '.' . $field_items->getEntity()->bundle() . '.default');
+            if ($image_field = $display->getComponent($field_item->getFieldDefinition()->getName())) {
+              $image = $fileManager->load($values['target_id']);
+
+              $image_style[$field_key]['#thumbnail'] = array(
+                '#theme' => 'image_style',
+                '#uri' => $image->getFileUri(),
+                '#style_name' => $image_field['settings']['preview_image_style'],
+              );
+              $result = array_merge($result, $image_style);
+            }
+          }
+        }
       }
     }
 
@@ -107,6 +125,12 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
         'nl' => $this->t('New line'),
       ),
     );
+    $form['show_thumbnail'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show image thumbnail'),
+      '#default_value' => $this->configuration['show_thumbnail'],
+      '#description' => $this->t('Displays the image field as thumbnail.'),
+    ];
 
     return parent::buildConfigurationForm($form, $form_state);
   }
@@ -119,6 +143,7 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
     $this->configuration['compare_alt_field'] = $form_state->getValue('compare_alt_field');
     $this->configuration['compare_title_field'] = $form_state->getValue('compare_title_field');
     $this->configuration['property_separator'] = $form_state->getValue('property_separator');
+    $this->configuration['show_thumbnail'] = $form_state->getValue('show_thumbnail');
 
     parent::submitConfigurationForm($form, $form_state);
   }
@@ -132,6 +157,7 @@ class ImageFieldBuilder extends FieldDiffBuilderBase {
       'compare_alt_field' => 1,
       'compare_title_field' => 1,
       'property_separator' => 'nl',
+      'show_thumbnail' => 1,
     );
     $default_configuration += parent::defaultConfiguration();
 

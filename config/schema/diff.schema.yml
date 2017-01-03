@@ -112,6 +112,9 @@ diff.plugin.settings.image_field_diff_builder:
     property_separator:
       type: text
       label: 'Separator between multiple compared properties'
+    show_thumbnail:
+      type: integer
+      label: 'Show the image thumbnail'
 
 diff.plugin.settings.list_field_diff_builder:
   type: diff.plugin.settings_base
