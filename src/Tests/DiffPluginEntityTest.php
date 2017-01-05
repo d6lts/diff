@@ -88,7 +88,7 @@ class DiffPluginEntityTest extends DiffPluginTestBase {
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
     $this->assertText('Reference');
     $this->assertText('Article B');
     $this->assertText('Article C');

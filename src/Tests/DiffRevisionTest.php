@@ -81,7 +81,7 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertText('Initial revision.');
 
     // Compare the revisions in standard mode.
-    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
     $this->clickLink('Split fields');
     // Assert breadcrumbs are properly displayed.
     $this->assertRaw('<nav class="breadcrumb"');
@@ -235,7 +235,7 @@ class DiffRevisionTest extends DiffTestBase {
       'radios_left' => 3,
       'radios_right' => 4,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Compare'));
+    $this->drupalPostForm(NULL, $edit, t('Compare selected revisions'));
     $this->clickLink('Strip tags');
     // Check markdown layout is used when navigating between revisions.
     $rows = $this->xpath('//tbody/tr');
@@ -354,7 +354,7 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertEqual(count($rows), 1);
 
     // Compare the revisions and assert the first error message.
-    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
     $this->assertText('Multiple revisions are needed for comparison.');
 
     // Create another revision, changing the node language back to English.
@@ -377,7 +377,7 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertNoFieldChecked('edit-node-revisions-table-1-select-column-two');
 
     // Compare the revisions and assert the second error message.
-    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
     $this->assertText('Select two revisions to compare.');
 
     // Check the same revisions twice and compare.
@@ -385,7 +385,7 @@ class DiffRevisionTest extends DiffTestBase {
       'radios_left' => $revision3,
       'radios_right' => $revision3,
     ];
-    $this->drupalPostForm('/node/' . $node->id() . '/revisions', $edit, 'Compare');
+    $this->drupalPostForm('/node/' . $node->id() . '/revisions', $edit, 'Compare selected revisions');
     // Assert the third error message.
     $this->assertText('Select different revisions to compare.');
 
@@ -394,7 +394,7 @@ class DiffRevisionTest extends DiffTestBase {
       'radios_left' => $revision3,
       'radios_right' => $revision1,
     ];
-    $this->drupalPostForm('/node/' . $node->id() . '/revisions', $edit, 'Compare');
+    $this->drupalPostForm('/node/' . $node->id() . '/revisions', $edit, 'Compare selected revisions');
     $this->assertLinkByHref('node/' . $node->id() . '/revisions/view/' . $revision1 . '/' . $revision3);
   }
 
@@ -446,7 +446,7 @@ class DiffRevisionTest extends DiffTestBase {
     // Access revision of first node.
     $this->drupalGet('/node/' . $node_one->id());
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
     // Revision section should appear.
     $this->assertResponse(200);
   }

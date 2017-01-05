@@ -109,7 +109,7 @@ class DiffPluginFileTest extends DiffPluginTestBase {
       'radios_left' => $revision1,
       'radios_right' => $revision3,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Compare'));
+    $this->drupalPostForm(NULL, $edit, t('Compare selected revisions'));
     $this->assertText('File');
     $this->assertText('File: text-1.txt');
     $this->assertText('File ID: 4');
@@ -200,7 +200,7 @@ class DiffPluginFileTest extends DiffPluginTestBase {
       'radios_left' => $revision1,
       'radios_right' => $revision3,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Compare'));
+    $this->drupalPostForm(NULL, $edit, t('Compare selected revisions'));
     $this->assertText('Image');
     $this->assertText('Image: image-test-transparent-indexed.gif');
     // Image title must be absent since it is not set in previous revisions.
@@ -218,7 +218,7 @@ class DiffPluginFileTest extends DiffPluginTestBase {
       'field_image[0][title]' => 'Image title updated',
     ];
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
-    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare'));
+    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare selected revisions'));
     $rows = $this->xpath('//tbody/tr');
     // Image title and alternative text must be shown.
     $this->assertEqual(htmlspecialchars_decode(strip_tags($rows[2]->td[2]->asXML())), 'Alt: Image alt updated');
@@ -234,7 +234,7 @@ class DiffPluginFileTest extends DiffPluginTestBase {
     ];
     $this->drupalPostAjaxForm(NULL, $edit, 'node.field_image_plugin_settings_update');
     $this->drupalPostForm(NULL, [], t('Save'));
-    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare'));
+    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare selected revisions'));
     // Alt and title must be hidden.
     $this->assertText('File ID: 2');
 
@@ -246,7 +246,7 @@ class DiffPluginFileTest extends DiffPluginTestBase {
     ];
     $this->drupalPostAjaxForm(NULL, $edit, 'node.field_image_plugin_settings_update');
     $this->drupalPostForm(NULL, [], t('Save'));
-    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare'));
+    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare selected revisions'));
     // Alt and title must be hidden.
     $this->assertNoText('Alt: Image alt updated');
     $this->assertNoText('Alt: Image alt updated new');
@@ -261,7 +261,7 @@ class DiffPluginFileTest extends DiffPluginTestBase {
     ];
     $this->drupalPostAjaxForm(NULL, $edit, 'node.field_image_plugin_settings_update');
     $this->drupalPostForm(NULL, [], t('Save'));
-    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare'));
+    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare selected revisions'));
     $this->assertText('Alt: Image alt updated');
     $this->assertText('Alt: Image alt updated new');
     $this->assertNoText('Title: Image title updated');
@@ -277,7 +277,7 @@ class DiffPluginFileTest extends DiffPluginTestBase {
     ];
     $this->drupalPostAjaxForm(NULL, $edit, 'node.field_image_plugin_settings_update');
     $this->drupalPostForm(NULL, [], t('Save'));
-    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare'));
+    $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare selected revisions'));
 
     // Assert the thumbnail is not displayed.
     $img1_url = file_create_url(\Drupal::token()->replace("public://styles/thumbnail/public/[date:custom:Y]-[date:custom:m]/" . $test_files['1']->name));

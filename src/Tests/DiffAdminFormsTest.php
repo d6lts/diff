@@ -123,7 +123,7 @@ class DiffAdminFormsTest extends DiffTestBase {
     // Assert the diff display uses the classic layout.
     $node = $this->getNodeByTitle('greater_title');
     $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertLink('Unified fields');
     $this->assertLink('Split fields');
     $this->assertLink('Raw');
@@ -140,7 +140,7 @@ class DiffAdminFormsTest extends DiffTestBase {
 
     // Assert the diff display uses the markdown layout.
     $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertResponse(200);
     $this->assertNoLink('Unified fields');
     $this->assertLink('Split fields');
@@ -168,7 +168,7 @@ class DiffAdminFormsTest extends DiffTestBase {
 
     // Assert the diff display uses the single column layout.
     $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertResponse(200);
     $this->assertLink('Unified fields');
     $this->assertNoLink('Split fields');

@@ -46,7 +46,7 @@ class DiffViewModeTest extends DiffTestBase {
 
     // Check the difference between the last two revisions.
     $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertNoText('Body');
     $this->assertNoText('Foo');
     $this->assertNoText('Fighters');

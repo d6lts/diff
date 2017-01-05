@@ -301,7 +301,8 @@ class RevisionOverviewForm extends FormBase {
     if ($revision_count > 1) {
       $build['submit'] = array(
         '#type' => 'submit',
-        '#value' => t('Compare'),
+        '#button_type' => 'primary',
+        '#value' => t('Compare selected revisions'),
         '#attributes' => array(
           'class' => array(
             'diff-button',

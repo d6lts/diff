@@ -100,7 +100,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
 
     // Check the difference between the last two revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
     $this->assertText('Comments');
     $this->assertText('Comments for this entity are open.');
     $this->assertText('Comments for this entity are closed.');
@@ -152,7 +152,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
 
     // Check the difference between the last two revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
     $this->assertText('Email');
     $this->assertText('foo@example.com');
     $this->assertText('bar@example.com');
@@ -207,7 +207,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
 
     // Compare the revisions.
     $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
 
     // Assert that the timestamp field does not show a unix time format.
     $this->assertText('Timestamp test');
@@ -278,7 +278,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertText('Link');
     $this->assertText('Google');
     $this->assertText('http://www.google.com');
@@ -339,7 +339,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertText('List');
     $this->assertText('value_a');
     $this->assertText('value_b');
@@ -373,7 +373,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertText('Text Field');
     $this->assertText('Text Long Field');
     $this->assertText('Foo');
@@ -415,7 +415,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertText('Body');
     $this->assertText('Foo value');
     $this->assertText('Foo summary');

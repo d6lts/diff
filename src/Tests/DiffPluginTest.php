@@ -85,7 +85,7 @@ class DiffPluginTest extends DiffPluginTestBase {
 
     // Check the difference between the last two revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, NULL, t('Compare'));
+    $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
 
     // "changed" field is not displayed since there is no plugin for it. This
     // should not break the revisions comparison display.
@@ -116,7 +116,7 @@ class DiffPluginTest extends DiffPluginTestBase {
 
     // Check the "Text Field No Access" field is not displayed.
     $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertResponse(200);
     $this->assertNoText('field_diff_deny_access');
     $rows = $this->xpath('//tbody/tr');
@@ -155,7 +155,7 @@ class DiffPluginTest extends DiffPluginTestBase {
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
 
     // Check diff for an applicable field of testTextPlugin.
     $this->assertText('Test Applicable');
@@ -202,7 +202,7 @@ class DiffPluginTest extends DiffPluginTestBase {
     $this->assertText('Changes on: Body');
 
     // Assert the revision comparison.
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertNoText('No visible changes.');
     $rows = $this->xpath('//tbody/tr');
     $diff_row = $rows[1]->td;
@@ -219,7 +219,7 @@ class DiffPluginTest extends DiffPluginTestBase {
     ];
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->drupalPostForm(NULL, [], t('Compare'));
+    $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertNoText('No visible changes.');
     // Assert that empty rows also show a line number.
     $rows = $this->xpath('//tbody/tr');
