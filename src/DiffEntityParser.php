@@ -78,7 +78,7 @@ class DiffEntityParser {
         continue;
       }
       // Create a plugin instance for the field definition.
-      $plugin = $this->diffBuilderManager->createInstanceForFieldDefinition($field_items->getFieldDefinition(), $entity->bundle());
+      $plugin = $this->diffBuilderManager->createInstanceForFieldDefinition($field_items->getFieldDefinition());
       if ($plugin) {
         // Create the array with the fields of the entity. Recursive if the
         // field contains entities.

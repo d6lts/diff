@@ -322,7 +322,7 @@ class DiffEntityComparison {
     foreach ($revision as $field_items) {
       $show_delta = FALSE;
       // Create a plugin instance for the field definition.
-      $plugin = $this->diffBuilderManager->createInstanceForFieldDefinition($field_items->getFieldDefinition(), $revision->bundle());
+      $plugin = $this->diffBuilderManager->createInstanceForFieldDefinition($field_items->getFieldDefinition());
       if ($plugin && $this->diffBuilderManager->showDiff($field_items->getFieldDefinition()->getFieldStorageDefinition())) {
         // Create the array with the fields of the entity. Recursive if the
         // field contains entities.

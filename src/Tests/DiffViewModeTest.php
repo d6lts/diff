@@ -42,7 +42,11 @@ class DiffViewModeTest extends DiffTestBase {
     $edit = [
       'fields[body][region]' => 'hidden',
     ];
-    $this->drupalPostForm('admin/structure/types/manage/article/form-display', $edit, t('Save'));
+    $this->drupalPostForm('admin/structure/types/manage/article/display', $edit, t('Save'));
+    $edit = [
+      'fields[body][region]' => 'hidden',
+    ];
+    $this->drupalPostForm('admin/structure/types/manage/article/display/teaser', $edit, t('Save'));
 
     // Check the difference between the last two revisions.
     $this->drupalGet('node/' . $node->id() . '/revisions');

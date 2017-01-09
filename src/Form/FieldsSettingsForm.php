@@ -24,13 +24,6 @@ use Drupal\Core\Form\FormState;
 class FieldsSettingsForm extends ConfigFormBase {
 
   /**
-   * Wrapper object for configuration from diff.plugins.yml.
-   *
-   * @var \Drupal\Core\Config\ImmutableConfig
-   */
-  protected $config;
-
-  /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -75,7 +68,6 @@ class FieldsSettingsForm extends ConfigFormBase {
   public function __construct(ConfigFactoryInterface $config_factory, PluginManagerInterface $plugin_manager, DiffBuilderManager $diff_builder_manager, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager) {
     parent::__construct($config_factory);
 
-    $this->config = $this->config('diff.plugins');
     $this->fieldTypePluginManager = $plugin_manager;
     $this->diffBuilderManager = $diff_builder_manager;
     $this->entityTypeManager = $entity_type_manager;
@@ -106,10 +98,7 @@ class FieldsSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
-    return [
-      'diff.plugins',
-      'diff.settings',
-    ];
+    return ['diff.plugins'];
   }
 
   /**
@@ -451,42 +440,52 @@ class FieldsSettingsForm extends ConfigFormBase {
     $plugin_settings = $form_state->get('plugin_settings');
     $fields = $form_values['fields'];
 
-    // Set the plugin type as hidden, for fields which have no plugin selected.
+    $config = $this->config('diff.plugins');
+
+    // Save the settings.
     foreach ($fields as $field_key => $field_values) {
       if ($field_values['plugin']['type'] == 'hidden') {
-        $this->config->set('fields.' . $field_key, ['type' => 'hidden']);
+        $config->set('fields.' . $field_key, ['type' => 'hidden', 'settings' => []]);
       }
-    }
-    $this->config->save();
-    // Save the settings, for fields which have a plugin selected.
-    foreach ($fields as $field_key => $field_values) {
-      if ($field_values['plugin']['type'] != 'hidden') {
+      else {
+
+        // Initialize the plugin, if the type is unchanged then with the
+        // existing settings, otherwise let it fall back to the default
+        // settings.
+        $configuration = [];
+        if ($config->get('fields.' . $field_key . '.type') == $field_values['plugin']['type'] && $config->get('fields.' . $field_key . '.settings')) {
+          $configuration = $config->get('fields.' . $field_key . '.settings');
+        }
+        $plugin = $this->diffBuilderManager->createInstance($field_values['plugin']['type'], $configuration);
+
         // Get plugin settings. They lie either directly in submitted form
         // values (if the whole form was submitted while some plugin settings
         // were being edited), or have been persisted in $form_state.
-        /** @var \Drupal\diff\FieldDiffBuilderInterface $plugin */
-        $plugin = $this->diffBuilderManager->createInstance($field_values['plugin']['type']);
+
+        $values = NULL;
         // Form submitted without pressing update button on plugin settings form.
         if (isset($field_values['settings_edit_form']['settings'])) {
-          $settings = $field_values['settings_edit_form']['settings'];
+          $values = $field_values['settings_edit_form']['settings'];
         }
         // Form submitted after settings were updated.
         elseif (isset($plugin_settings[$field_key]['settings'])) {
-          $settings = $plugin_settings[$field_key]['settings'];
+          $values = $plugin_settings[$field_key]['settings'];
         }
-        // If the settings are not set anywhere in the form state just save the
-        // default configuration for the current plugin.
-        else {
-          $settings = $plugin->defaultConfiguration();
-        }
-        // Build a FormState object and call the plugin submit handler.
-        $state = new FormState();
-        $state->setValues($settings);
-        $state->set('fields', $field_key);
 
-        $plugin->submitConfigurationForm($form, $state);
+        // Build a FormState object and call the plugin submit handler.
+        if ($values) {
+          $state = new FormState();
+          $state->setValues($values);
+          $plugin->submitConfigurationForm($form, $state);
+        }
+
+        $config->set('fields.' . $field_key, [
+          'type' => $field_values['plugin']['type'],
+          'settings' => $plugin->getConfiguration(),
+        ]);
       }
     }
+    $config->save();
 
     drupal_set_message($this->t('Your settings have been saved.'));
   }

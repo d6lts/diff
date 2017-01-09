@@ -91,16 +91,60 @@ class DiffAdminFormsTest extends DiffTestBase {
    */
   public function doTestConfigurableFieldsTab() {
     $this->drupalGet('admin/config/content/diff/fields');
+
+    // Test changing type without changing settings.
+    $edit = [
+      'fields[node.body][plugin][type]' => 'text_summary_field_diff_builder',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->assertFieldByName('fields[node.body][plugin][type]', 'text_summary_field_diff_builder');
+    $edit = [
+      'fields[node.body][plugin][type]' => 'text_field_diff_builder',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->assertFieldByName('fields[node.body][plugin][type]', 'text_field_diff_builder');
+
     $this->drupalPostAjaxForm(NULL, [], 'node.body_settings_edit');
     $this->assertText('Plugin settings: Text');
     $edit = [
       'fields[node.body][settings_edit_form][settings][show_header]' => TRUE,
-      'fields[node.body][settings_edit_form][settings][compare_format]' => TRUE,
+      'fields[node.body][settings_edit_form][settings][compare_format]' => FALSE,
       'fields[node.body][settings_edit_form][settings][markdown]' => 'filter_xss_all',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Update'));
+    $this->drupalPostAjaxForm(NULL, $edit, 'node.body_plugin_settings_update');
     $this->drupalPostForm(NULL, [], t('Save'));
     $this->assertText('Your settings have been saved.');
+
+    // Check the values were saved.
+    $this->drupalPostAjaxForm(NULL, [], 'node.body_settings_edit');
+    $this->assertFieldByName('fields[node.body][settings_edit_form][settings][markdown]', 'filter_xss_all');
+
+    // Edit another field.
+    $this->drupalPostAjaxForm(NULL, [], 'node.title_settings_edit');
+    $edit = [
+      'fields[node.title][settings_edit_form][settings][markdown]' => 'filter_xss_all',
+    ];
+    $this->drupalPostAjaxForm(NULL, $edit, 'node.title_plugin_settings_update');
+    $this->drupalPostForm(NULL, [], t('Save'));
+
+    // Check both fields and their config values.
+    $this->drupalPostAjaxForm(NULL, [], 'node.body_settings_edit');
+    $this->assertFieldByName('fields[node.body][settings_edit_form][settings][markdown]', 'filter_xss_all');
+    $this->drupalPostAjaxForm(NULL, [], 'node.title_settings_edit');
+    $this->assertFieldByName('fields[node.title][settings_edit_form][settings][markdown]', 'filter_xss_all');
+
+    // Save field settings without changing anything and assert the config.
+    $this->drupalPostForm(NULL, [], t('Save'));
+    $this->drupalPostAjaxForm(NULL, [], 'node.body_settings_edit');
+    $this->assertFieldByName('fields[node.body][settings_edit_form][settings][markdown]', 'filter_xss_all');
+    $this->drupalPostAjaxForm(NULL, [], 'node.title_settings_edit');
+    $this->assertFieldByName('fields[node.title][settings_edit_form][settings][markdown]', 'filter_xss_all');
+
+    $edit = [
+      'fields[node.sticky][plugin][type]' => 'hidden',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->assertFieldByName('fields[node.sticky][plugin][type]', 'hidden');
   }
 
   /**

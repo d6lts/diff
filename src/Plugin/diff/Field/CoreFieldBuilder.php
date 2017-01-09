@@ -49,8 +49,8 @@ class CoreFieldBuilder extends FieldDiffBuilderBase {
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config, EntityTypeManagerInterface $entity_type_manager, DiffEntityParser $entity_parser, RendererInterface $renderer) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $config, $entity_type_manager, $entity_parser);
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, DiffEntityParser $entity_parser, RendererInterface $renderer) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $entity_parser);
     $this->renderer = $renderer;
   }
 
@@ -62,7 +62,6 @@ class CoreFieldBuilder extends FieldDiffBuilderBase {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('config.factory'),
       $container->get('entity_type.manager'),
       $container->get('diff.entity_parser'),
       $container->get('renderer')

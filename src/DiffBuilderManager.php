@@ -6,9 +6,11 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
+use Drupal\field\Entity\FieldStorageConfig;
 
 /**
  * Plugin type manager for field diff builders.
@@ -117,65 +119,16 @@ class DiffBuilderManager extends DefaultPluginManager {
    *
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    *   The field definition.
-   * @param string $bundle
-   *   (optional) The entity bundle where to check form display when selecting
-   *   the plugin for a field.
    *
    * @return \Drupal\diff\FieldDiffBuilderInterface|null
    *   The plugin instance, NULL if none.
    */
-  public function createInstanceForFieldDefinition(FieldDefinitionInterface $field_definition, $bundle = NULL) {
-    $selected_plugin = $this->getSelectedPluginForFieldDefinition($field_definition, $bundle);
-    if ($selected_plugin && $selected_plugin['type'] != 'hidden') {
-      if (!empty($selected_plugin['settings'])) {
-        return $this->createInstance($selected_plugin['type'], $selected_plugin['settings']);
-      }
-      else {
-        return $this->createInstance($selected_plugin['type'], []);
-      }
+  public function createInstanceForFieldDefinition(FieldDefinitionInterface $field_definition) {
+    $selected_plugin = $this->getSelectedPluginForFieldStorageDefinition($field_definition->getFieldStorageDefinition());
+    if ($selected_plugin['type'] != 'hidden') {
+      return $this->createInstance($selected_plugin['type'], $selected_plugin['settings']);
     }
-
     return NULL;
-  }
-
-  /**
-   * Selects a default plugin for a field definition.
-   *
-   * Checks the display configuration of the field to define if it should be
-   * displayed in the diff comparison.
-   *
-   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
-   *   The field definition.
-   * @param string $bundle
-   *   (optional) The entity bundle where to check the form display if no
-   *   setting is set for a field.
-   *
-   * @return array
-   *   The plugin instance, NULL if none.
-   */
-  public function getSelectedPluginForFieldDefinition(FieldDefinitionInterface $field_definition, $bundle = NULL) {
-    $selected_plugin = NULL;
-    $visible = TRUE;
-    $field_key = $field_definition->getFieldStorageDefinition()->getTargetEntityTypeId() . '.' . $field_definition->getName();
-    // Do not check the entity form display if there are plugins settings stored
-    // for the current field.
-    if ($this->pluginsConfig->get('fields.' . $field_key)) {
-      $selected_plugin = $this->getSelectedPluginForFieldStorageDefinition($field_definition->getFieldStorageDefinition());
-    }
-    else {
-      // If entity is set load its form display settings.
-      if ($bundle) {
-        $storage = $this->entityTypeManager->getStorage('entity_form_display');
-        /** @var \Drupal\Core\Entity\Entity\EntityViewDisplay $display */
-        if ($display = $storage->load($field_definition->getTargetEntityTypeId() . '.' . $bundle . '.default')) {
-          $visible = (bool) $display->getComponent($field_definition->getName());
-        }
-      }
-      if ($visible) {
-        $selected_plugin = $this->getSelectedPluginForFieldStorageDefinition($field_definition->getFieldStorageDefinition());
-      }
-    }
-    return $selected_plugin;
   }
 
   /**
@@ -184,26 +137,61 @@ class DiffBuilderManager extends DefaultPluginManager {
    * Checks if a plugin has been already selected for the field, otherwise
    * chooses one between the plugins that can be applied to the field.
    *
-   * @param FieldStorageDefinitionInterface $field_definition
+   * @param \Drupal\Core\Field\FieldStorageDefinitionInterface $field_definition
    *   The field storage definition.
    *
    * @return array
-   *   The selected plugin for the field.
+   *   An array with the key type (which contains the plugin ID) and settings.
+   *   The special type hidden indicates that the field should not be shown.
    */
   public function getSelectedPluginForFieldStorageDefinition(FieldStorageDefinitionInterface $field_definition) {
     $plugin_options = $this->getApplicablePluginOptions($field_definition);
     $field_key = $field_definition->getTargetEntityTypeId() . '.' . $field_definition->getName();
+
+    // Start with the stored configuration, this returns NULL if there is none.
     $selected_plugin = $this->pluginsConfig->get('fields.' . $field_key);
-    // Check if the plugin stored to the fields is still applicable.
-    if (!$selected_plugin || !in_array($selected_plugin['type'], array_keys($plugin_options))) {
-      if (!empty($plugin_options)) {
-        $selected_plugin['type'] = array_keys($plugin_options)[0];
-      }
-      else {
-        $selected_plugin['type'] = 'hidden';
-      }
+
+    // If there is configuration and it is a valid type or exlplicitly set to
+    // hidden, then use that, otherwise try to find a suitable default plugin.
+    if ($selected_plugin && (in_array($selected_plugin['type'], array_keys($plugin_options)) || $selected_plugin['type'] == 'hidden')) {
+      return $selected_plugin + ['settings' => []];
     }
-    return $selected_plugin;
+    elseif (!empty($plugin_options) && $this->isFieldStorageDefinitionDisplayed($field_definition)) {
+      return ['type' => key($plugin_options), 'settings' => []];
+    }
+    else {
+      return ['type' => 'hidden', 'settings' => []];
+    }
+  }
+
+  /**
+   * Determines if the field is displayed.
+   *
+   * Determines if a field should be displayed when comparing revisions based on
+   * the entity view display if there is no plugin selected for the field.
+   *
+   * @param FieldStorageDefinitionInterface $field_storage_definition
+   *   The field name.
+   *
+   * @return bool
+   *   Whether the field is displayed.
+   */
+  public function isFieldStorageDefinitionDisplayed(FieldStorageDefinitionInterface $field_storage_definition) {
+    if (($field_storage_definition instanceof BaseFieldDefinition && $field_storage_definition->isDisplayConfigurable('view')) || $field_storage_definition instanceof FieldStorageConfig) {
+      $field_key = 'content.' . $field_storage_definition->getName() . '.type';
+      $storage = $this->entityTypeManager->getStorage('entity_view_display');
+      $query = $storage->getQuery()->condition('targetEntityType', $field_storage_definition->getTargetEntityTypeId());
+      if ($field_storage_definition instanceof FieldStorageConfig) {
+        $bundles = $field_storage_definition->getBundles();
+        $query->condition('bundle', (array) $bundles, 'IN');
+      }
+      $result = $query->exists($field_key)->range(0, 1)->execute();
+      return !empty($result) ? TRUE : FALSE;
+    }
+    else {
+      $view_options = (bool) $field_storage_definition->getDisplayOptions('view');
+      return $view_options;
+    }
   }
 
   /**

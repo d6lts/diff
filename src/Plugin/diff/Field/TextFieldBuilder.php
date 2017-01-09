@@ -37,7 +37,7 @@ class TextFieldBuilder extends FieldDiffBuilderBase {
           // The format loaded successfully.
           $label = $this->t('Format');
           if ($format != NULL) {
-            $result[$field_key][] = $label . ": " . $format->name;
+            $result[$field_key][] = $label . ": " . $format->label();
           }
           else {
             $result[$field_key][] = $label . ": " . $this->t('Missing format @format', array('@format' => $values[$field_key]));
