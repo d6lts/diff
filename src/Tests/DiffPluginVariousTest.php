@@ -7,6 +7,7 @@ use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\link\LinkItemInterface;
+use Drupal\Tests\diff\Functional\CoreVersionUiTestTrait;
 
 /**
  * Tests the Diff module plugins.
@@ -16,6 +17,7 @@ use Drupal\link\LinkItemInterface;
 class DiffPluginVariousTest extends DiffPluginTestBase {
 
   use CommentTestTrait;
+  use CoreVersionUiTestTrait;
 
   /**
    * Modules to enable.
@@ -88,7 +90,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
       'body[0][value]' => '<p>Revision 1</p>',
       'comment[0][status]' => CommentItemInterface::OPEN,
     );
-    $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
+    $this->drupalPostNodeForm('node/add/article', $edit, t('Save and publish'));
     $node = $this->drupalGetNodeByTitle($title);
 
     // Edit the article and close its comments.
@@ -96,7 +98,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
       'comment[0][status]' => CommentItemInterface::CLOSED,
       'revision' => TRUE,
     );
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Check the difference between the last two revisions.
     $this->clickLink(t('Revisions'));
@@ -148,7 +150,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
       'field_email[0][value]' => 'bar@example.com',
       'revision' => TRUE,
     );
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Check the difference between the last two revisions.
     $this->clickLink(t('Revisions'));
@@ -274,7 +276,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
       'field_link[0][uri]' => 'http://www.google.es',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
@@ -335,7 +337,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
       'field_list' => 'value_b',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
@@ -369,7 +371,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
       'field_text_long[0][value]' => 'Fly',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
@@ -411,7 +413,7 @@ class DiffPluginVariousTest extends DiffPluginTestBase {
       'body[0][summary]' => 'Bar summary',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));

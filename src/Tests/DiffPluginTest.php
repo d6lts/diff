@@ -5,6 +5,7 @@ namespace Drupal\diff\Tests;
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Tests\diff\Functional\CoreVersionUiTestTrait;
 
 /**
  * Tests the Diff module plugins.
@@ -14,6 +15,7 @@ use Drupal\field\Entity\FieldStorageConfig;
 class DiffPluginTest extends DiffPluginTestBase {
 
   use CommentTestTrait;
+  use CoreVersionUiTestTrait;
 
   /**
    * Modules to enable.
@@ -78,10 +80,11 @@ class DiffPluginTest extends DiffPluginTestBase {
 
     // Update the article and add a new revision, the "changed" field should be
     // updated which does not have plugins provided by diff.
-    $edit = array(
+    $edit = [
       'revision' => TRUE,
-    );
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+      'body[0][value]' => 'change',
+    ];
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Check the difference between the last two revisions.
     $this->clickLink(t('Revisions'));
@@ -151,7 +154,7 @@ class DiffPluginTest extends DiffPluginTestBase {
       'test_field_non_applicable[0][value]' => 'nicer_not_applicable',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
@@ -195,7 +198,7 @@ class DiffPluginTest extends DiffPluginTestBase {
       'body[0][value]' => '<p>body</p>
 ',
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Assert the revision summary.
     $this->drupalGet('node/' . $node->id() . '/revisions');
@@ -217,7 +220,7 @@ class DiffPluginTest extends DiffPluginTestBase {
 <p>body_new</p>
 ',
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $this->drupalGet('node/' . $node->id() . '/revisions');
     $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertNoText('No visible changes.');

@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\diff\Tests;
+use Drupal\Tests\diff\Functional\CoreVersionUiTestTrait;
 
 /**
  * Tests field visibility when using a custom view mode.
@@ -8,6 +9,8 @@ namespace Drupal\diff\Tests;
  * @group diff
  */
 class DiffViewModeTest extends DiffTestBase {
+
+  use CoreVersionUiTestTrait;
 
   /**
    * Modules to enable.
@@ -36,7 +39,7 @@ class DiffViewModeTest extends DiffTestBase {
       'body[0][value]' => 'Fighters',
       'revision' => TRUE,
     );
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Set the Body field to hidden in the diff view mode.
     $edit = [

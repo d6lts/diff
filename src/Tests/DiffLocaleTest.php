@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\diff\Tests;
+use Drupal\Tests\diff\Functional\CoreVersionUiTestTrait;
 
 /**
  * Test diff functionality with localization and translation.
@@ -8,6 +9,8 @@ namespace Drupal\diff\Tests;
  * @group diff
  */
 class DiffLocaleTest extends DiffTestBase {
+
+  use CoreVersionUiTestTrait;
 
   /**
    * Modules to enable.
@@ -62,7 +65,7 @@ class DiffLocaleTest extends DiffTestBase {
       'title[0][value]' => 'English node',
       'langcode[0][value]' => 'en',
     );
-    $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
+    $this->drupalPostNodeForm('node/add/article', $edit, t('Save and publish'));
     $english_node = $this->drupalGetNodeByTitle('English node');
 
     $this->drupalGet('node/' . $english_node->id() . '/translations');
@@ -71,7 +74,7 @@ class DiffLocaleTest extends DiffTestBase {
       'title[0][value]' => 'French node',
       'revision' => FALSE,
     );
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
+    $this->drupalPostNodeForm(NULL, $edit, t('Save and keep published (this translation)'));
     $this->rebuildContainer();
     $english_node = $this->drupalGetNodeByTitle('English node');
     $french_node = $english_node->getTranslation('fr');
@@ -81,12 +84,12 @@ class DiffLocaleTest extends DiffTestBase {
       'title[0][value]' => 'Updated title',
       'revision' => TRUE,
     );
-    $this->drupalPostForm('node/' . $english_node->id() . '/edit', $edit, t('Save and keep published (this translation)'));
+    $this->drupalPostNodeForm('node/' . $english_node->id() . '/edit', $edit, t('Save and keep published (this translation)'));
     $edit = array(
       'title[0][value]' => 'Le titre',
       'revision' => TRUE,
     );
-    $this->drupalPostForm('fr/node/' . $english_node->id() . '/edit', $edit, t('Save and keep published (this translation)'));
+    $this->drupalPostNodeForm('fr/node/' . $english_node->id() . '/edit', $edit, t('Save and keep published (this translation)'));
 
     // View differences between revisions. Check that they don't mix up.
     $this->drupalGet('node/' . $english_node->id() . '/revisions');

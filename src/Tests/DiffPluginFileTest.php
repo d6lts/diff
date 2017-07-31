@@ -5,6 +5,7 @@ namespace Drupal\diff\Tests;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\field_ui\Tests\FieldUiTestTrait;
+use Drupal\Tests\diff\Functional\CoreVersionUiTestTrait;
 
 /**
  * Tests the Diff module entity plugins.
@@ -14,6 +15,7 @@ use Drupal\field_ui\Tests\FieldUiTestTrait;
 class DiffPluginFileTest extends DiffPluginTestBase {
 
   use FieldUiTestTrait;
+  use CoreVersionUiTestTrait;
 
   /**
    * Modules to enable.
@@ -89,17 +91,17 @@ class DiffPluginFileTest extends DiffPluginTestBase {
     $edit['files[field_file_0]'] = $this->fileSystem->realpath($test_files['0']->uri);
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, 'Upload');
     $edit['revision'] = TRUE;
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $node = $this->drupalGetNodeByTitle('Test article', TRUE);
     $revision2 = $node->getRevisionId();
 
     // Replace the file by a different one.
     $this->drupalPostForm('node/' . $node->id() . '/edit', [], 'Remove');
-    $this->drupalPostForm(NULL, ['revision' => FALSE], t('Save and keep published'));
+    $this->drupalPostNodeForm(NULL, ['revision' => FALSE], t('Save and keep published'));
     $edit['files[field_file_0]'] = $this->fileSystem->realpath($test_files['1']->uri);
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, 'Upload');
     $edit['revision'] = TRUE;
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $node = $this->drupalGetNodeByTitle('Test article', TRUE);
     $revision3 = $node->getRevisionId();
 
@@ -172,25 +174,25 @@ class DiffPluginFileTest extends DiffPluginTestBase {
     // Upload an image to the article.
     $test_files = $this->drupalGetTestFiles('image');
     $edit = ['files[field_image_0]' => $this->fileSystem->realpath($test_files['1']->uri)];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $edit = [
       'field_image[0][alt]' => 'Image alt',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm(NULL, $edit, t('Save and keep published'));
     $node = $this->drupalGetNodeByTitle('Test article', TRUE);
     $revision2 = $node->getRevisionId();
 
     // Replace the image by a different one.
     $this->drupalPostForm('node/' . $node->id() . '/edit', [], 'Remove');
-    $this->drupalPostForm(NULL, ['revision' => FALSE], t('Save and keep published'));
+    $this->drupalPostNodeForm(NULL, ['revision' => FALSE], t('Save and keep published'));
     $edit = ['files[field_image_0]' => $this->fileSystem->realpath($test_files['1']->uri)];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $edit = [
       'field_image[0][alt]' => 'Image alt updated',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm(NULL, $edit, t('Save and keep published'));
     $node = $this->drupalGetNodeByTitle('Test article', TRUE);
     $revision3 = $node->getRevisionId();
 
@@ -217,7 +219,7 @@ class DiffPluginFileTest extends DiffPluginTestBase {
       'revision' => TRUE,
       'field_image[0][title]' => 'Image title updated',
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $this->drupalPostForm('node/' . $node->id() . '/revisions', [], t('Compare selected revisions'));
     $rows = $this->xpath('//tbody/tr');
     // Image title and alternative text must be shown.

@@ -4,6 +4,7 @@ namespace Drupal\diff\Tests;
 
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\system\Tests\Menu\AssertBreadcrumbTrait;
+use Drupal\Tests\diff\Functional\CoreVersionUiTestTrait;
 
 /**
  * Tests the diff revisions overview.
@@ -13,6 +14,7 @@ use Drupal\system\Tests\Menu\AssertBreadcrumbTrait;
 class DiffRevisionTest extends DiffTestBase {
 
   use AssertBreadcrumbTrait;
+  use CoreVersionUiTestTrait;
 
   /**
    * Modules to enable.
@@ -51,7 +53,7 @@ class DiffRevisionTest extends DiffTestBase {
       <p>first_unique_text</p>
       <p>second_unique_text</p>',
     );
-    $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
+    $this->drupalPostNodeForm('node/add/article', $edit, t('Save and publish'));
     $node = $this->drupalGetNodeByTitle($title);
     $created = $node->getCreatedTime();
     $this->drupalGet('node/' . $node->id());
@@ -68,7 +70,7 @@ class DiffRevisionTest extends DiffTestBase {
       'revision' => TRUE,
       'revision_log[0][value]' => 'Revision 2 comment',
     );
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $this->drupalGet('node/' . $node->id());
 
     // Check the revisions overview.
@@ -207,7 +209,7 @@ class DiffRevisionTest extends DiffTestBase {
 
     // Make sure we only have 1 revision now.
     $rows = $this->xpath('//tbody/tr');
-    $this->assertEqual(count($rows), 1);
+    $this->assertEqual(count($rows), 0);
 
     // Assert that there are no radio buttons for revision selection.
     $this->assertNoFieldByXPath('//input[@type="radio"]');
@@ -219,13 +221,13 @@ class DiffRevisionTest extends DiffTestBase {
       'title[0][value]' => 'new test title',
       'body[0][value]' => '<p>new body</p>',
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, 'Save and keep published');
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, 'Save and keep published');
 
     $edit = [
       'title[0][value]' => 'newer test title',
       'body[0][value]' => '<p>newer body</p>',
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, 'Save and keep published');
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, 'Save and keep published');
 
     $this->clickLink(t('Revisions'));
     // Assert the revision summary.
@@ -281,11 +283,15 @@ class DiffRevisionTest extends DiffTestBase {
     $node = $this->drupalCreateNode([
       'type' => 'article',
     ]);
+
     // Create 11 more revisions in order to trigger paging on the revisions
     // overview screen.
     for ($i = 0; $i < 11; $i++) {
-      $node->setNewRevision(TRUE);
-      $node->save();
+      $edit = [
+        'revision' => TRUE,
+        'body[0][value]' => 'change: ' . $i,
+      ];
+      $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     }
 
     // Check the number of elements on the first page.
@@ -336,7 +342,7 @@ class DiffRevisionTest extends DiffTestBase {
       'title[0][value]' => $title,
       'body[0][value]' => '<p>Revision 1</p>',
     ];
-    $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
+    $this->drupalPostNodeForm('node/add/article', $edit, t('Save and publish'));
     $node = $this->drupalGetNodeByTitle($title);
     $revision1 = $node->getRevisionId();
 
@@ -346,7 +352,7 @@ class DiffRevisionTest extends DiffTestBase {
       'body[0][value]' => '<p>Revision 2</p>',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
     // Check the revisions overview, ensure only one revisions is available.
     $this->clickLink(t('Revisions'));
@@ -363,7 +369,7 @@ class DiffRevisionTest extends DiffTestBase {
       'body[0][value]' => '<p>Revision 3</p>',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $node = $this->drupalGetNodeByTitle($title, TRUE);
     $revision3 = $node->getRevisionId();
 
@@ -420,7 +426,7 @@ class DiffRevisionTest extends DiffTestBase {
       'title[0][value]' => $title,
       'body[0][value]' => '<p>First article</p>',
     ];
-    $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
+    $this->drupalPostNodeForm('node/add/article', $edit, t('Save and publish'));
     $node_one = $this->drupalGetNodeByTitle($title);
 
     // Create second article.
@@ -429,7 +435,7 @@ class DiffRevisionTest extends DiffTestBase {
       'title[0][value]' => $title,
       'body[0][value]' => '<p>Second article</p>',
     ];
-    $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
+    $this->drupalPostNodeForm('node/add/article', $edit, t('Save and publish'));
     $node_two = $this->drupalGetNodeByTitle($title);
 
     // Create revision and add entity reference from second node to first.
@@ -438,7 +444,7 @@ class DiffRevisionTest extends DiffTestBase {
       'field_content[0][target_id]' => $node_two->getTitle(),
       'revision' => TRUE,
     ];
-    $this->drupalPostForm('node/' . $node_one->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node_one->id() . '/edit', $edit, t('Save and keep published'));
 
     // Delete referenced node.
     $node_two->delete();

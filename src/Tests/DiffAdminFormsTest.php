@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\diff\Tests;
+use Drupal\Tests\diff\Functional\CoreVersionUiTestTrait;
 
 /**
  * Tests the Diff admin forms.
@@ -8,6 +9,8 @@ namespace Drupal\diff\Tests;
  * @group diff
  */
 class DiffAdminFormsTest extends DiffTestBase {
+
+  use CoreVersionUiTestTrait;
 
   /**
    * Modules to enable.
@@ -156,13 +159,13 @@ class DiffAdminFormsTest extends DiffTestBase {
       'title[0][value]' => 'great_title',
       'body[0][value]' => '<p>great_body</p>',
     ];
-    $this->drupalPostForm('node/add/article', $edit, t('Save and publish'));
+    $this->drupalPostNodeForm('node/add/article', $edit, t('Save and publish'));
     $this->clickLink('Edit');
     $edit = [
       'title[0][value]' => 'greater_title',
       'body[0][value]' => '<p>greater_body</p>',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm(NULL, $edit, t('Save and keep published'));
 
     // Assert the diff display uses the classic layout.
     $node = $this->getNodeByTitle('greater_title');

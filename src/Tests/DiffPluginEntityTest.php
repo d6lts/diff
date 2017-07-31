@@ -3,6 +3,7 @@
 namespace Drupal\diff\Tests;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
+use Drupal\Tests\diff\Functional\CoreVersionUiTestTrait;
 
 /**
  * Tests the Diff module entity plugins.
@@ -12,6 +13,7 @@ use Drupal\field_ui\Tests\FieldUiTestTrait;
 class DiffPluginEntityTest extends DiffPluginTestBase {
 
   use FieldUiTestTrait;
+  use CoreVersionUiTestTrait;
 
   /**
    * Modules to enable.
@@ -77,14 +79,14 @@ class DiffPluginEntityTest extends DiffPluginTestBase {
       'field_reference[0][target_id]' => 'Article B (' . $node2->id() . ')',
       'revision' => TRUE,
     );
-    $this->drupalPostForm('node/' . $node1->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node1->id() . '/edit', $edit, t('Save and keep published'));
 
     // Update article A so it points to article C instead of B.
     $edit = array(
       'field_reference[0][target_id]' => 'Article C (' . $node3->id() . ')',
       'revision' => TRUE,
     );
-    $this->drupalPostForm('node/' . $node1->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostNodeForm('node/' . $node1->id() . '/edit', $edit, t('Save and keep published'));
 
     // Check differences between revisions.
     $this->clickLink(t('Revisions'));
