@@ -106,14 +106,9 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
    *   Header link for a revision in the table.
    */
   protected function buildRevisionLink(ContentEntityInterface $revision) {
-    $entity_type_id = $revision->getEntityTypeId();
     if ($revision instanceof RevisionLogInterface) {
       $revision_date = $this->date->format($revision->getRevisionCreationTime(), 'short');
-      $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
-      $revision_link = Link::fromTextAndUrl($revision_date, Url::fromRoute($route_name, [
-        $entity_type_id => $revision->id(),
-        $entity_type_id . '_revision' => $revision->getRevisionId(),
-      ]))->toString();
+      $revision_link = Link::fromTextAndUrl($revision_date, $revision->toUrl('revision'))->toString();
     }
     else {
       $revision_link = Link::fromTextAndUrl($revision->label(), $revision->toUrl('revision'))
@@ -170,19 +165,14 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
    *   Revision data about author, creation date and log.
    */
   protected function buildRevisionData(ContentEntityInterface $revision) {
-    $entity_type_id = $revision->getEntityTypeId();
     if ($revision instanceof RevisionLogInterface) {
       $revision_log = Xss::filter($revision->getRevisionLogMessage());
       $user_id = $revision->getRevisionUserId();
-      $route_name = $entity_type_id != 'node' ? "entity.$entity_type_id.revisions_diff" : 'entity.node.revision';
 
       $revision_link['date'] = [
         '#type' => 'link',
         '#title' => $this->date->format($revision->getRevisionCreationTime(), 'short'),
-        '#url' => Url::fromRoute($route_name, [
-          $entity_type_id => $revision->id(),
-          $entity_type_id . '_revision' => $revision->getRevisionId(),
-        ]),
+        '#url' => $revision->toUrl('revision'),
         '#prefix' => '<div class="diff-revision__item diff-revision__item-date">',
         '#suffix' => '</div>',
       ];
