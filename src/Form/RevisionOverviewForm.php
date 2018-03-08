@@ -3,7 +3,6 @@
 namespace Drupal\diff\Form;
 
 use Drupal\Component\Utility\Xss;
-use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -80,13 +79,6 @@ class RevisionOverviewForm extends FormBase {
   protected $entityComparison;
 
   /**
-   * The entity query factory service.
-   *
-   * @var \Drupal\Core\Entity\Query\QueryFactory
-   */
-  protected $entityQuery;
-
-  /**
    * Constructs a RevisionOverviewForm object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -103,10 +95,8 @@ class RevisionOverviewForm extends FormBase {
    *   The diff layout service.
    * @param \Drupal\diff\DiffEntityComparison $entity_comparison
    *   The diff entity comparison service.
-   * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query
-   *   The entity query factory.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, AccountInterface $current_user, DateFormatter $date, RendererInterface $renderer, LanguageManagerInterface $language_manager, DiffLayoutManager $diff_layout_manager, DiffEntityComparison $entity_comparison, QueryFactory $entity_query) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, AccountInterface $current_user, DateFormatter $date, RendererInterface $renderer, LanguageManagerInterface $language_manager, DiffLayoutManager $diff_layout_manager, DiffEntityComparison $entity_comparison) {
     $this->entityTypeManager = $entity_type_manager;
     $this->currentUser = $current_user;
     $this->date = $date;
@@ -115,7 +105,6 @@ class RevisionOverviewForm extends FormBase {
     $this->config = $this->config('diff.settings');
     $this->diffLayoutManager = $diff_layout_manager;
     $this->entityComparison = $entity_comparison;
-    $this->entityQuery = $entity_query;
   }
 
   /**
@@ -129,8 +118,7 @@ class RevisionOverviewForm extends FormBase {
       $container->get('renderer'),
       $container->get('language_manager'),
       $container->get('plugin.manager.diff.layout'),
-      $container->get('diff.entity_comparison'),
-      $container->get('entity.query')
+      $container->get('diff.entity_comparison')
     );
   }
 
@@ -156,7 +144,7 @@ class RevisionOverviewForm extends FormBase {
 
     $pagerLimit = $this->config->get('general_settings.revision_pager_limit');
 
-    $query = $this->entityQuery->get('node')
+    $query = $this->entityTypeManager->getStorage('node')->getQuery()
       ->condition($node->getEntityType()->getKey('id'), $node->id())
       ->pager($pagerLimit)
       ->allRevisions()
