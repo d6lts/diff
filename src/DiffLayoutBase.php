@@ -151,7 +151,7 @@ abstract class DiffLayoutBase extends PluginBase implements DiffLayoutInterface,
           '#wrapper_attributes' => ['class' => 'diff-revision'],
           'items' => [
             '#prefix' => '<div class="diff-revision__items">',
-            '#suffix' => '</div></div>',
+            '#suffix' => '</div>',
             'right_revision' => $right_revision,
             'left_revision' => $left_revision,
           ],

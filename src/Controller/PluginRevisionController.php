@@ -166,7 +166,7 @@ class PluginRevisionController extends ControllerBase {
       if ($plugin = $this->diffLayoutManager->createInstance($filter)) {
         $build = array_merge_recursive($build, $plugin->build($left_revision, $right_revision, $entity));
         $build['diff']['#prefix'] = '<div class="diff-responsive-table-wrapper">';
-        $build['diff']['#suffix'] = '<div>';
+        $build['diff']['#suffix'] = '</div>';
         $build['diff']['#attributes']['class'][] = 'diff-responsive-table';
       }
     }
