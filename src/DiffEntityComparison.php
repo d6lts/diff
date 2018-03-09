@@ -2,6 +2,7 @@
 
 namespace Drupal\diff;
 
+use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
@@ -55,6 +56,13 @@ class DiffEntityComparison {
    * @var \Drupal\diff\DiffBuilderManager
    */
   protected $diffBuilderManager;
+
+  /**
+   * The content moderation service, if available.
+   *
+   * @var \Drupal\content_moderation\ModerationInformationInterface
+   */
+  protected $moderationInformation;
 
   /**
    * Constructs a DiffEntityComparison object.
@@ -301,6 +309,11 @@ class DiffEntityComparison {
       }
     }
 
+    // Add workflow/content moderation state information.
+    if ($state = $this->getModerationState($revision)) {
+      $revision_summary .= " ($state)";
+    }
+
     return $revision_summary;
   }
 
@@ -349,6 +362,36 @@ class DiffEntityComparison {
     }
 
     return $result;
+  }
+
+  /**
+   * Gets the revision's content moderation state, if available.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity revision.
+   *
+   * @return string|bool
+   *   Returns the label of the moderation state, if available, otherwise FALSE.
+   */
+  protected function getModerationState(ContentEntityInterface $entity) {
+    if ($this->moderationInformation && $this->moderationInformation->isModeratedEntity($entity)) {
+      if ($state = $entity->moderation_state->value) {
+        $workflow = $this->moderationInformation->getWorkflowForEntity($entity);
+        return $workflow->getTypePlugin()->getState($state)->label();
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Sets the content moderation service if available.
+   *
+   * @param \Drupal\content_moderation\ModerationInformationInterface $moderation_information
+   *   The moderation information service.
+   */
+  public function setModerationInformation(ModerationInformationInterface $moderation_information) {
+    $this->moderationInformation = $moderation_information;
   }
 
 }
