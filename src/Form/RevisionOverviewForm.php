@@ -149,6 +149,10 @@ class RevisionOverviewForm extends FormBase {
       ->pager($pagerLimit)
       ->allRevisions()
       ->sort($node->getEntityType()->getKey('revision'), 'DESC')
+      // Access to the content has already been verified. Disable query-level
+      // access checking so that revisions for unpublished content still
+      //appear.
+      ->accessCheck(FALSE)
       ->execute();
     $vids = array_keys($query);
 

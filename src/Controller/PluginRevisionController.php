@@ -90,6 +90,7 @@ class PluginRevisionController extends ControllerBase {
     $result = $storage->getQuery()
       ->allRevisions()
       ->condition($storage->getEntityType()->getKey('id'), $entity_id)
+      ->accessCheck(FALSE)
       ->execute();
     $result_array = array_keys($result);
     sort($result_array);
