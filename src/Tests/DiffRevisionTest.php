@@ -87,7 +87,6 @@ class DiffRevisionTest extends DiffTestBase {
     $this->assertEqual(count($rows), 2);
     // Assert the revision summary.
     $this->assertUniqueText('Revision 2 comment');
-    $this->assertText('Initial revision.');
 
     // Compare the revisions in standard mode.
     $this->drupalPostForm(NULL, NULL, t('Compare selected revisions'));
@@ -227,6 +226,7 @@ class DiffRevisionTest extends DiffTestBase {
     $edit = [
       'title[0][value]' => 'new test title',
       'body[0][value]' => '<p>new body</p>',
+      'revision_log[0][value]' => 'this revision message will appear twice',
     ];
     // Set to published if content moderation is enabled.
     if (\Drupal::moduleHandler()->moduleExists('content_moderation')) {
@@ -237,6 +237,7 @@ class DiffRevisionTest extends DiffTestBase {
     $edit = [
       'title[0][value]' => 'newer test title',
       'body[0][value]' => '<p>newer body</p>',
+      'revision_log[0][value]' => 'this revision message will appear twice',
     ];
     // Set to published if content moderation is enabled.
     if (\Drupal::moduleHandler()->moduleExists('content_moderation')) {
@@ -246,7 +247,7 @@ class DiffRevisionTest extends DiffTestBase {
 
     $this->clickLink(t('Revisions'));
     // Assert the revision summary.
-    $this->assertNoUniqueText('Changes on: Title, Body');
+    $this->assertNoUniqueText('this revision message will appear twice');
     $this->assertText('Copy of the revision from');
     $edit = [
       'radios_left' => 3,

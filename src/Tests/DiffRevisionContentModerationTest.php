@@ -71,19 +71,23 @@ class DiffRevisionContentModerationTest extends DiffRevisionTest {
     $node = $this->createNode([
       'type' => 'article',
       'title' => $title,
+      'revision_log' => 'First revision',
     ]);
 
     // Add another draft.
     $node->title = $title . ' change 1';
+    $node->revision_log = 'Second revision';
     $node->save();
 
     // Publish.
     $node->moderation_state = 'published';
+    $node->revision_log = 'Third revision';
     $node->save();
 
     // Another draft.
     $node->title = $title . ' change 2';
     $node->moderation_state = 'draft';
+    $node->revision_log = 'Fourth revision';
     $node->save();
 
     // Verify moderation state information appears on revision overview.
@@ -91,10 +95,10 @@ class DiffRevisionContentModerationTest extends DiffRevisionTest {
 
     // Verify proper moderation states are displayed.
     $diff_rows = $this->xpath('//tbody/tr/td[1]/p');
-    $this->assertEqual('Changes on: Title (Draft)', (string) $diff_rows[0]);
-    $this->assertEqual('No changes. (Published)', (string) $diff_rows[1]);
-    $this->assertEqual('Changes on: Title (Draft)', (string) $diff_rows[2]);
-    $this->assertEqual('Initial revision. (Draft)', (string) $diff_rows[3]);
+    $this->assertEqual('Fourth revision (Draft)', (string) $diff_rows[0]);
+    $this->assertEqual('Third revision (Published)', (string) $diff_rows[1]);
+    $this->assertEqual('Second revision (Draft)', (string) $diff_rows[2]);
+    $this->assertEqual('First revision (Draft)', (string) $diff_rows[3]);
   }
 
 }

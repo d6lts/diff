@@ -200,11 +200,8 @@ class DiffPluginTest extends DiffPluginTestBase {
     ];
     $this->drupalPostNodeForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
 
-    // Assert the revision summary.
-    $this->drupalGet('node/' . $node->id() . '/revisions');
-    $this->assertText('Changes on: Body');
-
     // Assert the revision comparison.
+    $this->drupalGet('node/' . $node->id() . '/revisions');
     $this->drupalPostForm(NULL, [], t('Compare selected revisions'));
     $this->assertNoText('No visible changes.');
     $rows = $this->xpath('//tbody/tr');
